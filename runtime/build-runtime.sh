@@ -387,7 +387,10 @@ PYEOF
   local prefix="$work/dsh-prefix"
   install_dsh "$npm_cpu" "$prefix"
   log "patching DSH (runtime/patches, pinned for $DSH_VERSION)"
-  "${PY[@]}" patch-dsh --prefix "$prefix" --dsh-version "$DSH_VERSION" --patches "$HERE/patches" \
+  # 补丁链走 tools/dsh-patch（Node），与桌面 / macOS 共用同一份实现；rootfs 其余步骤仍用 Python。
+  command -v node >/dev/null || { echo "build-runtime: 需要 node（tools/dsh-patch）" >&2; exit 1; }
+  node "$HERE/../tools/dsh-patch/cli.mjs" apply --prefix "$prefix" --dsh-version "$DSH_VERSION" \
+    --patches "$HERE/patches" --companion "$HERE/session-deletion" \
     --out "$work/dsh-patches.json" >&2
   local bridge="$HERE/bridge/dsh-go-bridge"
   local bridge_version

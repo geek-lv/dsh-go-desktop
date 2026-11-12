@@ -111,8 +111,12 @@ chmod 700 "$STAGE/runtime/home" "$STAGE/runtime/home/.dsh"
 say "应用 dsh 补丁"
 # Use the same pinned, strict patch chain as the Android runtime. Plain `patch`
 # can fuzz a hunk into the wrong context and silently break the next patch.
-python3 -I "$HERE/lib/rtbuild.py" patch-dsh \
-  --prefix "$STAGE/runtime/dsh" --dsh-version "$DSH_VERSION" --patches "$HERE/patches"
+# The chain itself lives in tools/dsh-patch (Node): one implementation for build
+# machines and users' machines alike (users have no Python).
+command -v node >/dev/null || { echo "build-runtime-macos: 需要 node（tools/dsh-patch）" >&2; exit 1; }
+node "$ROOT/tools/dsh-patch/cli.mjs" apply \
+  --prefix "$STAGE/runtime/dsh" --dsh-version "$DSH_VERSION" --patches "$HERE/patches" \
+  --companion "$HERE/session-deletion" | sed 's/^/  /'
 
 cat >"$STAGE/runtime/etc/dsh-app/runtime.json" <<EOF
 {

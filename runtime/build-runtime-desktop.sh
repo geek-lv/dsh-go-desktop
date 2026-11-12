@@ -247,8 +247,11 @@ chmod 700 "$STAGE/runtime/home" "$STAGE/runtime/home/.dsh" 2>/dev/null || true
 
 say "应用 dsh 补丁"
 # 与 Android/macOS 用同一条严格补丁链（runtime/patches，按 DSH 版本钉死）。
-"$PY" -X utf8 -I "$HERE/lib/rtbuild.py" patch-dsh \
-  --prefix "$STAGE/runtime/dsh" --dsh-version "$DSH_VERSION" --patches "$HERE/patches"
+# 补丁链走 tools/dsh-patch（Node）：构建机与用户机是同一份实现，不需要 Python。
+command -v node >/dev/null || die "需要 node（补丁链用 tools/dsh-patch）"
+node "$ROOT/tools/dsh-patch/cli.mjs" apply \
+  --prefix "$STAGE/runtime/dsh" --dsh-version "$DSH_VERSION" --patches "$HERE/patches" \
+  --companion "$HERE/session-deletion" | sed 's/^/  /'
 
 bridge_version="$("$PY" -X utf8 -c 'import json,sys;print(json.load(open(sys.argv[1]))["version"])' "$HERE/bridge/dsh-go-bridge/package.json")"
 
