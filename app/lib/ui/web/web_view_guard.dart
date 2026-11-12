@@ -18,7 +18,7 @@
 
 import 'dart:async';
 
-import 'package:webview_flutter/webview_flutter.dart';
+import 'system_webview.dart';
 
 import '../plugins/islands/island_platform.dart';
 
@@ -33,20 +33,17 @@ class WebViewGuard {
 
   IslandPlatform get _platform => IslandPlatform.instance;
 
-  /// webview_flutter_android's `AndroidWebViewController.webViewIdentifier`,
-  /// without depending on the platform package. Null off Android.
-  static int? identifierOf(WebViewController controller) {
-    try {
-      final Object? id = (controller.platform as dynamic).webViewIdentifier;
-      return id is int ? id : null;
-    } catch (_) {
-      return null;
-    }
-  }
+  /// webview_flutter_android's `AndroidWebViewController.webViewIdentifier`
+  /// （现在由 [SystemWebViewController.androidWebViewId] 提供）。桌面后端是 null，
+  /// 于是这里的 [attach] 直接返回：Windows/Linux 上没有这套原生接管。
+  static int? identifierOf(SystemWebViewController controller) => controller.androidWebViewId;
 
   /// Guards [controller]'s WebView. Call after its navigation delegate is
   /// set: the guard wraps the client that sets.
-  Future<void> attach(WebViewController controller, {required bool dark, required int textZoom}) async {
+  ///
+  /// Android 专属：Windows（WebView2）/ Linux（WPE）没有 IslandPlatform 的
+  /// attach / destroy 通道，[identifierOf] 返回 null 后这里是空实现。
+  Future<void> attach(SystemWebViewController controller, {required bool dark, required int textZoom}) async {
     final id = _id = identifierOf(controller);
     if (id == null) return;
     _events ??= _platform.events.listen((event) {

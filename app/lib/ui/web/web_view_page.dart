@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'system_webview.dart';
 
 import '../../l10n/l10n.dart';
 import '../../macos/macos_support.dart';
@@ -625,7 +625,7 @@ class WebKeyboard {
 }
 
 class _WebViewPageState extends State<WebViewPage> {
-  late WebViewController _controller;
+  late SystemWebViewController _controller;
   late final AppLifecycleListener _lifecycle;
   late final WebViewGuard _guard = WebViewGuard(onGone: _onRendererGone);
   int _progress = 0;
@@ -666,7 +666,17 @@ class _WebViewPageState extends State<WebViewPage> {
 
   /// A new WebView for [WebViewPage.url].
   void _open() {
-    final controller = _controller = WebViewController();
+    final created = createSystemWebViewController();
+    if (created == null) {
+      // No embedded system WebView on this platform (Linux): fall back to the
+      // browser and show the same message panel the load-error path uses.
+      _loading = false;
+      _revealed = false;
+      _progress = 0;
+      _error = context.l10n.webNoEmbeddedBrowser;
+      return;
+    }
+    final controller = _controller = created;
     _loading = true;
     _revealed = false;
     _progress = 0;
@@ -675,12 +685,12 @@ class _WebViewPageState extends State<WebViewPage> {
     unawaited(_setUp(controller));
   }
 
-  Future<void> _setUp(WebViewController controller) async {
+  Future<void> _setUp(SystemWebViewController controller) async {
     await Future.wait(
       [
-        controller.setJavaScriptMode(JavaScriptMode.unrestricted),
+        controller.setJavaScriptModeUnrestricted(),
         controller.setNavigationDelegate(
-          NavigationDelegate(
+          SystemWebViewNavigationDelegate(
             // DSH Web keeps to its own origin; other pages open in the browser.
             onNavigationRequest: widget.dshWeb ? _onDshWebNavigation : null,
             onPageStarted: (_) {
@@ -718,10 +728,10 @@ class _WebViewPageState extends State<WebViewPage> {
                 // URLs and descriptions may contain the Host's token.
                 debugPrint(
                   '[webview] resource: code=${error.errorCode} '
-                  'type=${error.errorType?.name ?? 'unknown'} mainFrame=${error.isForMainFrame}',
+                  'type=${error.errorType ?? 'unknown'} mainFrame=${error.isMainFrame}',
                 );
               }
-              if (error.isForMainFrame ?? true) {
+              if (error.isMainFrame) {
                 _set(() {
                   _loading = false;
                   _error = error.description;
@@ -732,11 +742,11 @@ class _WebViewPageState extends State<WebViewPage> {
         ),
         // Before the first load: Android only injects a channel on load.
         if (widget.dshWeb && (widget.openTarget != null || widget.link != null))
-          controller.addJavaScriptChannel('DshAppOpen', onMessageReceived: _onOpened),
+          controller.addJavaScriptChannel('DshAppOpen', _onOpened),
         if (widget.dshWeb && widget.link != null)
-          controller.addJavaScriptChannel('DshAppCompose', onMessageReceived: (m) => widget.link?._composed(m.message)),
+          controller.addJavaScriptChannel('DshAppCompose', (message) => widget.link?._composed(message)),
         if (widget.dshWeb && widget.onSession != null)
-          controller.addJavaScriptChannel('DshAppState', onMessageReceived: _onState),
+          controller.addJavaScriptChannel('DshAppState', _onState),
       ].map((f) => f.catchError((_) {})),
     );
     if (!mounted || controller != _controller) return;
@@ -781,12 +791,12 @@ class _WebViewPageState extends State<WebViewPage> {
     _syncLook();
   }
 
-  NavigationDecision _onDshWebNavigation(NavigationRequest request) {
+  bool _onDshWebNavigation(SystemNavigationRequest request) {
     final decision = dshWebNavigation(widget.url, request.url, request.isMainFrame);
     if (decision == DshWebNavigation.external) {
       unawaited(launchUrl(Uri.parse(request.url), mode: LaunchMode.externalApplication).catchError((_) => false));
     }
-    return decision == DshWebNavigation.stay ? NavigationDecision.navigate : NavigationDecision.prevent;
+    return decision == DshWebNavigation.stay;
   }
 
   /// Scripts for the page, read once per run and kept as text (not as
@@ -849,8 +859,8 @@ class _WebViewPageState extends State<WebViewPage> {
     } catch (_) {}
   }
 
-  void _onState(JavaScriptMessage message) {
-    final state = DshWebState.parse(message.message);
+  void _onState(String message) {
+    final state = DshWebState.parse(message);
     if (state != null && mounted) widget.onSession?.call(state.sessionId);
   }
 
@@ -867,8 +877,8 @@ class _WebViewPageState extends State<WebViewPage> {
     } catch (_) {}
   }
 
-  void _onOpened(JavaScriptMessage message) {
-    final problem = DshWebOpenResult.parse(message.message)?.problem;
+  void _onOpened(String message) {
+    final problem = DshWebOpenResult.parse(message)?.problem;
     if (problem == null || !mounted) return;
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(problem)));
   }
@@ -1077,7 +1087,7 @@ class _WebViewPageState extends State<WebViewPage> {
                 // A dead WebView leaves the tree; a reopen is a new one.
                 child: _gone
                     ? const SizedBox.expand()
-                    : WebViewWidget(key: ValueKey(_generation), controller: _controller),
+                    : _controller.build(key: ValueKey(_generation)),
               ),
               // macOS cannot paint a WKWebView's background before its content
               // arrives, so cover it with the page colour until the first

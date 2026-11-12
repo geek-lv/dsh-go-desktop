@@ -33,4 +33,15 @@ site/build/
 app/assets/runtime-macos/*
 !app/assets/runtime-macos/README.md
 !app/assets/runtime-macos/.gitkeep
+
+# Windows / Linux 本机引擎运行时（runtime/build-runtime-desktop.sh 的产物，约 180 MB）
+# 同样只提交说明和占位文件；目录本身要留着（pubspec 声明为资源）。
+app/assets/runtime-windows/*
+!app/assets/runtime-windows/README.md
+!app/assets/runtime-windows/.gitkeep
+app/assets/runtime-linux/*
+!app/assets/runtime-linux/README.md
+!app/assets/runtime-linux/.gitkeep
+runtime/.cache/desktop-windows/
+runtime/.cache/desktop-linux/
 runtime/.cache/macos/

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import '../../web/system_webview.dart';
 
 import '../../../plugins/seams/seat_models.dart';
 import 'island_assets.dart';
@@ -101,7 +101,7 @@ class IslandHandle extends ChangeNotifier {
   /// Told about every phase change (the host keeps its books with it).
   final void Function(IslandHandle handle)? onPhase;
 
-  late final WebViewController controller;
+  late final SystemWebViewController controller;
 
   IslandPhase get phase => _phase;
   IslandPhase _phase = IslandPhase.loading;
@@ -177,13 +177,21 @@ class IslandHandle extends ChangeNotifier {
   /// Creates the WebView, takes it over on the Android side, loads.
   Future<void> start() async {
     clock.start();
-    controller = WebViewController(onPermissionRequest: (request) => unawaited(request.deny()));
+    final created = createSystemWebViewController(denyPermissionRequests: true);
+    if (created == null) {
+      // No embedded system WebView on this platform (Linux): plugin panels can't
+      // render, so surface the existing load-failure state instead of crashing.
+      _fail(IslandFailure.load);
+      return;
+    }
+    controller = created;
+    final webview = created;
     await Future.wait<void>(
       [
-        controller.setJavaScriptMode(JavaScriptMode.unrestricted),
-        controller.setBackgroundColor(Colors.transparent),
-        controller.setNavigationDelegate(
-          NavigationDelegate(
+        webview.setJavaScriptModeUnrestricted(),
+        webview.setBackgroundColor(Colors.transparent),
+        webview.setNavigationDelegate(
+          SystemWebViewNavigationDelegate(
             onNavigationRequest: _onNavigation,
             onPageFinished: (_) => unawaited(_inject()),
             onWebResourceError: (error) {
@@ -191,47 +199,38 @@ class IslandHandle extends ChangeNotifier {
                 // URLs and descriptions may contain the Host's token.
                 debugPrint(
                   '[island] ${spec.slot} resource: code=${error.errorCode} '
-                  'type=${error.errorType?.name ?? 'unknown'} mainFrame=${error.isForMainFrame}',
+                  'type=${error.errorType ?? 'unknown'} mainFrame=${error.isMainFrame}',
                 );
               }
-              if (error.isForMainFrame ?? true) _fail(IslandFailure.load);
+              if (error.isMainFrame) _fail(IslandFailure.load);
             },
           ),
         ),
         // Before the first load: Android only injects channels on load.
-        controller.addJavaScriptChannel('DshGoIsland', onMessageReceived: (m) => _onMessage(m.message)),
+        webview.addJavaScriptChannel('DshGoIsland', _onMessage),
       ].map((f) => f.catchError((Object _) {})),
     );
-    _webViewId = _identifierOf(controller);
+    _webViewId = webview.androidWebViewId;
     final id = _webViewId;
     if (id != null) await _platform.attach(id, dark: _theme.dark, textZoom: _theme.textZoom);
     if (_phase != IslandPhase.loading) return;
     _readyTimer = Timer(recipe?.ready ?? IslandTiming.ready, () => _fail(IslandFailure.timeout));
-    await controller.loadRequest(_loadUrl).catchError((Object _) => _fail(IslandFailure.load));
+    await webview.loadRequest(_loadUrl).catchError((Object _) => _fail(IslandFailure.load));
   }
 
-  /// webview_flutter_android's `AndroidWebViewController.webViewIdentifier`,
-  /// without depending on the platform package (the app only depends on
-  /// webview_flutter). Null when it isn't an Android controller.
-  static int? _identifierOf(WebViewController c) {
-    try {
-      final Object? id = (c.platform as dynamic).webViewIdentifier;
-      return id is int ? id : null;
-    } catch (_) {
-      return null;
-    }
-  }
+  // `_identifierOf` 已移到 system_webview.dart：桌面后端没有 Android WebView id，
+  // 这里拿到的就是 null（原来「不是 Android controller 就是 null」的语义不变）。
 
-  NavigationDecision _onNavigation(NavigationRequest request) {
+  bool _onNavigation(SystemNavigationRequest request) {
     switch (islandNavigation(url, request.url, isMainFrame: request.isMainFrame)) {
       case IslandNavigation.stay:
-        return NavigationDecision.navigate;
+        return true;
       case IslandNavigation.external:
         final uri = Uri.tryParse(request.url);
         if (uri != null) _request(IslandLink(uri));
-        return NavigationDecision.prevent;
+        return false;
       case IslandNavigation.block:
-        return NavigationDecision.prevent;
+        return false;
     }
   }
 

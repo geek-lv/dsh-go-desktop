@@ -263,41 +263,104 @@ Windows 可用 **PDFium**（`pdfrx` 包，纯 Dart 绑定）或 MuPDF；Linux �
 | Electron / Tauri（WebView 之外） | 不在本方案内 |
 | 打包 Chromium | 体积与更新负担 |
 
-**候选实现**
+**候选实现（2026-11-12 实测更新）**
 
-| 方案 | Windows | Linux | 评价 |
+| 方案 | Windows | Linux | 结论 |
 | --- | --- | --- | --- |
-| `webview_windows`（WebView2） | ✅ | ❌ | **Windows 首选**，薄封装系统 WebView2，无内核打包 |
-| `flutter_inappwebview` | ✅（WebView2） | ✅（WebKitGTK） | 两平台都走**系统内核**，API 统一，**Linux 首选** |
-| 自写 C++ 通道 | ✅ | ✅ | 控制力最强，工作量最大；作为兜底 |
-| 退化为外部浏览器 | ✅ | ✅ | 零成本保底 |
+| `webview_windows`（WebView2） | ✅ | ❌ | **Windows 采用**。薄封装系统 WebView2，零内核打包 |
+| `flutter_inappwebview` + `_linux` | ✅（WebView2） | ❌ **已排除** | Linux 实现走 **WPE WebKit**（不是 WebKitGTK），构建时把 `libWPEWebKit-2.0.so`（约 160 MB）拷进 App 的 `lib/`，**等于随包带内核**，违反约束 C1。NAS 容器实测报 `CMake Error: WPE WebKit not found` |
+| `atomic_webview` 0.2.0 | ✅ | ✅（系统 webkit2gtk-4.1） | 符合「零内核」，**但桌面端是独立原生窗口，不是内嵌 widget**，满足不了插件岛/伙伴小屋 |
+| 自写 GTK 通道包 `WebKitWebView` | — | ✅ | 同工具包（GTK 嵌 GTK），约 300–500 行 C++，**Linux 完整方案** |
+| 外部浏览器降级 | ✅ | ✅ | 零成本保底，**当前 Linux 采用** |
 
-**建议路径**
+> **WPE vs WebKitGTK 选型说明**（回答「WPE 有多大 / 谁兼容性更好」）：
+> 两者是**同一份 WebKit 源码的两个前端**，核心库体积同量级（150–200 MB），WPE 并无体积优势。
+> WPE 面向嵌入式/kiosk，**中文输入法、剪贴板、文件对话框都要自己接**，且发行版基本不提供 dev 包，
+> 需自行编译并自行跟安全更新；WebKitGTK 是桌面版，是 GNOME 的基础依赖，上述能力全部成熟，
+> 并随发行版更新。**结论：WebKitGTK 全面更优，WPE 完全不适用于本项目。**
 
-1. **Windows**：`webview_windows`。它直接调系统 WebView2，零内核打包。
-2. **Linux**：`flutter_inappwebview`（v6 起 Linux 走 WebKitGTK）。若其 Linux 支持不稳定，退回自写 GTK 通道包一层 `WebKitWebView`。
-3. 两平台对外**收口成同一套 `SystemWebView` 抽象**，只在 `ui/web/`、`ui/plugins/islands/` 等处按平台分发。
-4. **运行时分发**：
-   - Windows 安装包只带 WebView2 **Evergreen Bootstrapper**（`MicrosoftEdgeWebview2Setup.exe`，约 1.5 MB），
-     已装则跳过；本机实测 Runtime 版本 `157.0.4341.46`，无需额外安装。
-   - Linux 在 `deb`/`rpm` 里声明 `Recommends: libwebkit2gtk-4.1-0`，`Depends` 里给软依赖；
-     AppImage 在启动时检测 `libwebkit2gtk` 缺失则提示，并自动降级到外部浏览器。
+> **QtWebEngine 为什么不做**（KDE 用 Qt，是否可复用）：QtWebEngine 内核即 Chromium（
+> ~150–200 MB）；KDE 发行版通常只装运行库、没有 `-dev` 头文件；且需在 GTK 的 Flutter runner
+> 里混入 Qt 事件循环，属跨工具包嵌入，风险与工作量远高于自写 WebKitGTK 通道。**不采用。**
 
-**现状**：`webview_flutter` 目前用于 6 个文件：
+**实现现状（本轮已落地）**
 
-| 文件 | 用途 | 桌面处理 |
-| --- | --- | --- |
-| `ui/web/web_view_page.dart` | 内嵌 DSH Web（网页模式） | 系统内核 |
-| `ui/plugins/islands/island_view.dart` | 插件岛面板 | 系统内核 |
-| `ui/companion/companion_stage.dart` | 伙伴小屋（Live2D） | 系统内核 |
-| `ui/chat/render/mermaid_preview.dart` | Mermaid 图表预览 | 系统内核 |
-| `ui/web/web_view_guard.dart` | 渲染进程崩溃恢复 | Android 专属，桌面空实现 |
-| `ui/web/web_file_chooser.dart` | Web 内文件选择 | 桌面空实现（用系统文件对话框） |
+1. 新建 `app/lib/ui/web/system_webview.dart`：统一抽象（`SystemWebViewController` /
+   `SystemWebViewNavigationDelegate` / `createSystemWebViewController()`），按平台分发：
+   - macOS / Android / iOS → `system_webview_flutter.dart`（`webview_flutter`）
+   - Windows → `system_webview_win.dart`（`webview_windows` → WebView2）
+   - Linux → **返回 null**，`systemWebViewBackend == unavailable`，调用方降级
+2. 6 个业务文件（`web_view_page`、`island_handle`、`companion_stage`、`mermaid_preview`、
+   `web_view_guard`、`web_file_chooser`）改为经抽象取 controller，**不再直接 `WebViewController()`**。
+3. `pubspec.yaml` 已移除 `flutter_inappwebview*`，保留 `webview_windows: ^0.4.0`。
+4. 新增 l10n key `webNoEmbeddedBrowser`（zh/en）。
+
+**已验证**：NAS 容器内 `flutter analyze lib` 无 error；`flutter build linux --release` 通过，
+产物 `build/linux/x64/release/bundle/` **83 MB**（未含任何浏览器内核，印证约束 C1）。
+**未验证**：Windows 侧未编译（本机无 Flutter SDK）；`?token=`→cookie 链路未在真机 WebView 验证。
 
 **关键验证点**：DSH Web 页面依赖 `?token=` → 303 → `dsh-auth` cookie。要确认：
 WebView2 / WebKitGTK 对 `http://127.0.0.1` 回环地址**保留 cookie**，并把它当作安全上下文。
 这是 Web 模式能否工作的前提，PoC 必须先过这一关。若失败，退化到外部浏览器打开
 `http://127.0.0.1:<port>/?token=…`（token 一次性，需每次重新取）。
+
+#### 4.3.1 Linux 双版本 AppImage（已定方案）
+
+AppImage 在**构建期**链接 `libwebkit2gtk`，因此「运行时探测再降级」来不及——链接了 WebKitGTK
+的二进制在无该库的机器上会**启动失败**。所以出两个变体，由用户按需下载：
+
+| 变体 | 构建期链接 WebKitGTK | 目标用户 | 体积（相对） |
+| --- | --- | --- | --- |
+| `DSH-Go-full.AppImage` | 是（CMake 开关打开） | 已装 WebKitGTK（GNOME 默认） | +约 150 MB |
+| `DSH-Go-lite.AppImage` | 否（`systemWebViewBackend` 编译期固定为 unavailable） | KDE、无 WebKitGTK 环境 | 基础大小（实测 83 MB） |
+
+实现要点：同一工程用 CMake option `DSH_WEBKITGTK=ON|OFF` 构建两次；
+Dart 侧通过编译期常量（`--dart-define=DSH_NO_WEBVIEW=true`）把后端固定为 `unavailable`。
+
+**完整版 AppRun 必须前置检查**：在启动 Flutter 之前检测 `libwebkit2gtk-4.1.so`，缺失则弹原生提示
+（建议改用轻量版或安装库），**不要让应用段错误退出**。
+
+#### 4.3.2 WebKitGTK 缺失时的弹窗（已定文案）
+
+**固定文案，四条命令平铺，各配独立复制按钮，命令带 `sudo`；不做发行版检测、不折叠。**
+
+```
+┌──────────────────────────────────────────┐
+│ 需要系统组件 WebKitGTK                     │
+│                                          │
+│ 这个功能需要系统自带的 WebKitGTK 网页内核。   │
+│ 装好之后点「重新检测」即可启用。              │
+│                                          │
+│ Debian / Ubuntu                      [复制]
+│   sudo apt install libwebkit2gtk-4.1-0      │
+│                                          │
+│ Arch / Manjaro                       [复制]
+│   sudo pacman -S webkit2gtk-4.1             │
+│                                          │
+│ Fedora                               [复制]
+│   sudo dnf install webkit2gtk4.1            │
+│                                          │
+│ openSUSE                             [复制]
+│   sudo zypper install libwebkit2gtk-4_1-0   │
+│                                          │
+│ [已安装，重新检测] [下载完整版] [用浏览器打开]   │
+└──────────────────────────────────────────┘
+```
+
+包名易错点（已核对）：Debian 系 `libwebkit2gtk-4.1-0`（带 `-0`）；Arch `webkit2gtk-4.1`；
+Fedora `webkit2gtk4.1`（无连字符）；openSUSE `libwebkit2gtk-4_1-0`（**下划线**）。
+
+三个出口：`已安装，重新检测`（免重启，检测到即切回内嵌）、`下载完整版`（打开 releases 页）、
+`用浏览器打开`（本次降级，不永久静音）。
+
+**降级影响范围**（必须让用户知道）：
+
+| 功能 | 需要内嵌 WebView | 缺失时 |
+| --- | --- | --- |
+| 聊天、审批、文件、设置 | 否 | **完全正常** |
+| 网页模式 | 是 | 跳系统浏览器 |
+| 插件岛面板 / 伙伴小屋 / Mermaid 预览 | 是 | **不可用** |
+
 
 ### 阶段 4：打包分发（3–5 天）
 
@@ -389,14 +452,34 @@ docker compose run --rm builder bash tooling/build-linux.sh
 
 产物从 `dsh-out` 卷或挂载目录取回本机（可复用 `nas_transfer.py get`）。
 
-#### 5.4 性能预期（写在前面，避免误判）
+#### 5.4 实测结果（2026-11-12）
 
-| 环节 | 说明 |
+构建环境**已搭好并跑通**，以下为实测数据：
+
+| 项 | 结果 |
 | --- | --- |
-| 首次 Flutter 下载 | 约 1 GB，走 NAS 的 VPN 出口（`openwrt_lan` 网络）或国内镜像 |
-| 首次 `flutter pub get` | 有缓存卷后，后续增量很快 |
-| 单次 `flutter build linux --release` | N100 级 CPU 上约 5–12 分钟；**增量构建**可到 1–3 分钟 |
-| 局限 | 这是**构建**环境，不是 GUI 运行环境。NAS 无桌面，无法直观看界面 |
+| 镜像 | `dsh-go-linux-builder:1`，2.46 GB（Ubuntu 24.04 + Flutter 3.47.7） |
+| Flutter / Dart | 3.47.7 / Dart 3.13.5 ✅ |
+| Linux 工具链 | clang 18.1.3 / cmake 3.28.3 / ninja 1.11.1 ✅ |
+| `flutter pub get` | 151 依赖解析成功 |
+| `flutter analyze lib` | **无 error**（20 条 info 级 deprecation，为既有问题） |
+| `flutter build linux --release` | ✅ `build/linux/x64/release/bundle/dsh_app`，**83 MB** |
+| 代码同步 | 源码在 NAS `/volume4/Works/dsh-go-desktop`，用 zip 增量同步（走 `/volume2/Downloads/_xfer`） |
+
+**踩过的坑（已解决，后人可直接照做）**：
+
+1. **`docker build` 不能用 `--network=openwrt_lan`**——buildkit 不支持 macvlan，报
+   `network mode "openwrt_lan" not supported by buildkit`。改用 **`--network=host`**（NAS 宿主本身能直连 GitHub）。
+2. **`--rm` 会丢 pub-cache**——cache 在容器 `/root/.pub-cache`，容器销毁后 `pubspec.lock` 里的路径
+   全部失效，表现为大量 `Error when reading '.../flutter_riverpod-3.5.0/...'`。
+   必须挂**命名卷** `-v dsh-pub-cache:/root/.pub-cache`。
+3. **PowerShell 传脚本给 NAS 会被引号/转义破坏**——`\$PATH`、`<<'EOF'` heredoc 都会坏。
+   可靠做法：**本地把脚本转 base64，远端 `base64 -d` 落盘，再 `bash 该文件`**。
+4. **`nas_transfer.py sh` 输出含 emoji 会崩**（GBK 编码）——设 `PYTHONIOENCODING=utf-8`。
+5. **Git 自带 tar 不认 Windows 路径**——`tar -czf C:\...` 报 `Cannot connect to C:`。
+   改用 .NET `System.IO.Compression.ZipFile` 打包。
+6. **`flutter create` 的副作用**：会新增 `test/widget_test.dart`（引用不存在的 `MyApp`，导致 analyze 报错）
+   并向 `analysis_options.yaml` 的 exclude 追加 `linux/**`。前者应删除。
 
 #### 5.5 运行期验证（KDE / GNOME 桌面兼容）
 
@@ -408,6 +491,15 @@ docker compose run --rm builder bash tooling/build-linux.sh
 
 > 若后续需要，可再起一个带 Xvfb 的验证容器（同样不污染宿主），但它的定位只是「不崩」，
 > 不替代真机验收。
+
+#### 5.6 性能参考
+
+| 环节 | 实测/预期 |
+| --- | --- |
+| 首次镜像构建 | 约 8–12 分钟（含 Flutter SDK 与 precache） |
+| 首次 `pub get` | 约 1–2 分钟 |
+| `build linux --release`（含 WebView 适配改动） | 约 4–6 分钟（4 核 / 6 GB 限制下） |
+| 局限 | 这是**构建**环境，不是 GUI 运行环境。NAS 无桌面，无法直观看界面 |
 
 ---
 

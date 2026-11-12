@@ -46,5 +46,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "webNoEmbeddedBrowser": "这台电脑没有可内嵌的系统浏览器内核，请用系统浏览器打开这个页面"
 }

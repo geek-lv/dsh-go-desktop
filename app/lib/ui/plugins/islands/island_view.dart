@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../l10n/l10n.dart';
 import '../../../plugins/seams/seat_models.dart';
@@ -282,7 +281,7 @@ class _IslandViewState extends ConsumerState<IslandView> {
       return _loading();
     }
     final ready = handle.phase == IslandPhase.ready;
-    final web = WebViewWidget(key: ObjectKey(handle), controller: handle.controller, gestureRecognizers: _gestures);
+    final web = handle.controller.build(key: ObjectKey(handle), gestureRecognizers: _gestures);
     return switch (widget.spec.form) {
       IslandForm.page => _stack(web, ready),
       IslandForm.panel => SmoothSize(

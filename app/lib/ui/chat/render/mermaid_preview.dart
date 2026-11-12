@@ -9,7 +9,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import '../../web/system_webview.dart';
 
 import '../../../l10n/l10n.dart';
 import '../../shell/page_frame.dart';
@@ -84,7 +84,7 @@ class MermaidPreviewPage extends StatefulWidget {
 }
 
 class _MermaidPreviewPageState extends State<MermaidPreviewPage> {
-  WebViewController? _controller;
+  SystemWebViewController? _controller;
   late final WebViewGuard _guard = WebViewGuard(onGone: _onRendererGone);
   bool _ready = false;
   String? _problem;
@@ -116,21 +116,27 @@ class _MermaidPreviewPageState extends State<MermaidPreviewPage> {
       foreground: theme.colorScheme.onSurface,
     );
     final textZoom = MediaQuery.textScalerOf(context).scale(100).round().clamp(50, 300);
-    final controller = _controller = WebViewController();
+    final created = createSystemWebViewController();
     _ready = false;
+    if (created == null) {
+      // No embedded system WebView on this platform (Linux): the preview has no
+      // way to render the chart, so say so instead of showing a blank page.
+      _problem = context.l10n.webNoEmbeddedBrowser;
+      return;
+    }
+    final controller = _controller = created;
     _problem = null;
     unawaited(() async {
       await Future.wait(
         [
-          controller.setJavaScriptMode(JavaScriptMode.unrestricted),
+          controller.setJavaScriptModeUnrestricted(),
           controller.setBackgroundColor(background),
-          controller.addJavaScriptChannel('Dsh', onMessageReceived: (message) => _onMessage(message.message)),
+          controller.addJavaScriptChannel('Dsh', (message) => _onMessage(message)),
           controller.setNavigationDelegate(
-            NavigationDelegate(
+            SystemWebViewNavigationDelegate(
               // The chart is the only page: links inside it go nowhere.
-              onNavigationRequest: (request) => request.url == 'about:blank' || request.url.startsWith('data:')
-                  ? NavigationDecision.navigate
-                  : NavigationDecision.prevent,
+              onNavigationRequest: (request) =>
+                  request.url == 'about:blank' || request.url.startsWith('data:'),
             ),
           ),
         ].map((f) => f.catchError((_) {})),
@@ -211,7 +217,7 @@ class _MermaidPreviewPageState extends State<MermaidPreviewPage> {
                   children: [
                     if (!_gone)
                       Positioned.fill(
-                        child: WebViewWidget(key: ValueKey(_generation), controller: _controller!),
+                        child: _controller!.build(key: ValueKey(_generation)),
                       ),
                     if (_gone)
                       Positioned.fill(

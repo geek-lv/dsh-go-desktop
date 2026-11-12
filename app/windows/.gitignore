@@ -1,0 +1,7 @@
+# The Flutter tool generates everything under windows/flutter/ephemeral/ during
+# a build (flutter_windows.dll, icudtl.dat, generated_config.cmake, the C++
+# wrapper sources, ...). Never commit it.
+#
+# NOTE: 需与官方模板核对 — 官方 `flutter create --platforms=windows` 生成的
+# windows/.gitignore 只有下面这一行规则，没有这段注释。
+flutter/ephemeral/
