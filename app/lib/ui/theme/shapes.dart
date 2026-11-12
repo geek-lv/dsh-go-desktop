@@ -78,7 +78,18 @@ abstract final class AppSpace {
 
   /// 正文最大阅读宽度(平板 / 横屏 / 折叠屏展开时居中)。与 DSH 官方
   /// `--dsh-chat-content-width: 748px` 同档。
+  ///
+  /// **桌面端不再用它限制正文**：窗口多宽就铺多宽（见 [contentWidth]）。
+  /// 它现在只服务"有内在尺寸"的东西（图片占位、详情浮层宽度）。
   static const readingWidth = 720.0;
+
+  /// 正文/输入条在给定可用宽度下的宽度。
+  ///
+  /// 手机与窄窗保持 [readingWidth]（居中，行宽舒适）；桌面宽窗直接铺满——
+  /// 用户明确要"充满右侧内容区域，只有一行装不下才换行"，720 的固定上限在
+  /// 桌面上会留出大片空白，长文本反而难读。
+  static double contentWidth(double available) =>
+      available <= readingWidth + 2 * gutter ? available : available;
 
   /// 浮在阅读列上的控件(输入条、待办 / 目标条、斜杠面板、空状态的建议)
   /// 离阅读列两边的距离:和手机上离屏幕两边一样 12,所以比正文两边各宽 4。

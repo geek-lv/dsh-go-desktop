@@ -427,7 +427,7 @@ class _BotTranscriptState extends State<BotTranscript> {
           final row = rows[rows.length - 1 - index];
           return Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: AppSpace.readingWidth),
+              constraints: const BoxConstraints(maxWidth: double.infinity),
               child: widget.rowBuilder(context, row),
             ),
           );

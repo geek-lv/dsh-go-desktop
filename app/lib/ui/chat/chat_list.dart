@@ -745,7 +745,8 @@ class _ChatListState extends ConsumerState<ChatList> with SingleTickerProviderSt
               // 浮层与阅读列边缘、与输入条之间都是 12(和顶栏、输入条同一层);
               // 手机上阅读列就是整屏宽。
               Positioned(
-                right: math.max(0.0, (constraints.maxWidth - AppSpace.readingWidth) / 2) + AppSpace.floatInset,
+                // 正文铺满后，浮层就贴内容区右缘（原来按居中阅读列算偏移）。
+                right: AppSpace.floatInset,
                 bottom: widget.bottomInset + 12,
                 // The pet keeps out of the key's way while it shows.
                 child: ValueListenableBuilder<bool>(
@@ -779,21 +780,16 @@ class _ChatListState extends ConsumerState<ChatList> with SingleTickerProviderSt
     );
     return KeyedSubtree(
       key: ValueKey<String>(row.key),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppSpace.readingWidth),
-          // 撑满阅读宽度:否则短行(用户气泡、提示行)会被 Center 居中。
-          child: row is AssistantRow
-              // 等待和思考算过程行,正文不算:接上正文时间距缓缓让开,回复不跳。
-              ? AnimatedPadding(
-                  duration: AppMotion.of(context, AppMotion.quick),
-                  curve: AppMotion.std,
-                  padding: padding,
-                  child: SizedBox(width: double.infinity, child: body),
-                )
-              : Container(width: double.infinity, padding: padding, child: body),
-        ),
-      ),
+      // 桌面端铺满内容区（不再居中的 720 上限）：长文本才有正常阅读宽度。
+      child: row is AssistantRow
+          // 等待和思考算过程行,正文不算:接上正文时间距缓缓让开,回复不跳。
+          ? AnimatedPadding(
+              duration: AppMotion.of(context, AppMotion.quick),
+              curve: AppMotion.std,
+              padding: padding,
+              child: SizedBox(width: double.infinity, child: body),
+            )
+          : Container(width: double.infinity, padding: padding, child: body),
     );
   }
 

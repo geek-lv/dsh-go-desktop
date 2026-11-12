@@ -1675,7 +1675,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                     id: _Slot.palette,
                     child: Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: AppSpace.floatingWidth),
+                        // 桌面端铺满：与正文一致，不再按 720 的浮层宽度收窄。
+                        constraints: const BoxConstraints(maxWidth: double.infinity),
                         child: ListenableBuilder(
                           listenable: Listenable.merge([_input, _mentions]),
                           builder: (context, _) {
@@ -1731,7 +1732,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                         padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
                         child: Center(
                           child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: AppSpace.floatingWidth),
+                            constraints: const BoxConstraints(maxWidth: double.infinity),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -182,7 +182,7 @@ class _ReplayListState extends ConsumerState<ReplayList> {
       key: ValueKey<String>(row.key),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: AppSpace.readingWidth),
+          constraints: const BoxConstraints(maxWidth: double.infinity),
           child: Container(
             width: double.infinity,
             padding: EdgeInsets.fromLTRB(AppSpace.gutter, replayGapBefore(row, previous), AppSpace.gutter, 0),
