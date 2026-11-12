@@ -45,18 +45,13 @@ dependencies:
   flutter_riverpod: ^3.4.3
   shared_preferences: ^2.5.6
   flutter_secure_storage: ^11.2.0
-  webview_flutter: ^4.14.1
-  webview_flutter_android: ^4.14.1
-  # Windows 的系统 WebView：Microsoft Edge WebView2（`webview_flutter` 没有 Windows
-  # 实现）。0.4.0 是 pub 上的最新版，薄封装系统 WebView2，不打包任何内核。
-  # 注意：它的 SDK 约束写的是 `>=2.13.0 <3.0.0`，靠 pub 对 `<3.0.0` 的兼容规则解析到
-  # Dart 3（**未在本机验证**，见 docs/desktop/webview.md）。
-  webview_windows: ^0.4.0
-  # Linux 内嵌 WebView：暂时没有满足「只用系统 WebKitGTK、不打包内核」的实现。
-  # `flutter_inappwebview_linux` 走的是 WPE WebKit（不是 WebKitGTK），构建时会把
-  # `libWPEWebKit-2.0.so`（约 160 MB）拷进 App 的 lib/，等于随包带内核，已弃用。
-  # 当前 Linux 由 lib/ui/web/system_webview.dart 返回「无内嵌 WebView」，
-  # 业务层退化为系统浏览器打开（见 docs/desktop/webview.md）。
+  # 统一 WebView 抽象：一套 API 覆盖 Android / iOS / macOS / Windows / Linux / Web。
+  # 各平台一律使用**系统自带内核**（Android WebView / WKWebView / WebView2 /
+  # WebKitGTK），不打包任何浏览器内核。Linux 侧 native 实现直接
+  # pkg_check_modules(... webkit2gtk-4.1) 链接系统库，已在容器内实测编译通过。
+  webview_all: ^1.5.0
+  # Android 专属能力（文件选择器接管、webViewIdentifier）从平台的实现包取。
+  webview_all_android: ^1.5.0
   gpt_markdown: ^1.4.0
   # gpt_markdown's own maths engine, used directly for the formula fallback.
   val_latex_flutter: ^0.1.3

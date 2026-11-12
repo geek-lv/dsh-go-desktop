@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_all_android/webview_all_android.dart';
 
-import 'system_webview.dart';
+import 'package:webview_all/webview_all.dart';
+
+import 'webview_common.dart';
 
 /// A document chooser belongs to the document that requested it. Navigation,
 /// a renderer loss or disposal retires it even if Android returns a file later.
@@ -20,10 +22,10 @@ class WebFileChooser {
   String? _owner;
 
   /// Android 专属：底层是 `AndroidWebViewController` 时才接管文件选择。
-  /// Windows（WebView2）/ Linux（WPE）上 [SystemWebViewController.vendorController]
+  /// Windows（WebView2）/ Linux（WPE）上 [WebViewController.vendorController]
   /// 是 null，这里直接返回，相当于空实现。
-  Future<void> attach(SystemWebViewController controller) async {
-    final platform = controller.vendorController;
+  Future<void> attach(WebViewController controller) async {
+    final platform = controller.platform;
     if (platform is! AndroidWebViewController) return;
     await platform.setOnShowFileSelector(
       (params) => choose(params, webViewId: platform.webViewIdentifier, currentUrl: controller.currentUrl),

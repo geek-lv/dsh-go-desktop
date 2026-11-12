@@ -11,7 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../companion/companion_pack.dart';
 import '../../companion/companion_server.dart';
-import '../web/system_webview.dart';
+import 'package:webview_all/webview_all.dart';
+
+import '../web/webview_common.dart';
 import '../plugins/islands/island_platform.dart';
 
 /// Phones with less memory than this get a smaller texture (4096² is about
@@ -25,7 +27,7 @@ class CompanionStageController {
   /// Tests watch commands here instead of a WebView.
   final void Function(String type, Map<String, Object?> args)? sink;
 
-  SystemWebViewController? _web;
+  WebViewController? _web;
   bool _ready = false;
 
   void command(String type, [Map<String, Object?> args = const {}]) {
@@ -77,7 +79,7 @@ class _CompanionStageState extends State<CompanionStage> with WidgetsBindingObse
   static const _readyTimeout = Duration(seconds: 40);
 
   CompanionServer? _server;
-  SystemWebViewController? _web;
+  WebViewController? _web;
   Timer? _timeout;
   AppLifecycleState? _lifecycle;
   bool _routeVisible = true;
@@ -121,24 +123,18 @@ class _CompanionStageState extends State<CompanionStage> with WidgetsBindingObse
       _server = server;
       final device = await IslandPlatform.instance.device();
       final small = device.totalMem > 0 && device.totalMem < _bigTextureFromBytes;
-      final web = createSystemWebViewController(denyPermissionRequests: true);
-      if (web == null) {
-        // No embedded system WebView on this platform (Linux): the companion hut
-        // needs a web renderer, so fall back to the existing failure path.
-        _fail('no-embedded-webview');
-        return;
-      }
-      await web.setJavaScriptModeUnrestricted();
+      final web = WebViewController(onPermissionRequest: denyAllPermissions);
+      await web.setJavaScriptMode(JavaScriptMode.unrestricted);
       await web.setBackgroundColor(const Color(0xFF0D2F55));
       await web.setNavigationDelegate(
-        SystemWebViewNavigationDelegate(
-          onNavigationRequest: (request) => server.ownsUrl(request.url),
+        NavigationDelegate(
+          onNavigationRequest: (request) => decisionFrom(server.ownsUrl(request.url)),
           onWebResourceError: (error) {
-            if (error.isMainFrame) _fail('load ${error.errorCode}');
+            if (error.isForMainFrame ?? true) _fail('load ${error.errorCode}');
           },
         ),
       );
-      await web.addJavaScriptChannel('DshCompanion', _onMessage);
+      await web.addJavaScriptChannel('DshCompanion', onMessageReceived: (m) => _onMessage(m.message));
       if (!mounted) return;
       setState(() {
         _web = web;
@@ -216,7 +212,7 @@ class _CompanionStageState extends State<CompanionStage> with WidgetsBindingObse
   Widget build(BuildContext context) {
     final web = _web;
     if (web == null) return const SizedBox.expand();
-    return web.build(
+    return WebViewWidget(controller: web,
       // Her touch handling lives in the page: strokes must not become scrolls
       // or the back gesture's competitors.
       gestureRecognizers: {Factory<OneSequenceGestureRecognizer>(EagerGestureRecognizer.new)},

@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import '../../web/system_webview.dart';
+import 'package:webview_all/webview_all.dart';
+
+import '../../web/webview_common.dart';
 
 import '../../../plugins/seams/seat_models.dart';
 import 'island_assets.dart';
@@ -101,7 +103,7 @@ class IslandHandle extends ChangeNotifier {
   /// Told about every phase change (the host keeps its books with it).
   final void Function(IslandHandle handle)? onPhase;
 
-  late final SystemWebViewController controller;
+  late final WebViewController controller;
 
   IslandPhase get phase => _phase;
   IslandPhase _phase = IslandPhase.loading;
@@ -177,21 +179,14 @@ class IslandHandle extends ChangeNotifier {
   /// Creates the WebView, takes it over on the Android side, loads.
   Future<void> start() async {
     clock.start();
-    final created = createSystemWebViewController(denyPermissionRequests: true);
-    if (created == null) {
-      // No embedded system WebView on this platform (Linux): plugin panels can't
-      // render, so surface the existing load-failure state instead of crashing.
-      _fail(IslandFailure.load);
-      return;
-    }
-    controller = created;
-    final webview = created;
+    final webview = WebViewController(onPermissionRequest: denyAllPermissions);
+    controller = webview;
     await Future.wait<void>(
       [
-        webview.setJavaScriptModeUnrestricted(),
+        webview.setJavaScriptMode(JavaScriptMode.unrestricted),
         webview.setBackgroundColor(Colors.transparent),
         webview.setNavigationDelegate(
-          SystemWebViewNavigationDelegate(
+          NavigationDelegate(
             onNavigationRequest: _onNavigation,
             onPageFinished: (_) => unawaited(_inject()),
             onWebResourceError: (error) {
@@ -199,18 +194,18 @@ class IslandHandle extends ChangeNotifier {
                 // URLs and descriptions may contain the Host's token.
                 debugPrint(
                   '[island] ${spec.slot} resource: code=${error.errorCode} '
-                  'type=${error.errorType ?? 'unknown'} mainFrame=${error.isMainFrame}',
+                  'type=${error.errorType ?? 'unknown'} mainFrame=${error.isForMainFrame}',
                 );
               }
-              if (error.isMainFrame) _fail(IslandFailure.load);
+              if (error.isForMainFrame ?? true) _fail(IslandFailure.load);
             },
           ),
         ),
         // Before the first load: Android only injects channels on load.
-        webview.addJavaScriptChannel('DshGoIsland', _onMessage),
+        webview.addJavaScriptChannel('DshGoIsland', onMessageReceived: (m) => _onMessage(m.message)),
       ].map((f) => f.catchError((Object _) {})),
     );
-    _webViewId = webview.androidWebViewId;
+    _webViewId = androidWebViewIdOf(webview);
     final id = _webViewId;
     if (id != null) await _platform.attach(id, dark: _theme.dark, textZoom: _theme.textZoom);
     if (_phase != IslandPhase.loading) return;
@@ -221,17 +216,13 @@ class IslandHandle extends ChangeNotifier {
   // `_identifierOf` 已移到 system_webview.dart：桌面后端没有 Android WebView id，
   // 这里拿到的就是 null（原来「不是 Android controller 就是 null」的语义不变）。
 
-  bool _onNavigation(SystemNavigationRequest request) {
-    switch (islandNavigation(url, request.url, isMainFrame: request.isMainFrame)) {
-      case IslandNavigation.stay:
-        return true;
-      case IslandNavigation.external:
-        final uri = Uri.tryParse(request.url);
-        if (uri != null) _request(IslandLink(uri));
-        return false;
-      case IslandNavigation.block:
-        return false;
-    }
+  NavigationDecision _onNavigation(NavigationRequest request) {
+    final result = switch (islandNavigation(url, request.url, isMainFrame: request.isMainFrame)) {
+      IslandNavigation.stay => true,
+      IslandNavigation.block => false,
+      IslandNavigation.external => false,
+    };
+    return decisionFrom(result);
   }
 
   /// Every load: the open bridge, the island runtime, then init. A session
