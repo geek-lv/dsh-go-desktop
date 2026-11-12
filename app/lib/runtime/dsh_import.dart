@@ -13,6 +13,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:yaml/yaml.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../desktop/install_trace.dart';
@@ -24,6 +26,7 @@ class DshImportResult {
     required this.skipped,
     required this.bytes,
     required this.sessionWorkspaces,
+    this.providers = 0,
   });
 
   /// 新写入的文件数。
@@ -35,6 +38,9 @@ class DshImportResult {
 
   /// 带进来多少个「工作区目录」（sessions/--xxx--）。
   final int sessionWorkspaces;
+
+  /// 同步了多少个模型 provider（`llm-*` 那几段）。
+  final int providers;
 
   String get megabytes => (bytes / 1048576).toStringAsFixed(1);
 }
@@ -107,17 +113,19 @@ abstract final class DshImport {
       }
     }
     final merged = await _mergeWorkspaceRegistry(source, target);
+    final providers = await importModelProviders(source: source, target: target);
     final workspaces = await countWorkspaces(target);
     InstallTrace.add(
       'import',
       '导入完成：$files 个文件（${(bytes / 1048576).toStringAsFixed(1)} MB），跳过 $skipped 个已存在，'
-          '合并工作区 $merged 个，目标共 $workspaces 个工作区',
+          '合并工作区 $merged 个，模型 provider $providers 个，目标共 $workspaces 个工作区',
     );
     return DshImportResult(
       files: files,
       skipped: skipped,
       bytes: bytes,
       sessionWorkspaces: workspaces,
+      providers: providers,
     );
   }
 
@@ -191,6 +199,124 @@ abstract final class DshImport {
     InstallTrace.add('import', '合并工作区注册表：新增 $added 个');
     return added;
   }
+  /// 把官方的**模型 provider**同步过来：`profiles/web/cordis.patch.yml` 里 `id: llm-*`
+  /// 的那几段（provider 列表、baseURL、模型清单）按原文搬过来，再带上它引用的密钥。
+  ///
+  /// 为什么按原文搬而不是解析成 YAML 再序列化：这些片段里可能有 `!!js` 表达式和注释，
+  /// 重新序列化会丢掉语义。文本块切分则逐字保留。
+  static Future<int> importModelProviders({
+    required Directory source,
+    required Directory target,
+    String profile = 'web',
+  }) async {
+    final sep = Platform.pathSeparator;
+    final from = File('${source.path}${sep}profiles${sep}$profile${sep}cordis.patch.yml');
+    final to = File('${target.path}${sep}profiles${sep}$profile${sep}cordis.patch.yml');
+    if (!await from.exists()) return 0;
+
+    final blocks = _llmBlocks(await from.readAsString());
+    if (blocks.isEmpty) return 0;
+    final ids = {for (final b in blocks) b.id};
+
+    final existing = await to.exists() ? await to.readAsString() : '';
+    final kept = _stripBlocks(existing, ids);
+    const header = '# Your patch layer for this dsh profile, applied after every bundle layer:\n'
+        '# a top-level YAML array of loader patch entries (id-targeted config\n'
+        '# overrides, disables, and insert lists; `!!js` expressions allowed).\n';
+    final body = [
+      if (kept.trim().isNotEmpty) kept.trimRight(),
+      ...blocks.map((b) => b.text.trimRight()),
+    ].join('\n');
+    await to.parent.create(recursive: true);
+    await to.writeAsString('$header\n$body\n', flush: true);
+    InstallTrace.add('import', '同步模型 provider：${ids.join(', ')} → ${to.path}');
+
+    // 这些 provider 用 apiKeyEnv 引用密钥，密钥在 `.credentials.yaml` 的 refs 里。
+    final credentials = await _mergeCredentials(
+      File('${source.path}$sep.credentials.yaml'),
+      File('${target.path}$sep.credentials.yaml'),
+    );
+    InstallTrace.add('import', '同步凭据引用：$credentials 个');
+    return ids.length;
+  }
+
+  /// 切出 `- id: llm-…` 的整段（到下一个顶层 `- ` 为止）。
+  static List<({String id, String text})> _llmBlocks(String text) {
+    final lines = text.split('\n');
+    final out = <({String id, String text})>[];
+    var i = 0;
+    while (i < lines.length) {
+      final match = RegExp(r'^-\s+id:\s*([\w.-]+)\s*$').firstMatch(lines[i]);
+      if (match == null) {
+        i += 1;
+        continue;
+      }
+      final start = i;
+      i += 1;
+      while (i < lines.length && !RegExp(r'^-\s').hasMatch(lines[i])) {
+        i += 1;
+      }
+      final id = match.group(1)!;
+      if (id.startsWith('llm-')) out.add((id: id, text: lines.sublist(start, i).join('\n')));
+    }
+    return out;
+  }
+
+  /// 摘掉目标文件里指定 id 的块（其余内容原样保留）；只剩注释/空数组时返回空。
+  static String _stripBlocks(String text, Set<String> ids) {
+    if (text.trim().isEmpty) return '';
+    final lines = text.split('\n');
+    final kept = <String>[];
+    var i = 0;
+    while (i < lines.length) {
+      final match = RegExp(r'^-\s+id:\s*([\w.-]+)\s*$').firstMatch(lines[i]);
+      if (match != null && ids.contains(match.group(1))) {
+        i += 1;
+        while (i < lines.length && !RegExp(r'^-\s').hasMatch(lines[i])) {
+          i += 1;
+        }
+        continue;
+      }
+      kept.add(lines[i]);
+      i += 1;
+    }
+    final trimmed = kept.join('\n').trim();
+    final meaning = trimmed
+        .split('\n')
+        .where((l) => l.trim().isNotEmpty && !l.trim().startsWith('#') && l.trim() != '[]')
+        .toList();
+    return meaning.isEmpty ? '' : '$trimmed\n';
+  }
+
+  /// 合并 `.credentials.yaml`：`refs`（环境变量名 → 密钥）取并集、源优先；
+  /// `records`（内部 grant）保目标的。写 JSON —— YAML 是 JSON 的超集，DSH 照样能读。
+  static Future<int> _mergeCredentials(File from, File to) async {
+    if (!await from.exists()) return 0;
+    Map<String, Object?> read(Object? decoded) =>
+        decoded is Map ? decoded.map((k, v) => MapEntry('$k', v)) : <String, Object?>{};
+    final source = read(_tryYaml(await from.readAsString()));
+    if (source.isEmpty) return 0;
+    final target = await to.exists() ? read(_tryYaml(await to.readAsString())) : <String, Object?>{};
+    final sourceRefs = read(source['refs']);
+    final merged = <String, Object?>{
+      'version': target['version'] ?? source['version'] ?? 1,
+      'refs': {...read(target['refs']), ...sourceRefs},
+      'records': {...read(source['records']), ...read(target['records'])},
+    };
+    await to.parent.create(recursive: true);
+    await to.writeAsString(const JsonEncoder.withIndent('  ').convert(merged), flush: true);
+    return sourceRefs.length;
+  }
+
+  static Object? _tryYaml(String text) {
+    try {
+      return loadYaml(text);
+    } catch (error, stack) {
+      InstallTrace.error('import', error, stack);
+      return null;
+    }
+  }
+
 }
 
 /// 官方 DSH 里有几个带会话的工作区（界面用它决定要不要显示「导入」）。

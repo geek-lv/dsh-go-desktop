@@ -11807,13 +11807,13 @@ abstract class L10n {
   /// No description provided for @engineImportTitle.
   ///
   /// In zh, this message translates to:
-  /// **'从官方 DSH 导入对话与工作区'**
+  /// **'从官方 DSH 导入对话、工作区与模型'**
   String get engineImportTitle;
 
   /// No description provided for @engineImportHint.
   ///
   /// In zh, this message translates to:
-  /// **'把 {workspaces} 个工作区的历史对话、工作区列表和技能拷进 App 现在的环境；已有的文件不覆盖。'**
+  /// **'把 {workspaces} 个工作区的历史对话、工作区列表、技能和模型 provider（含引用的密钥）拷进 App 现在的环境；已有的文件不覆盖。'**
   String engineImportHint(int workspaces);
 
   /// No description provided for @engineImportConfirm.

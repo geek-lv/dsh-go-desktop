@@ -6746,11 +6746,11 @@ class L10nEn extends L10n {
   }
 
   @override
-  String get engineImportTitle => 'Import chats and workspaces from the official DSH';
+  String get engineImportTitle => 'Import chats, workspaces and models from the official DSH';
 
   @override
   String engineImportHint(int workspaces) {
-    return 'Copy the chats of $workspaces workspaces, the workspace list and skills into the app\'s own environment; existing files are kept.';
+    return 'Copy the chats of $workspaces workspaces, the workspace list, skills and model providers (with the keys they reference) into the app\'s own environment; existing files are kept.';
   }
 
   @override

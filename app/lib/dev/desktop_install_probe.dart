@@ -26,6 +26,7 @@ import '../main.dart' show buildAppContainer, createDesktopRuntime;
 import '../runtime/dsh_discovery.dart';
 import '../runtime/dsh_capabilities.dart';
 import '../runtime/dsh_engines.dart';
+import '../runtime/dsh_import.dart';
 import '../runtime/engine_source.dart';
 import '../runtime/runtime_bridge.dart';
 import '../runtime/runtime_state.dart';
@@ -73,6 +74,8 @@ Future<void> _main(List<String> args) async {
   // `--engine-source`：验证「持久化的引擎来源 → 能力矩阵 → 真正启动」这条链路
   // （不点界面，用 prefs 里记的来源）。
   final checkSource = args.contains('--engine-source');
+  // `--import-official`：把官方 ~/.dsh 的对话/工作区/模型 provider 同步到 App 自带引擎。
+  final importOfficial = args.contains('--import-official');
   // `--npm-install <version>`：走完整链路——npm 下载安装到引擎库 → 打补丁 → 从库里启动。
   final npmIndex = args.indexOf('--npm-install');
   final npmVersion = npmIndex >= 0 && npmIndex + 1 < args.length ? args[npmIndex + 1] : null;
@@ -109,6 +112,16 @@ Future<void> _main(List<String> args) async {
   print('PROBE before: ${_describe(before)}');
   InstallTrace.add('probe', 'before: ${_describe(before)}');
 
+  if (importOfficial) {
+    final support = container.read(appSupportDirProvider);
+    final target = Directory('${support.path}${Platform.pathSeparator}runtime${Platform.pathSeparator}home'
+        '${Platform.pathSeparator}.dsh');
+    final result = await DshImport.importFrom(source: DshImport.officialHome(), target: target);
+    print('PROBE import: files=${result.files} skipped=${result.skipped} '
+        'workspaces=${result.sessionWorkspaces} providers=${result.providers} mb=${result.megabytes}');
+    await InstallTrace.flush();
+    exit(0);
+  }
   if (checkSource) {
     var source = container.read(engineSourceProvider);
     // 等 restore() 跑完（它在 build() 里 fire-and-forget 启动）。
