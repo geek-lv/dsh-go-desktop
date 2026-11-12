@@ -838,5 +838,35 @@
     }
   },
   "engineSharedHomeTitle": "与官方 DSH 共用数据目录",
-  "engineSharedHomeHint": "插件、模型 provider、会话都和官方完全一致（同一份 ~/.dsh）。共用后 App 不能重置或卸载运行时，也别和官方 DSH 同时写同一份数据。"
+  "engineSharedHomeHint": "插件、模型 provider、会话都和官方完全一致（同一份 ~/.dsh）。共用后 App 不能重置或卸载运行时，也别和官方 DSH 同时写同一份数据。",
+  "engineSyncTitle": "同步官方 DSH",
+  "engineSyncPending": "官方环境有更新，点一下同步（会话、工作区、模型 provider、插件）",
+  "engineSyncNever": "还没同步过：会话、工作区、模型 provider 和插件都从这里同步",
+  "engineSyncLast": "上次同步：{time}",
+  "engineSyncRunning": "正在同步官方 DSH…",
+  "engineSyncUnchanged": "官方环境没有变化，无需同步",
+  "engineSyncDone": "同步完成：{files} 个会话文件、{workspaces} 个工作区、{providers} 个 provider、{plugins} 个插件",
+  "@engineSyncLast": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@engineSyncDone": {
+    "placeholders": {
+      "files": {
+        "type": "int"
+      },
+      "workspaces": {
+        "type": "int"
+      },
+      "providers": {
+        "type": "int"
+      },
+      "plugins": {
+        "type": "int"
+      }
+    }
+  }
 }

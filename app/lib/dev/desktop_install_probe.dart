@@ -116,9 +116,10 @@ Future<void> _main(List<String> args) async {
     final support = container.read(appSupportDirProvider);
     final target = Directory('${support.path}${Platform.pathSeparator}runtime${Platform.pathSeparator}home'
         '${Platform.pathSeparator}.dsh');
-    final result = await DshImport.importFrom(source: DshImport.officialHome(), target: target);
-    print('PROBE import: files=${result.files} skipped=${result.skipped} '
-        'workspaces=${result.sessionWorkspaces} providers=${result.providers} mb=${result.megabytes}');
+    final summary = await DshImport.syncNow(source: DshImport.officialHome(), target: target);
+    print('PROBE sync: unchanged=${summary.unchanged} files=${summary.files} '
+        'workspaces=${summary.workspaces} providers=${summary.providers} '
+        'plugins=${summary.plugins.length} elapsed=${summary.elapsedMs}ms');
     await InstallTrace.flush();
     exit(0);
   }

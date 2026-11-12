@@ -425,17 +425,114 @@ abstract final class DshImport {
   ///     这类包只是纯 JS，跟核心版本弱耦合；有依赖的插件不动（提示去插件页装）。
   ///
   /// 任何一步失败都只记 trace，不阻塞引擎启动。
+  /// 手动/自动同步的统一入口。返回摘要，界面用它提示；未变化时 [SyncSummary.unchanged] 为 true。
+  static Future<SyncSummary> syncNow({required Directory source, required Directory target}) async {
+    final watch = Stopwatch()..start();
+    if (!await Directory(source.path).exists()) return const SyncSummary.missingSource();
+    final signature = await _officialSignature(source);
+    final statePath = '${target.path}${Platform.pathSeparator}dsh-app${Platform.pathSeparator}sync-state.json';
+    final state = _SyncState.read(await _readJson(statePath));
+    if (state.signature == signature) {
+      InstallTrace.add('import/sync', '跳过：官方环境自上次同步后没有变化（${watch.elapsedMilliseconds}ms）');
+      return SyncSummary(unchanged: true, elapsedMs: watch.elapsedMilliseconds, syncedAt: state.syncedAt);
+    }
+    final result = await importFrom(source: source, target: target);
+    final installed = await _installPlainPlugins(source: source, target: target);
+    final syncedAt = DateTime.now().toUtc().toIso8601String();
+    await _writeJson(statePath, {...state.toJson(), 'signature': signature, 'syncedAt': syncedAt});
+    InstallTrace.add(
+      'import/sync',
+      '同步完成：会话+${result.files} 文件、工作区 ${result.sessionWorkspaces} 个、'
+          'provider ${result.providers} 个、无依赖插件 ${installed.length} 个'
+          '${installed.isEmpty ? '' : '（${installed.join(', ')}）'}'
+          '（${watch.elapsedMilliseconds}ms）',
+    );
+    return SyncSummary(
+      files: result.files,
+      workspaces: result.sessionWorkspaces,
+      providers: result.providers,
+      plugins: installed,
+      elapsedMs: watch.elapsedMilliseconds,
+      syncedAt: syncedAt,
+    );
+  }
+
+  /// 官方环境相对上次同步有没有变化（界面用：显示"有更新"）。
+  static Future<({bool pending, String? syncedAt})> syncState({
+    required Directory source,
+    required Directory target,
+  }) async {
+    final signature = await _officialSignature(source);
+    final state = _SyncState.read(
+      await _readJson('${target.path}${Platform.pathSeparator}dsh-app${Platform.pathSeparator}sync-state.json'),
+    );
+    return (pending: state.signature != signature, syncedAt: state.syncedAt);
+  }
+
+  /// 自动同步（保留给探针/未来用）：失败只记 trace。
   static Future<void> autoSync({required Directory source, required Directory target}) async {
     try {
-      if (!await Directory(source.path).exists()) return;
-      final result = await importFrom(source: source, target: target);
-      final installed = await _installPlainPlugins(source: source, target: target);
-      InstallTrace.add(
-        'import/auto',
-        '自动同步：会话+${result.files} 文件、工作区 ${result.sessionWorkspaces} 个、'
-            'provider ${result.providers} 个、无依赖插件 ${installed.length} 个'
-            '${installed.isEmpty ? '' : '（${installed.join(', ')}）'}',
-      );
+      await syncNow(source: source, target: target);
+    } catch (error, stack) {
+      InstallTrace.error('import/sync', error, stack);
+    }
+  }
+
+  /// 官方环境的"指纹"：只看 mtime/size，不发 IO 读内容，启动时是毫秒级。
+  ///
+  /// 放进指纹的都是**会影响我们同步结果**的东西：会话文件、工作区注册表、
+  /// profile 的 package.json 与 cordis.patch.yml、凭据。任何一个变了才重新同步。
+  static Future<String> _officialSignature(Directory source) async {
+    final sep = Platform.pathSeparator;
+    final parts = <String>[];
+    Future<void> add(String path) async {
+      try {
+        final stat = await File(path).stat();
+        parts.add('${File(path).path.split(sep).last}:${stat.modified.millisecondsSinceEpoch}:${stat.size}');
+      } catch (_) {
+        parts.add('${File(path).path.split(sep).last}:-');
+      }
+    }
+
+    await add('${source.path}${sep}storages${sep}workspace.json');
+    await add('${source.path}${sep}.credentials.yaml');
+    await add('${source.path}${sep}profiles${sep}web${sep}package.json');
+    await add('${source.path}${sep}profiles${sep}web${sep}cordis.patch.yml');
+    // 会话：目录级 mtime 不够（新增文件不一定改目录 mtime 的语义在各平台不同），
+    // 这里数一下文件数与总大小，够用且便宜。
+    var count = 0;
+    var bytes = 0;
+    try {
+      final sessions = Directory('${source.path}${sep}sessions');
+      if (await sessions.exists()) {
+        await for (final entity in sessions.list(recursive: true, followLinks: false)) {
+          if (entity is! File) continue;
+          count += 1;
+          try {
+            bytes += await entity.length();
+          } catch (_) {}
+        }
+      }
+    } catch (_) {}
+    parts.add('sessions:$count:$bytes');
+    return parts.join('|');
+  }
+
+  static Future<Object?> _readJson(String path) async {
+    try {
+      final file = File(path);
+      if (!await file.exists()) return null;
+      return jsonDecode(await file.readAsString());
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> _writeJson(String path, Map<String, Object?> value) async {
+    try {
+      final file = File(path);
+      await file.parent.create(recursive: true);
+      await file.writeAsString(const JsonEncoder.withIndent('  ').convert(value), flush: true);
     } catch (error, stack) {
       InstallTrace.error('import/auto', error, stack);
     }
@@ -570,5 +667,65 @@ final officialPluginListProvider = FutureProvider<List<String>>((ref) async {
     return [if (list is List) for (final p in list) '$p'];
   } catch (_) {
     return const [];
+  }
+});
+
+/// 上一次自动同步记下的"官方环境指纹"，用来跳过没必要的重复同步。
+class _SyncState {
+  const _SyncState({this.signature, this.syncedAt});
+  final String? signature;
+  final String? syncedAt;
+
+  static _SyncState read(Object? json) {
+    if (json is! Map) return const _SyncState();
+    return _SyncState(signature: json['signature'] as String?, syncedAt: json['syncedAt'] as String?);
+  }
+
+  Map<String, Object?> toJson() => {
+    if (signature != null) 'signature': signature,
+    if (syncedAt != null) 'syncedAt': syncedAt,
+  };
+}
+
+/// 一次同步的摘要（界面提示用）。
+class SyncSummary {
+  const SyncSummary({
+    this.files = 0,
+    this.workspaces = 0,
+    this.providers = 0,
+    this.plugins = const [],
+    this.elapsedMs = 0,
+    this.syncedAt,
+    this.unchanged = false,
+    this.missingSource = false,
+  });
+
+  const SyncSummary.missingSource() : this(missingSource: true);
+
+  final int files;
+  final int workspaces;
+  final int providers;
+  final List<String> plugins;
+  final int elapsedMs;
+  final String? syncedAt;
+
+  /// 官方环境没变，什么都没做。
+  final bool unchanged;
+
+  /// 这台设备上没有官方 DSH 的数据目录。
+  final bool missingSource;
+}
+
+/// 官方环境相对上次同步有没有变化（界面显示"有更新 / 上次同步于 …"）。
+final officialSyncStateProvider = FutureProvider<({bool pending, String? syncedAt})>((ref) async {
+  try {
+    final support = ref.watch(appSupportDirProvider);
+    return await DshImport.syncState(
+      source: DshImport.officialHome(),
+      target: Directory('${support.path}${Platform.pathSeparator}runtime${Platform.pathSeparator}home'
+          '${Platform.pathSeparator}.dsh'),
+    );
+  } catch (_) {
+    return (pending: false, syncedAt: null);
   }
 });

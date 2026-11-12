@@ -6809,6 +6809,32 @@ class L10nEn extends L10n {
       'Plugins, model providers and chats match the official install exactly (same ~/.dsh). While shared, the app cannot reset or uninstall the runtime, and should not write the same data at the same time as the official DSH.';
 
   @override
+  String get engineSyncTitle => 'Sync the official DSH';
+
+  @override
+  String get engineSyncPending =>
+      'The official environment changed; tap to sync (chats, workspaces, model providers, plugins)';
+
+  @override
+  String get engineSyncNever => 'Never synced: chats, workspaces, model providers and plugins come from here';
+
+  @override
+  String engineSyncLast(String time) {
+    return 'Last synced: $time';
+  }
+
+  @override
+  String get engineSyncRunning => 'Syncing the official DSH…';
+
+  @override
+  String get engineSyncUnchanged => 'The official environment has not changed';
+
+  @override
+  String engineSyncDone(int files, int workspaces, int providers, int plugins) {
+    return 'Synced: $files chat files, $workspaces workspaces, $providers providers, $plugins plugins';
+  }
+
+  @override
   String get featuresCordisSubtitle => 'Dynamic plugins · Cleared when the engine restarts';
 
   @override

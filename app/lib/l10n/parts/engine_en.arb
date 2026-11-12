@@ -493,5 +493,35 @@
     }
   },
   "engineSharedHomeTitle": "Share the data folder with the official DSH",
-  "engineSharedHomeHint": "Plugins, model providers and chats match the official install exactly (same ~/.dsh). While shared, the app cannot reset or uninstall the runtime, and should not write the same data at the same time as the official DSH."
+  "engineSharedHomeHint": "Plugins, model providers and chats match the official install exactly (same ~/.dsh). While shared, the app cannot reset or uninstall the runtime, and should not write the same data at the same time as the official DSH.",
+  "engineSyncTitle": "Sync the official DSH",
+  "engineSyncPending": "The official environment changed; tap to sync (chats, workspaces, model providers, plugins)",
+  "engineSyncNever": "Never synced: chats, workspaces, model providers and plugins come from here",
+  "engineSyncLast": "Last synced: {time}",
+  "engineSyncRunning": "Syncing the official DSH…",
+  "engineSyncUnchanged": "The official environment has not changed",
+  "engineSyncDone": "Synced: {files} chat files, {workspaces} workspaces, {providers} providers, {plugins} plugins",
+  "@engineSyncLast": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@engineSyncDone": {
+    "placeholders": {
+      "files": {
+        "type": "int"
+      },
+      "workspaces": {
+        "type": "int"
+      },
+      "providers": {
+        "type": "int"
+      },
+      "plugins": {
+        "type": "int"
+      }
+    }
+  }
 }

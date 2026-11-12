@@ -25,7 +25,6 @@ import 'package:path_provider/path_provider.dart';
 import '../desktop/install_trace.dart';
 import '../desktop/platform_services.dart';
 import '../runtime/dsh_discovery.dart';
-import '../runtime/dsh_import.dart';
 import '../runtime/runtime_bridge.dart';
 import 'official_dsh.dart';
 import 'official_proxy.dart';
@@ -952,16 +951,8 @@ class MacRuntimeBridge implements RuntimeBridge {
       // 否则 dsh-app-boot 会因读不到 overlay 直接崩溃。
       await _ensureRuntimeLayout(runtimeDir, manifest);
       if (_external == null) {
-        // App 私有数据目录：启动前把官方 DSH 的环境自动补齐（会话/工作区/provider/
-        // 无依赖插件）。用户不需要手动点任何"导入"——幂等、只补缺、失败只记 trace。
-        if (!_sharedHome) {
-          try {
-            await DshImport.autoSync(source: DshImport.officialHome(), target: await _dshHome())
-                .timeout(const Duration(seconds: 45));
-          } catch (error, stack) {
-            InstallTrace.error('import/auto', error, stack);
-          }
-        }
+        // 官方环境同步**不**放在启动路径上：设置里有显式的「同步官方 DSH」按钮，
+        // 免得每次打开都要扫一遍官方目录（会话多的时候是秒级）。
         // 上次退出没能收掉的引擎（崩溃、强制退出）不能占着端口。
         await _reapStale(runtimeDir);
         // 共用官方数据目录时不往里写我们自己的 skill（那是 App 私有产物）。

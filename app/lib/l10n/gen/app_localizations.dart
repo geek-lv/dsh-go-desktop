@@ -11900,6 +11900,48 @@ abstract class L10n {
   /// **'插件、模型 provider、会话都和官方完全一致（同一份 ~/.dsh）。共用后 App 不能重置或卸载运行时，也别和官方 DSH 同时写同一份数据。'**
   String get engineSharedHomeHint;
 
+  /// No description provided for @engineSyncTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'同步官方 DSH'**
+  String get engineSyncTitle;
+
+  /// No description provided for @engineSyncPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'官方环境有更新，点一下同步（会话、工作区、模型 provider、插件）'**
+  String get engineSyncPending;
+
+  /// No description provided for @engineSyncNever.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没同步过：会话、工作区、模型 provider 和插件都从这里同步'**
+  String get engineSyncNever;
+
+  /// No description provided for @engineSyncLast.
+  ///
+  /// In zh, this message translates to:
+  /// **'上次同步：{time}'**
+  String engineSyncLast(String time);
+
+  /// No description provided for @engineSyncRunning.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在同步官方 DSH…'**
+  String get engineSyncRunning;
+
+  /// No description provided for @engineSyncUnchanged.
+  ///
+  /// In zh, this message translates to:
+  /// **'官方环境没有变化，无需同步'**
+  String get engineSyncUnchanged;
+
+  /// No description provided for @engineSyncDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'同步完成：{files} 个会话文件、{workspaces} 个工作区、{providers} 个 provider、{plugins} 个插件'**
+  String engineSyncDone(int files, int workspaces, int providers, int plugins);
+
   /// No description provided for @featuresCordisSubtitle.
   ///
   /// In zh, this message translates to:

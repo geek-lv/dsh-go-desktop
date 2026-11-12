@@ -6454,6 +6454,31 @@ class L10nZh extends L10n {
   String get engineSharedHomeHint => '插件、模型 provider、会话都和官方完全一致（同一份 ~/.dsh）。共用后 App 不能重置或卸载运行时，也别和官方 DSH 同时写同一份数据。';
 
   @override
+  String get engineSyncTitle => '同步官方 DSH';
+
+  @override
+  String get engineSyncPending => '官方环境有更新，点一下同步（会话、工作区、模型 provider、插件）';
+
+  @override
+  String get engineSyncNever => '还没同步过：会话、工作区、模型 provider 和插件都从这里同步';
+
+  @override
+  String engineSyncLast(String time) {
+    return '上次同步：$time';
+  }
+
+  @override
+  String get engineSyncRunning => '正在同步官方 DSH…';
+
+  @override
+  String get engineSyncUnchanged => '官方环境没有变化，无需同步';
+
+  @override
+  String engineSyncDone(int files, int workspaces, int providers, int plugins) {
+    return '同步完成：$files 个会话文件、$workspaces 个工作区、$providers 个 provider、$plugins 个插件';
+  }
+
+  @override
   String get featuresCordisSubtitle => '动态插件 · 引擎重启后清空';
 
   @override

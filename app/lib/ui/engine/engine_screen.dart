@@ -720,7 +720,7 @@ class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
           ),
         _updateTile(context, ref),
         _pruneTile(context, ref),
-        _importTile(context, ref),
+        _syncTile(context, ref),
         SettingsSwitchTile(
           icon: AppIcons.workspace,
           value: state.sharedHome,
@@ -734,34 +734,48 @@ class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
     );
   }
 
-  /// 「从官方 DSH 导入」：App 自带引擎与官方 DSH 用两套数据目录，这里把对话与工作区搬过来。
-  Widget _importTile(BuildContext context, WidgetRef ref) {
+  /// 「同步官方 DSH」：手动触发一次（会话/工作区/provider/无依赖插件）。
+  ///
+  /// 放在按钮里而不是启动路径上——启动时扫官方目录在会话多时是秒级开销，
+  /// 用户更希望"打开就能用"，同步这种一次性动作自己挑时间做。
+  Widget _syncTile(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final status = ref.watch(localRuntimeProvider).status;
-    // 只在用 App 自带引擎、且官方那份真的有会话时才出现。
     if (status.external || status.official) return const SizedBox.shrink();
     final official = DshImport.officialHome();
-    final workspaces = ref.watch(officialDshWorkspacesProvider).value ?? 0;
-    if (workspaces == 0) return const SizedBox.shrink();
+    final target = Directory('${ref.read(appSupportDirProvider).path}${Platform.pathSeparator}'
+        'runtime${Platform.pathSeparator}home${Platform.pathSeparator}.dsh');
+    final state = ref.watch(officialSyncStateProvider).value;
+    final pending = state?.pending ?? false;
+    final syncedAt = state?.syncedAt;
     return SettingsTile(
       icon: AppIcons.download,
-      title: l10n.engineImportTitle,
-      subtitle: l10n.engineImportHint(workspaces),
+      title: l10n.engineSyncTitle,
+      subtitle: pending
+          ? l10n.engineSyncPending
+          : syncedAt == null
+          ? l10n.engineSyncNever
+          : l10n.engineSyncLast(_shortTime(syncedAt)),
       onTap: () async {
         final messenger = ScaffoldMessenger.maybeOf(context);
-        final target = Directory('${ref.read(appSupportDirProvider).path}${Platform.pathSeparator}'
-            'runtime${Platform.pathSeparator}home${Platform.pathSeparator}.dsh');
+        messenger?.showSnackBar(SnackBar(content: Text(l10n.engineSyncRunning)));
         try {
-          final result = await DshImport.importFrom(source: official, target: target);
+          final summary = await DshImport.syncNow(source: official, target: target);
+          ref.invalidate(officialSyncStateProvider);
+          ref.invalidate(officialPluginListProvider);
           ref.invalidate(officialDshWorkspacesProvider);
-          // 会话列表读的是 host 的数据，导入后让它重新拉一次。
           ref.invalidate(sessionsProvider);
           messenger?.showSnackBar(
             SnackBar(
               content: Text(
-                result.files == 0
-                    ? l10n.engineImportNothing
-                    : l10n.engineImportDone(result.files, result.megabytes),
+                summary.unchanged
+                    ? l10n.engineSyncUnchanged
+                    : l10n.engineSyncDone(
+                        summary.files,
+                        summary.workspaces,
+                        summary.providers,
+                        summary.plugins.length,
+                      ),
               ),
             ),
           );
@@ -773,6 +787,14 @@ class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
     );
   }
 
+  /// `2026-11-12T11:05:08Z` → `11-12 19:05`（本地时间，够看就行）。
+  String _shortTime(String iso) {
+    final parsed = DateTime.tryParse(iso)?.toLocal();
+    if (parsed == null) return iso;
+    String two(int v) => v.toString().padLeft(2, '0');
+    return '${two(parsed.month)}-${two(parsed.day)} ${two(parsed.hour)}:${two(parsed.minute)}';
+  }
+
   /// 官方 DSH 的插件清单：只做提示，不安装（版本依赖不同，直接搬会把引擎带崩）。
   Widget _pluginListTile(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
@@ -782,14 +804,13 @@ class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
       icon: AppIcons.pluginInventory,
       title: l10n.enginePluginListTitle,
       subtitle: l10n.enginePluginListHint(plugins.length, plugins.join('、')),
-      // 点进去就是插件页，可以搜索并安装（比如 dsh-oh-my-claude）。
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute<void>(builder: (_) => const PluginsScreen()),
       ),
     );
   }
 
-  /// 可选：同步 DeepSeek 账号登录态（账号凭据记录）。默认不同步，点之前会确认。
+  /// 可选：同步 DeepSeek 账号登录态（账号凭据记录）。默认不同步，点了才跑。
   Widget _accountTile(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final status = ref.watch(localRuntimeProvider).status;
