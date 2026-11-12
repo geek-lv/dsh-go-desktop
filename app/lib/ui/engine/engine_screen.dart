@@ -721,6 +721,13 @@ class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
         _updateTile(context, ref),
         _pruneTile(context, ref),
         _importTile(context, ref),
+        SettingsSwitchTile(
+          icon: AppIcons.workspace,
+          value: state.sharedHome,
+          title: l10n.engineSharedHomeTitle,
+          subtitle: l10n.engineSharedHomeHint,
+          onChanged: (value) => unawaited(notifier.setSharedHome(value)),
+        ),
         _pluginListTile(context, ref),
         _accountTile(context, ref),
       ],

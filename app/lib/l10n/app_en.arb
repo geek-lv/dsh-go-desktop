@@ -1966,6 +1966,8 @@
   "enginePluginListTitle": "Plugins in the official DSH",
   "enginePluginListHint": "The official install has {count} plugins: {names}. Install them separately here (different core version, so the plugin tree is not copied).",
   "enginePluginListEmpty": "No plugin list recorded yet; run the import once.",
+  "engineSharedHomeTitle": "Share the data folder with the official DSH",
+  "engineSharedHomeHint": "Plugins, model providers and chats match the official install exactly (same ~/.dsh). While shared, the app cannot reset or uninstall the runtime, and should not write the same data at the same time as the official DSH.",
   "featuresCordisSubtitle": "Dynamic plugins · Cleared when the engine restarts",
   "featuresCordisUnavailable": "Cordis isn’t available here",
   "featuresCordisRemoteUnavailable": "Unavailable over DSH Remote",

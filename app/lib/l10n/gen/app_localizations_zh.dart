@@ -6448,6 +6448,12 @@ class L10nZh extends L10n {
   String get enginePluginListEmpty => '还没有记录官方插件清单，导入一次即可。';
 
   @override
+  String get engineSharedHomeTitle => '与官方 DSH 共用数据目录';
+
+  @override
+  String get engineSharedHomeHint => '插件、模型 provider、会话都和官方完全一致（同一份 ~/.dsh）。共用后 App 不能重置或卸载运行时，也别和官方 DSH 同时写同一份数据。';
+
+  @override
   String get featuresCordisSubtitle => '动态插件 · 引擎重启后清空';
 
   @override

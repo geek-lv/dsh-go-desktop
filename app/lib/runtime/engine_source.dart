@@ -49,6 +49,9 @@ bool sameEnginePath(String a, String b) {
 const engineSourcePref = 'dsh.engine_source';
 const engineInstalledPrefixPref = 'dsh.engine_installed_prefix';
 
+/// 与官方 DSH 共用 `$HOME/.dsh`（插件、provider、会话完全一致）。
+const engineSharedHomePref = 'dsh.shared_home';
+
 /// 用户选的引擎来源 + 探测到的候选。
 class EngineSourceState {
   const EngineSourceState({
@@ -60,6 +63,7 @@ class EngineSourceState {
     this.official,
     this.error,
     this.storeEngine,
+    this.sharedHome = false,
   });
 
   final EngineSource source;
@@ -80,6 +84,9 @@ class EngineSourceState {
 
   /// 当前用的是引擎库里的哪个版本（选了库版本时才有）。
   final DshEngine? storeEngine;
+
+  /// 与官方 DSH 共用 `$HOME/.dsh`：行为和官方网页完全一致（同一份插件/provider/会话）。
+  final bool sharedHome;
 
   /// 当前真正在用的那份已安装核心。
   DiscoveredDsh? get activeInstalled {
@@ -114,6 +121,7 @@ class EngineSourceState {
     OfficialDsh? official,
     String? error,
     DshEngine? storeEngine,
+    bool sharedHome = false,
     bool clearOfficial = false,
     bool clearError = false,
   }) => EngineSourceState(
@@ -125,6 +133,7 @@ class EngineSourceState {
     official: clearOfficial ? null : (official ?? this.official),
     error: clearError ? null : (error ?? this.error),
     storeEngine: storeEngine ?? this.storeEngine,
+    sharedHome: sharedHome,
   );
 }
 
@@ -170,7 +179,14 @@ class EngineSourceController extends Notifier<EngineSourceState> {
     final prefs = await SharedPreferences.getInstance();
     final source = EngineSource.parse(prefs.getString(engineSourcePref));
     final prefix = prefs.getString(engineInstalledPrefixPref);
-    InstallTrace.add('engine-source', 'restore: source=${source.name} prefix=${prefix ?? '-'}');
+    final shared = prefs.getBool(engineSharedHomePref) ?? false;
+    state = state.copyWith(sharedHome: shared);
+    try {
+      await _bridge.setSharedDataHome(shared);
+    } catch (error, stack) {
+      InstallTrace.error('engine-source', error, stack);
+    }
+    InstallTrace.add('engine-source', 'restore: source=${source.name} prefix=${prefix ?? '-'} sharedHome=$shared');
     state = state.copyWith(source: source, installedPrefix: prefix);
     // 先应用、后扫描：引擎的自动启动来自首帧，扫描（含官方 DSH 探测，最长 3 秒）
     // 不能挡在它前面——否则会先用 App 自带引擎启动，再切到外部核心，白白起停一次。
@@ -262,6 +278,15 @@ class EngineSourceController extends Notifier<EngineSourceState> {
       InstallTrace.error('engine-source', error, stack);
       state = state.copyWith(error: '$error');
     }
+  }
+
+  /// 与官方 DSH 共用数据目录（`$HOME/.dsh`）：插件与 provider 完全一致。
+  Future<void> setSharedHome(bool value) async {
+    state = state.copyWith(sharedHome: value);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(engineSharedHomePref, value);
+    await _bridge.setSharedDataHome(value);
+    InstallTrace.add('engine-source', 'sharedHome=$value（需重启引擎生效）');
   }
 
   /// 回到 App 自带的引擎（外部核心起不来时的兜底）。

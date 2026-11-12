@@ -6802,6 +6802,13 @@ class L10nEn extends L10n {
   String get enginePluginListEmpty => 'No plugin list recorded yet; run the import once.';
 
   @override
+  String get engineSharedHomeTitle => 'Share the data folder with the official DSH';
+
+  @override
+  String get engineSharedHomeHint =>
+      'Plugins, model providers and chats match the official install exactly (same ~/.dsh). While shared, the app cannot reset or uninstall the runtime, and should not write the same data at the same time as the official DSH.';
+
+  @override
   String get featuresCordisSubtitle => 'Dynamic plugins · Cleared when the engine restarts';
 
   @override

@@ -415,6 +415,137 @@ abstract final class DshImport {
     return out;
   }
 
+  /// 自动同步：把官方 DSH 的环境补齐到 App 自己的数据目录，**用户不需要手动点**。
+  ///
+  /// 每次引擎启动前跑一次（幂等、只补缺）：
+  ///   * 会话 / 工作区列表 / 技能 —— 合并，已有不动；
+  ///   * 模型 provider 段落 + 它们引用的密钥；
+  ///   * 官方插件清单（用于提示）；
+  ///   * **没有依赖的插件包**（如 dsh-oh-my-claude）直接装进来并启用——
+  ///     这类包只是纯 JS，跟核心版本弱耦合；有依赖的插件不动（提示去插件页装）。
+  ///
+  /// 任何一步失败都只记 trace，不阻塞引擎启动。
+  static Future<void> autoSync({required Directory source, required Directory target}) async {
+    try {
+      if (!await Directory(source.path).exists()) return;
+      final result = await importFrom(source: source, target: target);
+      final installed = await _installPlainPlugins(source: source, target: target);
+      InstallTrace.add(
+        'import/auto',
+        '自动同步：会话+${result.files} 文件、工作区 ${result.sessionWorkspaces} 个、'
+            'provider ${result.providers} 个、无依赖插件 ${installed.length} 个'
+            '${installed.isEmpty ? '' : '（${installed.join(', ')}）'}',
+      );
+    } catch (error, stack) {
+      InstallTrace.error('import/auto', error, stack);
+    }
+  }
+
+  /// 把官方 profile 里**没有 dependencies** 的插件包搬进来并启用。
+  ///
+  /// 有依赖的插件不搬：它们的依赖被 npm 提升到 profile 根，搬一半会让引擎加载失败。
+  static Future<List<String>> _installPlainPlugins({
+    required Directory source,
+    required Directory target,
+    String profile = 'web',
+  }) async {
+    final sep = Platform.pathSeparator;
+    final fromProfile = Directory('${source.path}${sep}profiles${sep}$profile');
+    final toProfile = Directory('${target.path}${sep}profiles${sep}$profile');
+    final fromPackage = File('${fromProfile.path}${sep}package.json');
+    if (!await fromPackage.exists()) return const [];
+    List<String> list(Object? v) => v is List ? [for (final x in v) '$x'] : <String>[];
+
+    final sourceMap = jsonDecode(await fromPackage.readAsString());
+    final sourceDsh = sourceMap is Map ? sourceMap['dsh'] : null;
+    final sourceProfileMap = sourceDsh is Map ? sourceDsh['profile'] : null;
+    final bundles = list(sourceProfileMap is Map ? sourceProfileMap['bundles'] : null);
+    final installed = <String>[];
+    for (final name in bundles) {
+      if (name.startsWith('@deepseek-ai/')) continue;
+      final fromDir = Directory('${fromProfile.path}${sep}node_modules${sep}${name.replaceAll('/', sep)}');
+      final pkgFile = File('${fromDir.path}${sep}package.json');
+      if (!await pkgFile.exists()) continue;
+      try {
+        final pkg = jsonDecode(await pkgFile.readAsString());
+        final deps = pkg is Map ? (pkg['dependencies'] as Map?) : null;
+        if (deps != null && deps.isNotEmpty) continue; // 有依赖：只提示，不搬
+      } catch (_) {
+        continue;
+      }
+      final toDir = Directory('${toProfile.path}${sep}node_modules${sep}${name.replaceAll('/', sep)}');
+      if (!await Directory(toDir.path).exists()) {
+        await for (final entity in fromDir.list(recursive: true, followLinks: false)) {
+          final rel = entity.path.substring(fromDir.path.length).replaceFirst(RegExp(r'^[\/]'), '');
+          final dest = '${toDir.path}$sep$rel';
+          if (entity is Directory) {
+            await Directory(dest).create(recursive: true);
+          } else if (entity is File) {
+            await File(dest).parent.create(recursive: true);
+            await entity.copy(dest);
+          }
+        }
+      }
+      installed.add(name);
+    }
+    if (installed.isEmpty) return installed;
+
+    // 启用：package.json 的 dependencies/bundles + cordis.patch.yml 的条目
+    await toProfile.create(recursive: true);
+    final toPackage = File('${toProfile.path}${sep}package.json');
+    Map<String, Object?> read(Object? decoded) =>
+        decoded is Map ? decoded.map((k, v) => MapEntry('$k', v)) : <String, Object?>{};
+    final targetMap = await toPackage.exists()
+        ? read(jsonDecode(await toPackage.readAsString()))
+        : <String, Object?>{};
+    final targetDeps = read(targetMap['dependencies']);
+    final sourceDeps = read((sourceMap as Map)['dependencies']);
+    for (final name in installed) {
+      final version = sourceDeps[name];
+      if (version != null) targetDeps[name] = version;
+    }
+    final targetDsh = read(targetMap['dsh']);
+    final targetProfile = read(targetDsh['profile']);
+    final mergedBundles = {...list(targetProfile['bundles']), ...installed}.toList();
+    await toPackage.writeAsString(
+      const JsonEncoder.withIndent('  ').convert({
+        ...targetMap,
+        'name': targetMap['name'] ?? 'dsh-profile-$profile',
+        'private': true,
+        'dependencies': targetDeps,
+        'dsh': {
+          ...targetDsh,
+          'profile': {...targetProfile, 'bundles': mergedBundles},
+        },
+      }),
+      flush: true,
+    );
+
+    final fromPatch = File('${fromProfile.path}${sep}cordis.patch.yml');
+    final toPatch = File('${toProfile.path}${sep}cordis.patch.yml');
+    if (await fromPatch.exists()) {
+      final text = await fromPatch.readAsString();
+      final blocks = _allBlocks(text).where((b) => b.id != null && _pluginIds(installed).contains(b.id)).toList();
+      final existing = await toPatch.exists() ? await toPatch.readAsString() : '';
+      final have = _allBlocks(existing).map((b) => b.id).whereType<String>().toSet();
+      final missing = blocks.where((b) => !have.contains(b.id)).toList();
+      if (missing.isNotEmpty) {
+        final body = [
+          if (existing.trim().isNotEmpty && existing.trim() != '[]') existing.trimRight(),
+          ...missing.map((b) => b.text.trimRight()),
+        ].join('\n');
+        await toPatch.writeAsString('$body\n', flush: true);
+      }
+    }
+    InstallTrace.add('import/auto', '已启用无依赖插件：${installed.join(', ')}');
+    return installed;
+  }
+
+  /// 插件包名 → 它在 patch 里的 entry id（`dsh-oh-my-claude` → `oh-my-claude`）。
+  static Set<String> _pluginIds(Iterable<String> packages) => {
+    for (final pkg in packages) pkg.replaceFirst(RegExp(r'^dsh-'), ''),
+  };
+
 }
 
 /// 官方 DSH 里有几个带会话的工作区（界面用它决定要不要显示「导入」）。

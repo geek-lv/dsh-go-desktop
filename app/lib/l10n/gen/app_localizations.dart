@@ -11888,6 +11888,18 @@ abstract class L10n {
   /// **'还没有记录官方插件清单，导入一次即可。'**
   String get enginePluginListEmpty;
 
+  /// No description provided for @engineSharedHomeTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'与官方 DSH 共用数据目录'**
+  String get engineSharedHomeTitle;
+
+  /// No description provided for @engineSharedHomeHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'插件、模型 provider、会话都和官方完全一致（同一份 ~/.dsh）。共用后 App 不能重置或卸载运行时，也别和官方 DSH 同时写同一份数据。'**
+  String get engineSharedHomeHint;
+
   /// No description provided for @featuresCordisSubtitle.
   ///
   /// In zh, this message translates to:

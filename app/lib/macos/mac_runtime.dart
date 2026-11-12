@@ -25,6 +25,7 @@ import 'package:path_provider/path_provider.dart';
 import '../desktop/install_trace.dart';
 import '../desktop/platform_services.dart';
 import '../runtime/dsh_discovery.dart';
+import '../runtime/dsh_import.dart';
 import '../runtime/runtime_bridge.dart';
 import 'official_dsh.dart';
 import 'official_proxy.dart';
@@ -60,6 +61,18 @@ class MacRuntimeBridge implements RuntimeBridge {
   DiscoveredDsh? _external;
   DiscoveredDsh? get externalCore => _external;
   bool get isExternal => _external != null;
+
+  /// 与官方 DSH **共用数据目录**（`$HOME/.dsh`）：插件、模型 provider、会话都完全一致，
+  /// 也就是"和官方网页行为一样"。代价：App 的「重置/卸载运行时」不能再删数据。
+  bool _sharedHome = false;
+  bool get sharedDataHome => _sharedHome;
+
+  Future<void> setSharedDataHome(bool value) async {
+    if (_sharedHome == value) return;
+    _sharedHome = value;
+    InstallTrace.add('engine', '数据目录：${value ? '与官方 DSH 共用 \$HOME/.dsh' : 'App 私有'}');
+    _emit();
+  }
 
   static const String _officialNotRunning = '官方 DSH 没有在运行：先打开 DeepSeek Harness，再回到这里。';
 
@@ -140,6 +153,11 @@ class MacRuntimeBridge implements RuntimeBridge {
   /// 引擎的 `HOME`：App 自有引擎是 `<runtime>/home`；复用模式下是用户真实 home，
   /// 于是 `$HOME/.dsh` 就是用户已经装好插件、登录过模型的那份数据。
   Future<Directory> _homeDir() async {
+    if (_sharedHome) {
+      final env = Platform.environment;
+      final home = Platform.isWindows ? (env['USERPROFILE'] ?? env['HOME']) : env['HOME'];
+      if (home != null && home.isNotEmpty) return Directory(home);
+    }
     if (_external != null) {
       final env = Platform.environment;
       final home = Platform.isWindows ? (env['USERPROFILE'] ?? env['HOME']) : env['HOME'];
@@ -303,6 +321,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     'baseUrl': _baseUrl,
     'token': _token,
     'external': _external != null,
+    'sharedHome': _sharedHome,
     'externalPath': _external?.prefix,
     'externalSource': _external?.source,
     'managedSkillGeneration': _generation > 0 ? _generation : null,
@@ -503,6 +522,9 @@ class MacRuntimeBridge implements RuntimeBridge {
     if (Platform.isWindows) {
       final runtimeNode = '${runtimeDir.path}\\node';
       final systemRoot = Platform.environment['SystemRoot'] ?? r'C:\Windows';
+      final profile = Platform.environment['USERPROFILE'];
+      final appData = Platform.environment['APPDATA'];
+      final localAppData = Platform.environment['LOCALAPPDATA'];
       final parts = <String>[
         runtimeNode,
         '$systemRoot\\System32',
@@ -510,10 +532,22 @@ class MacRuntimeBridge implements RuntimeBridge {
         '$systemRoot\\System32\\WindowsPowerShell\\v1.0',
         // 系统里已经装的 Node（有些插件会调 npm），追加即可。
         if (Platform.environment['ProgramFiles'] case final programFiles?) '$programFiles\\nodejs',
-      ];
-      return parts.join(separator);
+        // 用户级 CLI：插件型 provider（如 dsh-oh-my-claude 要 spawn `claude`）靠它
+        // 找到可执行文件。官方 DSH 继承用户完整 PATH，这里必须同样放行。
+        if (profile != null) '$profile\\.local\\bin',
+        if (appData != null) '$appData\\npm',
+        if (localAppData != null) '$localAppData\\Microsoft\\WindowsApps',
+        // 保留用户原本的 PATH（官方行为）：插件/工具链常常依赖它。
+        Platform.environment['PATH'] ?? '',
+      ].where((p) => p.isNotEmpty).join(separator);
+      return parts;
     }
-    return '${runtimeDir.path}/node/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
+    // Unix：运行时 node 在前，其余交给用户原本的 PATH（官方同样继承）。
+    final path = Platform.environment['PATH'] ?? '';
+    return [
+      '${runtimeDir.path}/node/bin',
+      if (path.isNotEmpty) path else '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin',
+    ].join(separator);
   }
 
   Future<void> _saveState() async {
@@ -918,16 +952,30 @@ class MacRuntimeBridge implements RuntimeBridge {
       // 否则 dsh-app-boot 会因读不到 overlay 直接崩溃。
       await _ensureRuntimeLayout(runtimeDir, manifest);
       if (_external == null) {
+        // App 私有数据目录：启动前把官方 DSH 的环境自动补齐（会话/工作区/provider/
+        // 无依赖插件）。用户不需要手动点任何"导入"——幂等、只补缺、失败只记 trace。
+        if (!_sharedHome) {
+          try {
+            await DshImport.autoSync(source: DshImport.officialHome(), target: await _dshHome())
+                .timeout(const Duration(seconds: 45));
+          } catch (error, stack) {
+            InstallTrace.error('import/auto', error, stack);
+          }
+        }
         // 上次退出没能收掉的引擎（崩溃、强制退出）不能占着端口。
         await _reapStale(runtimeDir);
-        await _ensureSupportSkill(await _dshHome());
+        // 共用官方数据目录时不往里写我们自己的 skill（那是 App 私有产物）。
+        if (!_sharedHome) await _ensureSupportSkill(await _dshHome());
       }
       final port = await _pickPort();
       _port = port;
 
       final safe = _safeState != SafeModeState.off;
       final argv = _expandArgs(manifest, runtimeDir: runtimeDir.path, home: home.path, port: port, safe: safe);
+      // 继承用户环境（官方 DSH 就是这样跑的）：插件/CLI provider 常常依赖
+      // 用户环境里的变量（PATH、API key、代理…）。下面再覆盖我们必须改的那几个。
       final launchEnv = <String, String>{
+        ...Platform.environment,
         'HOME': home.path,
         'DSH_HOME': '${home.path}/.dsh',
         'USER': Platform.environment['USER'] ?? 'dsh',
@@ -1354,6 +1402,12 @@ whenToUse: 用户在 DSH Go Mac 上遇到连接、引擎、手机连接或更新
 
   @override
   Future<void> reset({ResetKeep keep = const ResetKeep()}) async {
+    if (_sharedHome) {
+      throw PlatformException(
+        code: 'shared_home',
+        message: '正在与官方 DSH 共用数据目录，重置会删掉官方的会话与插件。先切回 App 私有数据再重置。',
+      );
+    }
     await stop();
     final runtimeDir = await _runtimeDir();
     Directory? stash;
