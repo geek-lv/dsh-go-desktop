@@ -352,6 +352,13 @@ class MacRuntimeBridge implements RuntimeBridge {
     }
   }
 
+  /// 诊断里显示的产品名，按平台区分（macOS 版叫 DSH Go Mac）。
+  static String get _productName {
+    if (Platform.isWindows) return 'Windows';
+    if (Platform.isLinux) return 'Linux';
+    return 'Mac';
+  }
+
   /// 引擎进程的 PATH。
   ///
   /// 把运行时自带的 node 目录排在最前，这样引擎里的 `node` / `npm` / `pnpm`
@@ -1011,10 +1018,10 @@ class MacRuntimeBridge implements RuntimeBridge {
             (match) => '${match[1]}=<redacted>',
           );
       final buffer = StringBuffer()
-        ..writeln('# DSH Go Mac diagnostics')
+        ..writeln('# DSH Go diagnostics')
         ..writeln()
-        ..writeln('- app: DSH Go Mac 1.0.7')
-        ..writeln('- platform: macOS ${Platform.operatingSystemVersion}')
+        ..writeln('- app: DSH Go $_productName 1.0.7')
+        ..writeln('- platform: ${Platform.operatingSystem} ${Platform.operatingSystemVersion}')
         ..writeln('- arch: $archText')
         ..writeln('- model: $modelText')
         ..writeln('- engine: bundled (DSH ${_dshVersion ?? '?'}, Node ${_nodeVersion ?? '?'})')
