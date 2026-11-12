@@ -467,5 +467,29 @@
         "type": "String"
       }
     }
+  },
+  "engineImportAccountTitle": "Sync the DeepSeek account sign-in",
+  "engineImportAccountHint": "Copy the official account credential records (sign-in and balance follow). Off by default.",
+  "engineImportAccountDone": "Synced {count} account credential records",
+  "engineImportAccountNothing": "The official side has no account records to sync",
+  "enginePluginListTitle": "Plugins in the official DSH",
+  "enginePluginListHint": "The official install has {count} plugins: {names}. Install them separately here (different core version, so the plugin tree is not copied).",
+  "enginePluginListEmpty": "No plugin list recorded yet; run the import once.",
+  "@engineImportAccountDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@enginePluginListHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -6423,6 +6423,31 @@ class L10nZh extends L10n {
   String get engineImportNote => 'App 自带引擎与官方 DSH 用两套数据目录。想直接共用官方那份（含插件），把引擎来源切到「这台设备上已装的 DSH」。';
 
   @override
+  String get engineImportAccountTitle => '同步 DeepSeek 账号登录态';
+
+  @override
+  String get engineImportAccountHint => '把官方的账号凭据记录拷过来（登录态、余额显示跟着走）。默认不同步。';
+
+  @override
+  String engineImportAccountDone(int count) {
+    return '已同步 $count 条账号凭据';
+  }
+
+  @override
+  String get engineImportAccountNothing => '官方那边没有可同步的账号凭据';
+
+  @override
+  String get enginePluginListTitle => '官方 DSH 的插件';
+
+  @override
+  String enginePluginListHint(int count, String names) {
+    return '官方装了 $count 个插件：$names。这些要在 App 里单独安装（核心版本不同，不直接搬插件树）。';
+  }
+
+  @override
+  String get enginePluginListEmpty => '还没有记录官方插件清单，导入一次即可。';
+
+  @override
   String get featuresCordisSubtitle => '动态插件 · 引擎重启后清空';
 
   @override

@@ -812,5 +812,29 @@
         "type": "String"
       }
     }
+  },
+  "engineImportAccountTitle": "同步 DeepSeek 账号登录态",
+  "engineImportAccountHint": "把官方的账号凭据记录拷过来（登录态、余额显示跟着走）。默认不同步。",
+  "engineImportAccountDone": "已同步 {count} 条账号凭据",
+  "engineImportAccountNothing": "官方那边没有可同步的账号凭据",
+  "enginePluginListTitle": "官方 DSH 的插件",
+  "enginePluginListHint": "官方装了 {count} 个插件：{names}。这些要在 App 里单独安装（核心版本不同，不直接搬插件树）。",
+  "enginePluginListEmpty": "还没有记录官方插件清单，导入一次即可。",
+  "@engineImportAccountDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@enginePluginListHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
   }
 }

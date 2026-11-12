@@ -12,6 +12,7 @@ import '../../runtime/dsh_discovery.dart';
 import '../../runtime/dsh_capabilities.dart';
 import '../../runtime/dsh_engines.dart';
 import '../../runtime/dsh_import.dart';
+import '../plugins/plugins_screen.dart';
 import '../../runtime/dsh_npm.dart';
 import '../../runtime/engine_source.dart';
 import '../../runtime/runtime_bridge.dart';
@@ -720,6 +721,8 @@ class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
         _updateTile(context, ref),
         _pruneTile(context, ref),
         _importTile(context, ref),
+        _pluginListTile(context, ref),
+        _accountTile(context, ref),
       ],
     );
   }
@@ -752,6 +755,55 @@ class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
                 result.files == 0
                     ? l10n.engineImportNothing
                     : l10n.engineImportDone(result.files, result.megabytes),
+              ),
+            ),
+          );
+        } catch (error) {
+          InstallTrace.error('import/ui', error);
+          messenger?.showSnackBar(SnackBar(content: Text(l10n.engineImportFailed('$error'))));
+        }
+      },
+    );
+  }
+
+  /// 官方 DSH 的插件清单：只做提示，不安装（版本依赖不同，直接搬会把引擎带崩）。
+  Widget _pluginListTile(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final plugins = ref.watch(officialPluginListProvider).value ?? const <String>[];
+    if (plugins.isEmpty) return const SizedBox.shrink();
+    return SettingsTile(
+      icon: AppIcons.pluginInventory,
+      title: l10n.enginePluginListTitle,
+      subtitle: l10n.enginePluginListHint(plugins.length, plugins.join('、')),
+      // 点进去就是插件页，可以搜索并安装（比如 dsh-oh-my-claude）。
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(builder: (_) => const PluginsScreen()),
+      ),
+    );
+  }
+
+  /// 可选：同步 DeepSeek 账号登录态（账号凭据记录）。默认不同步，点之前会确认。
+  Widget _accountTile(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final status = ref.watch(localRuntimeProvider).status;
+    if (status.official) return const SizedBox.shrink();
+    return SettingsTile(
+      icon: AppIcons.account,
+      title: l10n.engineImportAccountTitle,
+      subtitle: l10n.engineImportAccountHint,
+      onTap: () async {
+        final messenger = ScaffoldMessenger.maybeOf(context);
+        final target = Directory('${ref.read(appSupportDirProvider).path}${Platform.pathSeparator}'
+            'runtime${Platform.pathSeparator}home${Platform.pathSeparator}.dsh');
+        try {
+          final count = await DshImport.importAccount(
+            source: DshImport.officialHome(),
+            target: target,
+          );
+          messenger?.showSnackBar(
+            SnackBar(
+              content: Text(
+                count == 0 ? l10n.engineImportAccountNothing : l10n.engineImportAccountDone(count),
               ),
             ),
           );

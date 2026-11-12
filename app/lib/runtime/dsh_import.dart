@@ -18,6 +18,7 @@ import 'package:yaml/yaml.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../desktop/install_trace.dart';
+import 'dsh_engines.dart';
 
 /// 一次导入的结果。
 class DshImportResult {
@@ -27,6 +28,7 @@ class DshImportResult {
     required this.bytes,
     required this.sessionWorkspaces,
     this.providers = 0,
+    this.plugins = 0,
   });
 
   /// 新写入的文件数。
@@ -41,6 +43,9 @@ class DshImportResult {
 
   /// 同步了多少个模型 provider（`llm-*` 那几段）。
   final int providers;
+
+  /// 同步了多少个插件（`dsh.profile.bundles` 新增的）。
+  final int plugins;
 
   String get megabytes => (bytes / 1048576).toStringAsFixed(1);
 }
@@ -114,11 +119,13 @@ abstract final class DshImport {
     }
     final merged = await _mergeWorkspaceRegistry(source, target);
     final providers = await importModelProviders(source: source, target: target);
+    final plugins = (await importPluginList(source: source, target: target)).length;
     final workspaces = await countWorkspaces(target);
     InstallTrace.add(
       'import',
       '导入完成：$files 个文件（${(bytes / 1048576).toStringAsFixed(1)} MB），跳过 $skipped 个已存在，'
-          '合并工作区 $merged 个，模型 provider $providers 个，目标共 $workspaces 个工作区',
+          '合并工作区 $merged 个，模型 provider $providers 个，官方插件清单 $plugins 个，'
+          '目标共 $workspaces 个工作区',
     );
     return DshImportResult(
       files: files,
@@ -126,6 +133,7 @@ abstract final class DshImport {
       bytes: bytes,
       sessionWorkspaces: workspaces,
       providers: providers,
+      plugins: plugins,
     );
   }
 
@@ -317,6 +325,96 @@ abstract final class DshImport {
     }
   }
 
+  /// 只把官方的**已装插件清单**记下来（不安装、不拷 node_modules）。
+  ///
+  /// 用途是"提示"：让用户在 App 里知道官方装了哪些插件、哪些还没装。
+  /// 直接搬插件树很危险——插件是按官方那个核心版本装的，我们的核心版本不同，
+  /// 装上可能把引擎带崩（`profiles/*/node_modules` 里还有提升到根的原生依赖）。
+  static Future<List<String>> importPluginList({
+    required Directory source,
+    required Directory target,
+    String profile = 'web',
+  }) async {
+    final sep = Platform.pathSeparator;
+    final from = File('${source.path}${sep}profiles${sep}$profile${sep}package.json');
+    if (!await from.exists()) return const [];
+    try {
+      final decoded = jsonDecode(await from.readAsString());
+      final map = decoded is Map ? decoded : const {};
+      final dsh = map['dsh'];
+      final profileMap = dsh is Map ? dsh['profile'] : null;
+      final bundles = profileMap is Map ? profileMap['bundles'] : null;
+      final names = [
+        if (bundles is List)
+          for (final b in bundles)
+            if ('$b'.isNotEmpty && !'$b'.startsWith('@deepseek-ai/')) '$b',
+      ];
+      final dir = Directory('${target.path}${sep}dsh-app');
+      await dir.create(recursive: true);
+      await File('${dir.path}${sep}official-plugins.json').writeAsString(
+        const JsonEncoder.withIndent('  ').convert({
+          'capturedAt': DateTime.now().toUtc().toIso8601String(),
+          'profile': profile,
+          'plugins': names,
+        }),
+        flush: true,
+      );
+      InstallTrace.add('import', '记录官方插件清单：${names.join(', ')}');
+      return names;
+    } catch (error, stack) {
+      InstallTrace.error('import', error, stack);
+      return const [];
+    }
+  }
+
+  /// 可选：同步 DeepSeek 账号的登录态（`.credentials.yaml` 里 kind=grant 的记录）。
+  ///
+  /// 默认**不**同步——那是账号凭据，属于用户明确要才搬的东西。
+  static Future<int> importAccount({required Directory source, required Directory target}) async {
+    final sep = Platform.pathSeparator;
+    final from = File('${source.path}${sep}.credentials.yaml');
+    final to = File('${target.path}${sep}.credentials.yaml');
+    if (!await from.exists()) return 0;
+    Map<String, Object?> read(Object? decoded) =>
+        decoded is Map ? decoded.map((k, v) => MapEntry('$k', v)) : <String, Object?>{};
+    final sourceMap = read(_tryYaml(await from.readAsString()));
+    final targetMap = await to.exists() ? read(_tryYaml(await to.readAsString())) : <String, Object?>{};
+    final sourceRecords = read(sourceMap['records']);
+    final targetRecords = read(targetMap['records']);
+    final added = sourceRecords.keys.where((k) => !targetRecords.containsKey(k)).toList();
+    if (added.isEmpty) return 0;
+    final merged = <String, Object?>{
+      'version': targetMap['version'] ?? sourceMap['version'] ?? 1,
+      'refs': {...read(sourceMap['refs']), ...read(targetMap['refs'])},
+      'records': {...sourceRecords, ...targetRecords},
+    };
+    await to.parent.create(recursive: true);
+    await to.writeAsString(const JsonEncoder.withIndent('  ').convert(merged), flush: true);
+    InstallTrace.add('import', '同步账号凭据记录：${added.join(', ')}');
+    return added.length;
+  }
+
+  /// 切出所有顶层 `- id: …` 段落（没有 id 的段落忽略）。
+  static List<({String? id, String text})> _allBlocks(String text) {
+    final lines = text.split('\n');
+    final out = <({String? id, String text})>[];
+    var i = 0;
+    while (i < lines.length) {
+      final match = RegExp(r'^-\s+id:\s*([\w.-]+)\s*$').firstMatch(lines[i]);
+      if (match == null) {
+        i += 1;
+        continue;
+      }
+      final start = i;
+      i += 1;
+      while (i < lines.length && !RegExp(r'^-\s').hasMatch(lines[i])) {
+        i += 1;
+      }
+      out.add((id: match.group(1), text: lines.sublist(start, i).join('\n')));
+    }
+    return out;
+  }
+
 }
 
 /// 官方 DSH 里有几个带会话的工作区（界面用它决定要不要显示「导入」）。
@@ -325,5 +423,21 @@ final officialDshWorkspacesProvider = FutureProvider<int>((ref) async {
     return await DshImport.countWorkspaces(DshImport.officialHome());
   } catch (_) {
     return 0;
+  }
+});
+
+/// 官方 DSH 里装过哪些插件（导入时记下的清单；界面用来提示）。
+final officialPluginListProvider = FutureProvider<List<String>>((ref) async {
+  try {
+    final support = ref.watch(appSupportDirProvider);
+    final file = File('${support.path}${Platform.pathSeparator}runtime${Platform.pathSeparator}home'
+        '${Platform.pathSeparator}.dsh${Platform.pathSeparator}dsh-app'
+        '${Platform.pathSeparator}official-plugins.json');
+    if (!await file.exists()) return const [];
+    final decoded = jsonDecode(await file.readAsString());
+    final list = decoded is Map ? decoded['plugins'] : null;
+    return [if (list is List) for (final p in list) '$p'];
+  } catch (_) {
+    return const [];
   }
 });

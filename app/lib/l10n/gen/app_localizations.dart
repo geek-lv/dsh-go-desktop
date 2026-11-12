@@ -11846,6 +11846,48 @@ abstract class L10n {
   /// **'App 自带引擎与官方 DSH 用两套数据目录。想直接共用官方那份（含插件），把引擎来源切到「这台设备上已装的 DSH」。'**
   String get engineImportNote;
 
+  /// No description provided for @engineImportAccountTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'同步 DeepSeek 账号登录态'**
+  String get engineImportAccountTitle;
+
+  /// No description provided for @engineImportAccountHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'把官方的账号凭据记录拷过来（登录态、余额显示跟着走）。默认不同步。'**
+  String get engineImportAccountHint;
+
+  /// No description provided for @engineImportAccountDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'已同步 {count} 条账号凭据'**
+  String engineImportAccountDone(int count);
+
+  /// No description provided for @engineImportAccountNothing.
+  ///
+  /// In zh, this message translates to:
+  /// **'官方那边没有可同步的账号凭据'**
+  String get engineImportAccountNothing;
+
+  /// No description provided for @enginePluginListTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'官方 DSH 的插件'**
+  String get enginePluginListTitle;
+
+  /// No description provided for @enginePluginListHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'官方装了 {count} 个插件：{names}。这些要在 App 里单独安装（核心版本不同，不直接搬插件树）。'**
+  String enginePluginListHint(int count, String names);
+
+  /// No description provided for @enginePluginListEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有记录官方插件清单，导入一次即可。'**
+  String get enginePluginListEmpty;
+
   /// No description provided for @featuresCordisSubtitle.
   ///
   /// In zh, this message translates to:

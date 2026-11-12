@@ -3980,6 +3980,30 @@
     }
   },
   "engineImportNote": "App 自带引擎与官方 DSH 用两套数据目录。想直接共用官方那份（含插件），把引擎来源切到「这台设备上已装的 DSH」。",
+  "engineImportAccountTitle": "同步 DeepSeek 账号登录态",
+  "engineImportAccountHint": "把官方的账号凭据记录拷过来（登录态、余额显示跟着走）。默认不同步。",
+  "engineImportAccountDone": "已同步 {count} 条账号凭据",
+  "@engineImportAccountDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "engineImportAccountNothing": "官方那边没有可同步的账号凭据",
+  "enginePluginListTitle": "官方 DSH 的插件",
+  "enginePluginListHint": "官方装了 {count} 个插件：{names}。这些要在 App 里单独安装（核心版本不同，不直接搬插件树）。",
+  "@enginePluginListHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "enginePluginListEmpty": "还没有记录官方插件清单，导入一次即可。",
   "featuresCordisSubtitle": "动态插件 · 引擎重启后清空",
   "featuresCordisUnavailable": "这个连接看不到 Cordis",
   "featuresCordisRemoteUnavailable": "经 DSH Remote 中转时不可用",

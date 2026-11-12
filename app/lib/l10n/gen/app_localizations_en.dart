@@ -6776,6 +6776,32 @@ class L10nEn extends L10n {
       'The app\'s engine and the official DSH keep separate data folders. To share the official one (plugins included), switch the engine source to “DSH already installed on this device”.';
 
   @override
+  String get engineImportAccountTitle => 'Sync the DeepSeek account sign-in';
+
+  @override
+  String get engineImportAccountHint =>
+      'Copy the official account credential records (sign-in and balance follow). Off by default.';
+
+  @override
+  String engineImportAccountDone(int count) {
+    return 'Synced $count account credential records';
+  }
+
+  @override
+  String get engineImportAccountNothing => 'The official side has no account records to sync';
+
+  @override
+  String get enginePluginListTitle => 'Plugins in the official DSH';
+
+  @override
+  String enginePluginListHint(int count, String names) {
+    return 'The official install has $count plugins: $names. Install them separately here (different core version, so the plugin tree is not copied).';
+  }
+
+  @override
+  String get enginePluginListEmpty => 'No plugin list recorded yet; run the import once.';
+
+  @override
   String get featuresCordisSubtitle => 'Dynamic plugins · Cleared when the engine restarts';
 
   @override
