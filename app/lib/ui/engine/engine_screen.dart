@@ -620,6 +620,11 @@ class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
       final result = await ref.read(dshNpmProvider).install(
         version,
         onLog: (line) => InstallTrace.add('npm', line),
+        keepVersions: {
+          // 当前在用的 + 发版绑定的，清理时不能删。
+          ?ref.read(engineSourceProvider).activeInstalled?.version,
+          ?ref.read(localRuntimeProvider).status.dshVersion,
+        },
       );
       ref.invalidate(engineStoreListProvider);
       messenger?.showSnackBar(

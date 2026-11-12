@@ -102,6 +102,8 @@ class DshNpm {
   Future<DshInstallResult> install(
     String version, {
     void Function(String line)? onLog,
+    /// 装完顺手清理时**必须保留**的版本（当前使用 + 发版绑定版本）。
+    Set<String> keepVersions = const {},
   }) async {
     await store.ensure();
     // 先把补丁链与锁文件解压出来：`lockFor()` 依赖它决定用 npm ci 还是 npm install。
@@ -198,6 +200,17 @@ class DshNpm {
         note: patchNote,
       );
       await store.register(engine);
+      // 装完顺手收敛磁盘：保留 keepVersions + 最新一个，其余删掉。
+      // 每个版本约 550 MB，多装几次就会吃掉几 GB。
+      try {
+        final freed = await store.prune(keep: {...keepVersions, version}, keepNewest: 1);
+        if (freed > 0) {
+          onLog?.call('清理旧版本，释放 ${(freed / 1048576).round()} MB');
+        }
+      } catch (error, stack) {
+        // 清理失败不影响这次安装。
+        InstallTrace.error('npm', 'prune after install failed: $error', stack);
+      }
       InstallTrace.add(
         'npm',
         'installed $version → ${target.path}（'
