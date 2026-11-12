@@ -3,7 +3,7 @@
   "a11yRestoreTitle": "自动恢复无障碍",
   "searchKwA11yRestore": "无障碍,恢复,重连,自动恢复,掉线,授权,ADB,Shizuku,Sui,root",
   "a11yRestoreNeedsGrant": "需要授权",
-  "a11yRestoreNotice": "开启后，在系统设置里关掉无障碍会被自动打开；要关闭手机操控，请在 DSH Go 里关。",
+  "a11yRestoreNotice": "开启后，在系统设置里关掉无障碍会被自动打开；要关闭设备操控，请在 DSH Go 里关。",
   "a11yRestoreForceStop": "被强制停止后，重新打开 DSH Go 才能恢复。",
   "a11yRestoreGrant": "授权并开启",
   "a11yRestoreGrantShizuku": "通过 Shizuku 授予",
@@ -20,11 +20,11 @@
   "accessPickMessage": "选好后逐项开启",
   "accessPickConfirm": "开启所选",
   "accessSkip": "跳过",
-  "accessFeatureFiles": "读写手机里的文件",
+  "accessFeatureFiles": "读写设备里的文件",
   "accessFeatureFilesNeeds": "需要文件访问权限",
   "accessFeaturePet": "桌宠与悬浮窗",
   "accessFeaturePetNeeds": "需要悬浮窗权限",
-  "accessFeaturePhone": "手机操控",
+  "accessFeaturePhone": "设备操控",
   "accessFeaturePhoneNeeds": "需要无障碍和通知权限",
   "accessFeatureBackground": "后台持续运行",
   "accessFeatureBackgroundNeeds": "任务跑完通知你，需要通知和后台权限",
@@ -39,7 +39,7 @@
     }
   },
   "accessVoiceMetered": "当前是移动数据，下载会消耗流量",
-  "accessFilesRiskBody": "AI 能读取和修改相册、下载、文档等手机文件。",
+  "accessFilesRiskBody": "AI 能读取和修改相册、下载、文档等设备文件。",
   "accessStepCount": "{index} / {total}",
   "@accessStepCount": {
     "placeholders": {
@@ -95,9 +95,9 @@
     }
   },
   "accessA11yTitle": "打开无障碍",
-  "accessA11yWhy": "手机操控靠它看屏幕、点按",
+  "accessA11yWhy": "设备操控靠它看屏幕、点按",
   "accessPopupTitle": "允许后台弹出界面",
-  "accessPopupWhy": "手机操控做完能回到 DSH Go",
+  "accessPopupWhy": "设备操控做完能回到 DSH Go",
   "accessVivoPopupPath": "权限管理 › {app} › 后台弹出界面",
   "@accessVivoPopupPath": {
     "placeholders": {
@@ -1416,7 +1416,7 @@
   },
   "botsUpdateRequired": "DS Bot 需要更新",
   "botsInstall": "安装 DS Bot",
-  "botsUpdateForPhone": "新版才能在手机上用",
+  "botsUpdateForPhone": "新版才能在设备上用",
   "botsInstallDescription": "一组长期在线的 Bot，各有记忆和分工",
   "botsInstallOnHost": "在{host}上装好后就能用",
   "@botsInstallOnHost": {
@@ -1973,7 +1973,7 @@
   "catalogAccount": "账号与余额",
   "catalogAccountSummary": "登录、余额与充值",
   "catalogRemoteSummary": "连接电脑或服务器",
-  "catalogPhoneControl": "手机操控",
+  "catalogPhoneControl": "设备操控",
   "catalogPhoneControlSummary": "看屏幕、帮你点按",
   "catalogEngine": "本机引擎",
   "catalogEngineSummary": "本机引擎状态与日志",
@@ -2271,7 +2271,7 @@
   "chatVoiceMicrophoneFailed": "没能打开麦克风",
   "chatVoicePermissionOff": "麦克风权限已关闭",
   "chatVoicePermissionNeeded": "需要麦克风权限才能语音输入",
-  "chatVoiceUnavailable": "这台手机没有可用的语音识别",
+  "chatVoiceUnavailable": "这台设备没有可用的语音识别",
   "chatVoiceNotHeard": "没有听清，再说一次",
   "chatVoiceTranscriptionFailed": "没能转写这段语音",
   "chatVoiceNetworkFailed": "网络不太好，没能识别",
@@ -2402,9 +2402,9 @@
   },
   "chatOpening": "正在打开…",
   "chatSavingToDownloads": "正在存到「下载」…",
-  "chatOpenInPhoneApp": "用手机上的应用打开",
+  "chatOpenInPhoneApp": "用设备上的应用打开",
   "chatMoreActions": "更多操作",
-  "chatAlreadyInDownloads": "已在手机的「下载」里",
+  "chatAlreadyInDownloads": "已在设备的「下载」里",
   "chatArtifactCopyPathOnly": "当前连接无法读取文件，只能复制路径",
   "chatReplying": "正在回复",
   "chatInterrupted": "已中断",
@@ -2876,7 +2876,7 @@
   "companionMenuRestartHint": "开始一段新对话",
   "companionMenuRestartConfirm": "她会忘记这段对话。旧的记录还留在主机上，不会被删除。",
   "companionMenuRemovePack": "移除素材",
-  "companionMenuRemoveConfirm": "这台手机上的角色素材会被删除，聊天记录不受影响。下次进来时要重新导入。",
+  "companionMenuRemoveConfirm": "这台设备上的角色素材会被删除，聊天记录不受影响。下次进来时要重新导入。",
   "companionCreditAuthor": "作者：{name}",
   "@companionCreditAuthor": {
     "placeholders": {
@@ -2886,10 +2886,10 @@
     }
   },
   "companionSetupTitle": "把她接回家",
-  "companionSetupBody": "角色素材不在 App 里，要用时才放进手机。选择素材包（zip）导入后就能见到她。",
+  "companionSetupBody": "角色素材不在 App 里，要用时才放进设备。选择素材包（zip）导入后就能见到她。",
   "companionSetupImport": "导入素材包",
   "companionFailedTitle": "她没能出来",
-  "companionFailedBody": "这台手机上加载失败了（{reason}）。可以重新导入素材包再试一次。",
+  "companionFailedBody": "这台设备上加载失败了（{reason}）。可以重新导入素材包再试一次。",
   "@companionFailedBody": {
     "placeholders": {
       "reason": {
@@ -2899,11 +2899,11 @@
   },
   "companionPackBroken": "这个文件打不开，可能不是素材包或已经损坏。",
   "companionPackRuntimeMismatch": "素材包里的运行库和这个版本的 App 对不上。",
-  "companionPackNoRuntime": "这个包只有角色，手机上还没有运行库。先导入完整的素材包。",
+  "companionPackNoRuntime": "这个包只有角色，设备上还没有运行库。先导入完整的素材包。",
   "companionPackNoModel": "包里没有找到 Live2D 模型（.model3.json）。",
   "companionPackUnsafe": "包里有不允许的文件或路径，没有导入。",
   "companionPackTooLarge": "素材包太大了。",
-  "companionPackStorage": "写入失败，看看手机存储空间够不够。",
+  "companionPackStorage": "写入失败，看看设备存储空间够不够。",
   "companionGreetFirst": "你好呀，我是{name}。以后就住在这里了，请多指教。",
   "@companionGreetFirst": {
     "placeholders": {
@@ -2948,7 +2948,7 @@
   "companionListening": "在听…",
   "companionTouchHint": "摸摸她的头试试",
   "companionArriving": "她正在游过来…",
-  "companionPrivacyLine": "素材只存在这台手机上，聊天走当前主机。",
+  "companionPrivacyLine": "素材只存在这台设备上，聊天走当前主机。",
   "companionMemoryTitle": "她记得的事",
   "companionMemoryScope": "保存在{host}上。她现在还不会自己想起这些，之后的版本会接上。",
   "@companionMemoryScope": {
@@ -2987,15 +2987,15 @@
   "companionTouchHintHome": "点点贝壳、泡泡和软垫，点心还能拖到她嘴边",
   "companionMenuMode": "对话方式",
   "companionModeLight": "轻量",
-  "companionModeLightHint": "只聊天。手机直连模型，不用启动引擎",
+  "companionModeLightHint": "只聊天。设备直连模型，不用启动引擎",
   "companionModeFull": "完整",
-  "companionModeFullHint": "主机上的 DSH 引擎，带工具和手机操控",
+  "companionModeFullHint": "主机上的 DSH 引擎，带工具和设备操控",
   "companionLightNoKey": "轻量模式要用 DeepSeek API Key，在设置里填上就能和我聊啦。",
   "companionLightBadKey": "API Key 好像不对，或者已经失效了。",
   "companionLightBusy": "那边有点忙，等一下再和我说吧。",
   "companionNotConnectedTryLight": "现在连不上主机。只想聊天的话，可以在右上角菜单换成轻量模式。",
-  "companionMenuRestartLightHint": "清掉这台手机上的聊天记录",
-  "companionMenuRestartLightConfirm": "她会忘记这段对话，这台手机上的聊天记录会被删掉。",
+  "companionMenuRestartLightHint": "清掉这台设备上的聊天记录",
+  "companionMenuRestartLightConfirm": "她会忘记这段对话，这台设备上的聊天记录会被删掉。",
   "companionInviteRest": "要不要陪我在软垫上歇一会儿？",
   "companionInviteAccept": "好呀",
   "companionInviteDecline": "等会儿",
@@ -3004,9 +3004,9 @@
   "companionMenuInvite": "主动邀请",
   "companionMenuInviteHint": "你安静陪着她时，她偶尔会邀你一起歇一会儿",
   "companionSetupBundled": "接她回家",
-  "companionSetupBodyBundled": "她就在 App 里，点一下就到，素材只解压到这台手机上。也可以导入别的素材包（zip）。",
+  "companionSetupBodyBundled": "她就在 App 里，点一下就到，素材只解压到这台设备上。也可以导入别的素材包（zip）。",
   "companionSetupImportOther": "导入别的素材包",
-  "companionMenuRemoveConfirmBundled": "这台手机上解压出来的角色素材会被删除，聊天记录不受影响。之后随时可以再接她回来。",
+  "companionMenuRemoveConfirmBundled": "这台设备上解压出来的角色素材会被删除，聊天记录不受影响。之后随时可以再接她回来。",
   "companionHug1": "唔……抱抱。",
   "companionHug2": "被你这样抱着，好安心。",
   "companionHug3": "再抱一会儿，就一会儿。",
@@ -3058,15 +3058,15 @@
   "companionTaskQuestionUntitled": "你那边有个问题在等你回答。",
   "companionTaskOpen": "去看看",
   "companionMenuVoice": "她的声音",
-  "companionMenuVoiceHint": "用手机自带的语音读出她说的话",
+  "companionMenuVoiceHint": "用设备自带的语音读出她说的话",
   "companionVoiceHello": "你好呀，这是我的声音。喜欢的话就留着吧。",
-  "companionVoiceUnavailable": "这台手机没有能用的中文语音。可以在系统设置的「文字转语音」里装一个。",
+  "companionVoiceUnavailable": "这台设备没有能用的中文语音。可以在系统设置的「文字转语音」里装一个。",
   "companionWidgetWaiting": "在小屋里等你",
   "companionVoiceOn": "让她出声",
   "companionVoiceOffHint": "打开时她会先用选好的声音打个招呼。",
   "companionVoiceOff": "关",
   "companionVoiceSource": "声音来源",
-  "companionVoiceSystem": "手机自带",
+  "companionVoiceSystem": "设备自带",
   "companionVoiceSystemHint": "系统的文字转语音，不联网也能用",
   "companionVoiceOpenai": "OpenAI 兼容接口",
   "companionVoiceOpenaiHint": "OpenAI、硅基流动，以及大多数自建的 GPT-SoVITS、CosyVoice、edge-tts 服务",
@@ -3075,7 +3075,7 @@
   "companionVoiceApi": "接口",
   "companionVoiceBase": "地址",
   "companionVoiceBaseHelper": "填到 /v1 为止，App 会接上 /audio/speech",
-  "companionVoiceKeyHelper": "存在这台手机的安全存储里",
+  "companionVoiceKeyHelper": "存在这台设备的安全存储里",
   "companionVoiceModel": "模型",
   "companionVoiceVoice": "音色",
   "companionVoiceVoiceHelper": "服务给的音色名，比如 alloy，或你自建服务里的角色名",
@@ -3102,7 +3102,7 @@
     }
   },
   "companionVoiceNotSetUp": "先把上面的地址填好。",
-  "companionVoiceFallback": "外接的声音这次没连上，先用了手机自带的声音",
+  "companionVoiceFallback": "外接的声音这次没连上，先用了设备自带的声音",
   "companionGreetFirstNameless": "你好呀，以后我就住在这里了，请多指教。",
   "companionRenamed": "「{name}」……好，以后我就叫这个名字啦。",
   "@companionRenamed": {
@@ -3115,7 +3115,7 @@
   "companionVoicePreset": "常用服务",
   "companionVoicePresetHint": "小米 MiMo、OpenAI、硅基流动、阿里云百炼：填个 Key 就能用",
   "companionVoiceService": "服务",
-  "companionVoiceKeyWhere": "在 {site} 申请；存在这台手机的安全存储里",
+  "companionVoiceKeyWhere": "在 {site} 申请；存在这台设备的安全存储里",
   "@companionVoiceKeyWhere": {
     "placeholders": {
       "site": {
@@ -3867,6 +3867,77 @@
   "@engineSettingsGroupCount": {
     "placeholders": {
       "count": {
+        "type": "int"
+      }
+    }
+  },
+  "engineSourceTitle": "引擎来源",
+  "engineSourceOwned": "App 自带的引擎",
+  "engineSourceOwnedDetail": "由 DSH Go 管理并打好补丁，插件需要单独安装",
+  "engineSourceInstalled": "这台设备上已装的 DSH",
+  "engineSourceInstalledDetail": "复用你已安装的 {version}，共用同一个 .dsh 目录和插件",
+  "@engineSourceInstalledDetail": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "engineSourceOfficial": "正在运行的官方 DSH",
+  "engineSourceOfficialDetail": "连到 127.0.0.1:{port} 上已经在跑的 DeepSeek Harness，不迁移数据",
+  "@engineSourceOfficialDetail": {
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "engineSourceScanning": "正在检查这台设备上已安装的 DSH…",
+  "engineSourceNotFound": "没检测到已安装的 DSH。在终端里执行 npm i -g @deepseek-ai/dsh 后可再来选择。",
+  "engineSourceUseInstalled": "用这台设备上已装的 DSH",
+  "engineSourceSwitchNote": "切换引擎来源后，聊天记录留在原来那一份环境里，不会跟随。",
+  "engineSourceDegraded": "未打 DSH Go 的补丁：部分功能不可用，但不影响启动和对话。",
+  "engineSourceRevert": "改用 App 自带的引擎",
+  "engineSourceCurrent": "当前使用：{name}",
+  "@engineSourceCurrent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "engineCapabilitySection": "补丁带来的功能",
+  "engineCapabilityAllOk": "补丁完整，全部功能可用",
+  "engineCapabilityLost": "缺 {count} 项补丁功能",
+  "@engineCapabilityLost": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "engineCapabilitySessionDeletion": "删除会话",
+  "engineCapabilityPluginConfig": "插件配置编辑",
+  "engineCapabilityPluginInstall": "插件安装与市场",
+  "engineCapabilitySessionTitle": "会话标题",
+  "engineCapabilityModelDefaults": "默认模型记忆",
+  "engineCapabilitySchedules": "定时任务",
+  "engineCapabilityJobs": "后台任务",
+  "engineCapabilityFileRefs": "文件引用与搜索",
+  "engineCapabilitySessionDeletionUnavailable": "当前引擎缺「删除会话」的补丁，暂时不能删除。换成 App 自带的引擎即可。",
+  "engineStorePruneTitle": "清理旧版本",
+  "engineStorePruneDetail": "保留 {kept} 个版本，其余删掉",
+  "@engineStorePruneDetail": {
+    "placeholders": {
+      "kept": {
+        "type": "int"
+      }
+    }
+  },
+  "engineStoreFreed": "已释放 {mb} MB",
+  "@engineStoreFreed": {
+    "placeholders": {
+      "mb": {
         "type": "int"
       }
     }
@@ -4813,7 +4884,7 @@
   "hubPlugins": "插件",
   "hubSettingsFullAccessTitle": "开启完全权限？",
   "hubSettingsFullAccessBody": "AI 执行命令、改动文件前不再问你。",
-  "hubSettingsStorageTitle": "让 AI 访问手机文件？",
+  "hubSettingsStorageTitle": "让 AI 访问设备文件？",
   "hubSettingsStorageAllow": "允许读写",
   "hubSettingsStorageDenied": "没有拿到存储权限。到系统设置里给 DSH Go 开启「所有文件访问」后再试",
   "hubSettingsRestartRequired": "重启引擎后生效",
@@ -4821,11 +4892,11 @@
   "hubSettingsInterface": "界面",
   "hubSettingsChat": "对话",
   "hubSettingsAutoCommands": "自动执行命令",
-  "hubSettingsPhoneFiles": "访问手机文件",
-  "hubSettingsPhoneFilesHint": "AI 可读写手机存储",
+  "hubSettingsPhoneFiles": "访问设备文件",
+  "hubSettingsPhoneFilesHint": "AI 可读写设备存储",
   "hubSettingsVisualReplies": "可视化回复",
   "hubSettingsVisualRepliesHint": "图表、对比卡和可点的选项",
-  "hubSettingsPhoneControl": "手机操控",
+  "hubSettingsPhoneControl": "设备操控",
   "hubSettingsPhoneControlHint": "看屏幕、帮你点按",
   "hubSettingsPreferences": "个人偏好",
   "hubSettingsAppearance": "外观",
@@ -4971,7 +5042,7 @@
       }
     }
   },
-  "hubSettingsStorageBody": "AI 能读取和修改相册、下载、文档等手机文件，引擎会重启一次。",
+  "hubSettingsStorageBody": "AI 能读取和修改相册、下载、文档等设备文件，引擎会重启一次。",
   "hubSettingsBalance": "余额 {amount}",
   "@hubSettingsBalance": {
     "placeholders": {
@@ -5107,8 +5178,8 @@
   },
   "hubEngineStartup": "启动",
   "hubThemeLightDark": "明暗",
-  "hubPermissionPhone": "手机",
-  "hubPermissionPhoneConfirm": "手机操控确认",
+  "hubPermissionPhone": "设备",
+  "hubPermissionPhoneConfirm": "设备操控确认",
   "hubHardwareEnterSends": "外接键盘按 Enter 发送",
   "hubHardwareEnterSendsHint": "开启后，Shift+Enter 换行。屏幕键盘仍换行；Ctrl/⌘+Enter 始终可发送。",
   "hubQuickPanel": "左滑快捷入口",
@@ -5197,7 +5268,7 @@
   "localEnvRemoteDetail": "连接电脑或服务器上的 DSH",
   "localEnvRecommended": "推荐",
   "localEnvInstallTitle": "安装本机运行环境",
-  "localEnvInstallMessage": "在这台手机上运行 DSH",
+  "localEnvInstallMessage": "在这台设备上运行 DSH",
   "localEnvFactStorage": "约 {storage} MB 存储空间",
   "@localEnvFactStorage": {
     "placeholders": {
@@ -5728,7 +5799,7 @@
   "phoneActionLogSubtitle": "只记做了什么，不记屏幕内容",
   "phoneActionLogRefresh": "刷新",
   "phoneActionLogEmpty": "还没有记录",
-  "phoneActionLogEmptyHint": "DSH 在手机上的每一步都会记在这里",
+  "phoneActionLogEmptyHint": "DSH 在设备上的每一步都会记在这里",
   "phoneAppRuleDeny": "不碰",
   "phoneAppRuleConfirm": "每一步都确认",
   "phoneAppRuleNormal": "照常",
@@ -5836,9 +5907,9 @@
   "phoneOpenAccessibilityFailed": "打不开系统设置，请到「设置 → 无障碍」里找到 DSH",
   "phoneOpenAppInfoFailed": "打不开应用信息，请到「设置 → 应用」里找到 DSH Go",
   "phoneStopFailed": "没能停止，可以点悬浮条或通知上的「停止」",
-  "phoneControlTitle": "手机操控",
+  "phoneControlTitle": "设备操控",
   "phoneControlSubtitle": "看屏幕、帮你点按，随时可以停",
-  "phoneControlWorking": "正在操作手机",
+  "phoneControlWorking": "正在操作设备",
   "phoneControlTaskNoConfirmHint": "本任务免确认 · 悬浮条上也能暂停或停止",
   "phoneControlFloatingBarHint": "悬浮条上也能暂停或停止",
   "phoneControlAdvanced": "进阶",
@@ -5850,7 +5921,7 @@
   "phoneControlLocalOnly": "只在本机引擎可用",
   "phoneControlAfterEngineStarts": "引擎启动后生效",
   "phoneControlNeedsAccessibility": "还差一步：打开无障碍",
-  "phoneControlReady": "可以操作手机",
+  "phoneControlReady": "可以操作设备",
   "phoneControlSetup": "准备",
   "phoneControlAccessibilityService": "无障碍服务",
   "phoneControlAccessibilityReady": "能看屏幕、帮你点按了",
@@ -5874,7 +5945,7 @@
   "phoneControlRecentActions": "最近操作",
   "phoneControlRecentActionsHint": "每一步都会记下，不含屏幕内容",
   "phoneControlAllActions": "全部记录",
-  "phoneControlModuleNotReady": "这个版本里，手机操控模块还没有就绪",
+  "phoneControlModuleNotReady": "这个版本里，设备操控模块还没有就绪",
   "phoneControlSafeModeUnavailable": "安全模式下不可用",
   "phoneControlSafeModeHint": "安全模式不加载插件，恢复正常模式后可用",
   "phoneControlRemoteHost": "当前连的是远程主机",
@@ -5894,8 +5965,8 @@
   "phoneDisclosureNeverTitle": "默认不做",
   "phoneDisclosureNeverBody": "不输密码和验证码，不改系统设置，遇到就交还给你。银行、支付类 App 也不碰。",
   "phoneDisclosureStopTitle": "你随时能停",
-  "phoneDisclosureStopBody": "操作时屏幕上有悬浮条，可以暂停、停止或插话。手机要亮屏、解锁。",
-  "phoneDisclosureTitle": "开启手机操控前",
+  "phoneDisclosureStopBody": "操作时屏幕上有悬浮条，可以暂停、停止或插话。设备要亮屏、解锁。",
+  "phoneDisclosureTitle": "开启设备操控前",
   "phoneDisclosureIntro": "DSH 会像你一样看屏幕、点按，帮你把事办完。开启前，先了解这几点：",
   "phoneDisclosureRestartNote": "开启后引擎会重启一次，进行中的回复会中断",
   "phoneDisclosureNotNow": "先不开",
@@ -6133,7 +6204,7 @@
       }
     }
   },
-  "phoneControlRemoteHint": "「{host}」上的 DSH 操作不了这台手机，切回「本机」后可用",
+  "phoneControlRemoteHint": "「{host}」上的 DSH 操作不了这台设备，切回「本机」后可用",
   "@phoneControlRemoteHint": {
     "placeholders": {
       "host": {
@@ -6240,7 +6311,7 @@
     }
   },
   "phoneAppRulesLoosenBody": "银行、支付类 App 会检测自动操作，可能限制登录甚至冻结账号；DSH 默认不输密码、不付款。",
-  "phoneAppRulesSkipStepsBody": "微信这类 App 有风控，曾有手机助手操作后账号被强制下线。改成照常后，只有发消息这类操作还会先问你。",
+  "phoneAppRulesSkipStepsBody": "微信这类 App 有风控，曾有设备助手操作后账号被强制下线。改成照常后，只有发消息这类操作还会先问你。",
   "phoneResetDeletesChatsWorkspaces": "对话和工作区",
   "phoneResetBodyChatsWorkspaces": "会删除对话和工作区，然后重新安装运行环境。",
   "phoneResetDeletesWithPlugins": "对话、工作区、插件和设置",
@@ -6271,8 +6342,8 @@
   "phoneAutoCollapseHint": "收成小球，点按展开",
   "phoneDeveloperOptions": "开发者选项",
   "phoneDirectEngine": "直接启动本机引擎",
-  "phoneDirectHint": "实验功能，默认关闭，下次启动生效。部分手机（例如 Android 16）会拦截直接启动，届时自动改用兼容启动，数据不受影响。",
-  "phoneDirectFailedHint": "这台手机上直接启动没有成功，已改用兼容启动。停止引擎后打开可再试一次。",
+  "phoneDirectHint": "实验功能，默认关闭，下次启动生效。部分设备（部分系统）会拦截直接启动，届时自动改用兼容启动，数据不受影响。",
+  "phoneDirectFailedHint": "这台设备上直接启动没有成功，已改用兼容启动。停止引擎后打开可再试一次。",
   "phoneDirectCompatibleHint": "这次用了兼容启动，原因见上方。已保留此选项，下次启动会再试。",
   "phoneDirectStopFirst": "请先停止本机引擎，再切换启动方式。",
   "phoneDirectSafeHint": "安全模式使用兼容启动；恢复正常模式后应用此选项。",
@@ -6306,12 +6377,12 @@
   "phoneTaskEndedResult": "任务已结束 · 查看结果",
   "phoneBackgroundGuideTitle": "后台确认与返回",
   "phoneBackgroundGuideSubtitle": "让确认卡和任务结果及时出现",
-  "phoneBackgroundGuideBody": "需要你确认时，会显示 DSH Go 卡片。卡片不可用时会尝试通知或回到 App。请在系统设置中允许手机操控通知和弹出提醒。",
+  "phoneBackgroundGuideBody": "需要你确认时，会显示 DSH Go 卡片。卡片不可用时会尝试通知或回到 App。请在系统设置中允许设备操控通知和弹出提醒。",
   "phoneBackgroundOemHint": "在 DSH Go 的系统权限页检查「后台弹出界面」（若提供）。允许后可改善自动返回；菜单名称随系统版本变化。",
   "phoneBackgroundReturnHint": "如果任务完成后没有自动返回，可点通知「任务完成 · 查看结果」。系统关闭通知或限制后台弹出时，可能需要手动打开 DSH Go。",
   "phoneBackgroundGotIt": "知道了",
   "phoneBackgroundOpenSettings": "打开系统设置",
-  "phoneBackgroundNotificationBlocked": "请允许手机操控通知的弹出提醒",
+  "phoneBackgroundNotificationBlocked": "请允许设备操控通知的弹出提醒",
   "phonePrivilegedUpgrade": "此版本尚不支持该特权通道，请更新 DSH Go 后使用。",
   "phonePrivilegedSui": "Sui",
   "phonePrivilegedRoot": "Root",
@@ -6351,7 +6422,7 @@
   "phoneModeAutoHint": "不再询问，全程免打扰",
   "phoneModeAutoNoteTitle": "这些仍由你来操作",
   "phoneModeAutoNote": "系统设置和权限页面、密码和验证码、DSH Go 自身仍由你来操作；银行、支付类 App 默认不碰，可在设置里调整。",
-  "phoneModeAutoUnlockNote": "如需让 AI 操作系统设置、密码等，可在 设置 › 手机操控 › 解除限制 中开启。",
+  "phoneModeAutoUnlockNote": "如需让 AI 操作系统设置、密码等，可在 设置 › 设备操控 › 解除限制 中开启。",
   "phoneModeConfirmAuto": "开启全程自动",
   "phoneYoursTitle": "这些由你来操作",
   "phoneYoursSystem": "系统设置和权限页面",
@@ -7330,8 +7401,8 @@
       }
     }
   },
-  "pluginsPermissionLocalThirdParty": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的手机存储，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。",
-  "pluginsPermissionLocalTrusted": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的手机存储，不受工作区沙箱限制。只装你信任的插件。",
+  "pluginsPermissionLocalThirdParty": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的设备存储，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。",
+  "pluginsPermissionLocalTrusted": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的设备存储，不受工作区沙箱限制。只装你信任的插件。",
   "pluginsPermissionRemoteThirdParty": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。",
   "pluginsPermissionRemoteTrusted": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key，不受工作区沙箱限制。只装你信任的插件。",
   "pluginsSelectedQrCount": "已选 {count} 项 · 可生成二维码",
@@ -7604,7 +7675,7 @@
       }
     }
   },
-  "plugslotsVoiceWhen": "朗读时你一开口就停。声音只在手机上判断，不保存、不上传",
+  "plugslotsVoiceWhen": "朗读时你一开口就停。声音只在设备上判断，不保存、不上传",
   "plugslotsVoiceDeny": "不允许",
   "plugslotsVoiceSwitch": "听你开口",
   "plugslotsPickerUnavailable": "此设备暂不支持文件选择",
@@ -8370,7 +8441,7 @@
     }
   },
   "remoteSwitchHost": "切换主机",
-  "remoteThisPhoneDsh": "这台手机上的 DSH",
+  "remoteThisPhoneDsh": "这台设备上的 DSH",
   "remoteRemoteLabel": "远程",
   "remoteRemotePlatform": "远程 · {platform}",
   "@remoteRemotePlatform": {
@@ -8393,7 +8464,7 @@
   "remotePassword": "密码",
   "remoteRestoreServer": "改回默认服务器 dsh.r2049.cn",
   "remoteConsole": "远程控制台",
-  "remoteHostsIntro": "在手机上接着用电脑或服务器上的 DSH",
+  "remoteHostsIntro": "在设备上接着用电脑或服务器上的 DSH",
   "remoteSshHosts": "SSH 主机",
   "remoteSshRequirements": "需要那台主机开着 SSH，并装好 DSH",
   "remoteAddSshHost": "添加 SSH 主机",
@@ -8450,7 +8521,7 @@
   "remoteNoHosts": "还没有主机",
   "remoteRelaySetupHelp": "在主机的 DSH 里装好远程插件并登录",
   "remoteRelaySignOutTitle": "退出 DSH Remote？",
-  "remoteRelaySignOutBody": "这台手机会从账号中移除。主机上的 DSH 和对话不受影响，随时可以重新登录。",
+  "remoteRelaySignOutBody": "这台设备会从账号中移除。主机上的 DSH 和对话不受影响，随时可以重新登录。",
   "remoteRelaySignInTitle": "登录 DSH Remote",
   "remoteRelaySignInHelp": "无需配置网络，连接端到端加密",
   "remoteBrowserSignIn": "在浏览器中登录",
@@ -8481,7 +8552,7 @@
       }
     }
   },
-  "remoteDeleteHostBody": "这台主机的设置和保存在手机上的密码、私钥都会删除。主机上的 DSH 和对话不受影响。",
+  "remoteDeleteHostBody": "这台主机的设置和保存在设备上的密码、私钥都会删除。主机上的 DSH 和对话不受影响。",
   "remoteErrReadKey": "没能读取：{error}",
   "@remoteErrReadKey": {
     "placeholders": {
@@ -8501,8 +8572,8 @@
   "remoteUsername": "用户名",
   "remotePort": "端口",
   "remoteAuthentication": "登录方式",
-  "remotePasswordStorageHelp": "只保存在这台手机上，由 Android Keystore 加密",
-  "remoteKeyStorageHelp": "只保存在这台手机上，由 Android Keystore 加密。支持 Ed25519、RSA、ECDSA",
+  "remotePasswordStorageHelp": "只保存在这台设备上，由 系统凭据存储 加密",
+  "remoteKeyStorageHelp": "只保存在这台设备上，由 系统凭据存储 加密。支持 Ed25519、RSA、ECDSA",
   "remotePrivateKey": "私钥",
   "remoteShow": "显示",
   "remoteImportKeyFile": "从文件导入",
@@ -8551,11 +8622,11 @@
   "remoteDirectoryChoose": "选择",
   "remoteDirectoryDefault": "默认工作目录",
   "remoteDirectoryHome": "主目录",
-  "remoteDirectoryPhoneStorage": "手机存储",
+  "remoteDirectoryPhoneStorage": "设备存储",
   "remoteDirectoryDownloads": "下载",
-  "remoteDirectoryDownloadsPath": "手机存储/Download",
+  "remoteDirectoryDownloadsPath": "设备存储/Download",
   "remoteDirectoryDocuments": "文档",
-  "remoteDirectoryDocumentsPath": "手机存储/Documents",
+  "remoteDirectoryDocumentsPath": "设备存储/Documents",
   "remoteDirectoryLocations": "位置",
   "remoteDirectoryRecent": "最近",
   "remoteDirectoryEnterPath": "输入路径",
@@ -8634,7 +8705,7 @@
   "remoteWorkspaceRemoveAction": "移除工作区",
   "remoteWorkspaceNewGroup": "新建分组",
   "remoteWorkspaceGroupName": "分组名称",
-  "remoteDirectoryPhonePath": "手机存储/{path}",
+  "remoteDirectoryPhonePath": "设备存储/{path}",
   "@remoteDirectoryPhonePath": {
     "placeholders": {
       "path": {
@@ -8854,7 +8925,7 @@
   "remoteNetworkFallbackPathUnverified": "尚未确认 WebRTC 路径类型",
   "remoteNetworkSnapshotHint": "显示最近一次确认的路径与延迟，刷新可重新检测。",
   "remoteNetworkObservedAt": "最近观测",
-  "remoteNetworkLocalIpVersion": "手机 ICE IP 版本",
+  "remoteNetworkLocalIpVersion": "设备 ICE IP 版本",
   "remoteNetworkRemoteIpVersion": "主机 ICE IP 版本",
   "remoteNetworkIceProtocol": "ICE 协议",
   "remoteTransferSettings": "远程传输",
@@ -8901,11 +8972,11 @@
   },
   "askAiNoGuide": "这台主机没有 DSH Go 使用说明，回答可能不准确",
   "askAiQuestionOverview": "DSH Go 能做什么？我该从哪里开始？",
-  "askAiQuestionPhoneControl": "手机操控是怎么工作的？有什么风险？",
-  "askAiQuestionPhoneAlways": "手机操控选「始终免确认」会怎样？和「每次都询问」比风险在哪？",
-  "askAiQuestionAppRules": "手机操控的应用名单有什么用？放开银行、支付类 App 有什么风险？",
+  "askAiQuestionPhoneControl": "设备操控是怎么工作的？有什么风险？",
+  "askAiQuestionPhoneAlways": "设备操控选「始终免确认」会怎样？和「每次都询问」比风险在哪？",
+  "askAiQuestionAppRules": "设备操控的应用名单有什么用？放开银行、支付类 App 有什么风险？",
   "askAiQuestionFullAccess": "「完全权限」打开后会怎样？有什么风险？",
-  "askAiQuestionPhoneFiles": "「访问手机文件」打开后，AI 能读写哪些文件？怎么关掉？",
+  "askAiQuestionPhoneFiles": "「访问设备文件」打开后，AI 能读写哪些文件？怎么关掉？",
   "askAiQuestionAllowForChat": "「本对话都允许」会放行哪些操作？怎么关掉？",
   "askAiQuestionPlugins": "插件能做什么？装第三方插件要注意什么？",
   "askAiQuestionRemote": "怎么连接自己的电脑或服务器？和用本机有什么不同？",
@@ -8930,7 +9001,7 @@
   },
   "searchApiKey": "API Key",
   "searchNeedsLocal": "连接本机时可用",
-  "searchNeedsPhoneControl": "开启手机操控后可用",
+  "searchNeedsPhoneControl": "开启设备操控后可用",
   "searchNeedsNativeUi": "原生界面可用",
   "searchNeedsEngineField": "当前主机提供时可用",
   "searchNeedsAnimations": "开启动画时可用",
@@ -8942,7 +9013,7 @@
   "searchKwNotifications": "提醒,推送,横幅,消息,铃声",
   "searchKwReplyPrefs": "偏好,关于我,自我介绍,回答风格,称呼,AGENTS.md",
   "searchKwSharedLinks": "分享链接,链接,公开链接,分享",
-  "searchKwPhone": "无障碍,操作手机,自动点击,代操作,点按",
+  "searchKwPhone": "无障碍,操作设备,自动点击,代操作,点按",
   "searchKwAppRules": "名单,黑名单,白名单,禁止,应用",
   "searchKwDnd": "免打扰,Shizuku,Sui,root,ADB,后台操作",
   "searchKwEngine": "引擎,运行环境,启动,停止,重启,DSH",
@@ -8966,7 +9037,7 @@
   "searchKwUiMode": "原生,网页,网页模式,界面,切换界面",
   "searchKwLanguage": "中文,英文,简体,English",
   "searchKwAutoCommands": "别问我,不要确认,自动允许,完全权限,免确认",
-  "searchKwPhoneFiles": "存储,文件,相册,下载,手机存储",
+  "searchKwPhoneFiles": "存储,文件,相册,下载,设备存储",
   "searchKwVisualReplies": "图表,卡片,可视化,选项",
   "searchKwTextSize": "字号,字体,文字大小,大字,字体大小",
   "searchKwTableTint": "表格,底色,表头,斑马纹,条纹,背景",
@@ -9039,7 +9110,7 @@
   "searchKwInterface": "原生,网页,网页模式,网页版,通用设置",
   "searchKwPrivacy": "隐私,数据,日志,分享,统计",
   "searchKwAbout": "关于,版本,更新,许可,dsh-go",
-  "searchKwPhoneConfirmEntry": "确认方式,手机操控,免确认",
+  "searchKwPhoneConfirmEntry": "确认方式,设备操控,免确认",
   "searchKwWebCodingView": "代码视图,工作视图,网页版",
   "searchKwWebCollapse": "工作步骤,收起,折叠,网页版",
   "searchKwWebBusySend": "发送,排队,插话,AI 工作时",
@@ -9785,7 +9856,7 @@
   "stateSizeLarge": "大",
   "statePetDone": "做完了",
   "statePetFailed": "出错了",
-  "statePhoneNotReady": "手机操控模块未就绪",
+  "statePhoneNotReady": "设备操控模块未就绪",
   "stateBackgroundRestricted": "后台联网被系统限制",
   "stateBackgroundFinish": "让对话在后台也能跑完",
   "stateDeepSeekAccount": "DeepSeek 账号",
@@ -9797,7 +9868,7 @@
   "stateEngineNotReady": "引擎还没准备好",
   "stateSignInInterrupted": "登录被中断",
   "stateAccountUnsupported": "当前引擎不支持账号登录",
-  "stateCheckPhoneNetwork": "检查手机网络后重试",
+  "stateCheckPhoneNetwork": "检查设备网络后重试",
   "stateServiceUnavailableRetry": "服务暂时不可用，稍后重试",
   "stateAuthorizationFailed": "授权没有成功，重新登录",
   "stateAuthorizationExpired": "授权页面已失效，重新登录",
@@ -9821,7 +9892,7 @@
   "stateAppDisclaimer": "基于 DeepSeek Harness 构建 · 非 DeepSeek 官方应用",
   "stateWallpaper": "壁纸",
   "stateFileMissing": "找不到这个文件了，可能已被删除或移走",
-  "stateFileNoApp": "手机上没有能打开这类文件的应用",
+  "stateFileNoApp": "设备上没有能打开这类文件的应用",
   "stateFileConnectionLimit": "文件太大，这个连接传不过来",
   "stateFileReadUnsupported": "这个连接不支持读取文件",
   "stateArtifactImage": "图片",
@@ -9960,7 +10031,7 @@
   "statePluginDownloadTimeout": "下载超时",
   "statePluginRegistryUnavailable": "安装源暂时没有响应",
   "statePluginPnpmMissing": "缺少 pnpm",
-  "statePluginPhonePnpmMissing": "这台手机缺少 pnpm",
+  "statePluginPhonePnpmMissing": "这台设备缺少 pnpm",
   "statePluginHostPnpmMissing": "这台主机缺少 pnpm",
   "statePluginNotFound": "找不到这个插件",
   "statePluginPackageMissing": "安装源里没有这个包",
@@ -10585,13 +10656,13 @@
   "updateInstallUnconfirmed": "尚未确认安装结果",
   "updateInstallUnconfirmedMessage": "安装包已保留。可先检查系统提示，再重试或用系统安装器打开。",
   "updateSignatureMismatch": "签名不一致，不能直接覆盖",
-  "updateSignatureMismatchMessage": "手机上的 DSH Go 签名不同（多半是测试包），需要先卸载旧版再装新版。卸载会清空对话、Linux 环境和设置。",
+  "updateSignatureMismatchMessage": "设备上的 DSH Go 签名不同（多半是测试包），需要先卸载旧版再装新版。卸载会清空对话、Linux 环境和设置。",
   "updateWrongPackage": "不是 DSH 的安装包",
   "updateWrongPackageMessage": "下载到的文件不对，已删除，请稍后重试。",
   "updateDowngradeBlocked": "不能降级安装",
-  "updateDowngradeBlockedMessage": "手机上的 DSH 比这个安装包还新。",
-  "updateIncompatible": "和这台手机不兼容",
-  "updateIncompatibleMessage": "安装包要求的系统版本或处理器架构和手机不符。",
+  "updateDowngradeBlockedMessage": "设备上的 DSH 比这个安装包还新。",
+  "updateIncompatible": "和这台设备不兼容",
+  "updateIncompatibleMessage": "安装包要求的系统版本或处理器架构和设备不符。",
   "updatePackageCorrupt": "安装包已损坏",
   "updatePackageCorruptMessage": "已删除，请重新下载。",
   "updateInstallBlocked": "安装被拦截了",
@@ -10678,7 +10749,7 @@
   },
   "usageStatsTitle": "发送匿名使用统计",
   "usageStatsSection": "改进 DSH Go",
-  "usageStatsFooter": "只含使用次数、版本和手机品牌，不含对话、文件和账号。",
+  "usageStatsFooter": "只含使用次数、版本和设备品牌，不含对话、文件和账号。",
   "usageNoticeBody": "不含对话和个人信息，可随时关闭",
   "usageUpgradeNotice": "新增匿名使用统计，帮助改进 DSH Go。\n不含对话和个人信息",
   "usageUpgradeLearn": "了解",
@@ -10731,7 +10802,7 @@
   "viewArtifactConvertFailed": "没能转换",
   "viewArtifactConverting": "正在转换为 PDF 预览…",
   "viewArtifactImageFailed": "无法显示这张图片",
-  "viewArtifactPhoneOpen": "用手机上的应用打开",
+  "viewArtifactPhoneOpen": "用设备上的应用打开",
   "viewArtifactPdfFailed": "无法打开这个 PDF，试试用其他应用打开",
   "viewArtifactPages": "共 {count} 页",
   "@viewArtifactPages": {
@@ -11693,7 +11764,7 @@
       }
     }
   },
-  "viewSharePhoneInstall": "手机上一键安装：{value}",
+  "viewSharePhoneInstall": "设备上一键安装：{value}",
   "@viewSharePhoneInstall": {
     "placeholders": {
       "value": {
@@ -12022,7 +12093,7 @@
   "voiceModeSystem": "系统",
   "voiceModeEngine": "语音模型",
   "voiceModeAutoHint": "有语音模型时用它，否则用系统识别",
-  "voiceModeSystemHint": "使用手机设置中的识别服务",
+  "voiceModeSystemHint": "使用设备设置中的识别服务",
   "voiceModeEngineHint": "用引擎里的语音模型识别",
   "voiceFallbackStarted": "已改用语音模型，请再说一次",
   "voiceChooseSystem": "请在系统设置中选择语音识别服务",
@@ -12054,7 +12125,7 @@
   "voiceSettingsFailed": "没能读取语音设置，请重试",
   "voiceModeSection": "识别方式",
   "voiceModelSection": "语音模型",
-  "voiceModelFooter": "下载后在手机上识别中文、英文、粤语、日语和韩语，录音不出手机。",
+  "voiceModelFooter": "下载后在设备上识别中文、英文、粤语、日语和韩语，录音不出设备。",
   "voiceModelWaiting": "引擎启动后可以下载",
   "voiceModelUnsupported": "当前引擎不支持语音模型",
   "voiceModelAbsent": "未下载",
@@ -12092,7 +12163,7 @@
   "voiceModelWaitingNote": "下载会在引擎启动后开始",
   "voiceModelFailNetwork": "网络连接失败",
   "voiceModelFailTimeout": "下载长时间没有进展",
-  "voiceModelFailCertificate": "安全连接失败，请检查手机时间",
+  "voiceModelFailCertificate": "安全连接失败，请检查设备时间",
   "voiceModelFailServer": "下载源暂时不可用",
   "voiceModelFailIntegrity": "文件校验没有通过",
   "voiceModelFailStorage": "存储空间不足，还需要约 {size}",
@@ -12251,5 +12322,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "webNoEmbeddedBrowser": "这台电脑没有可内嵌的系统浏览器内核，请用系统浏览器打开这个页面"
 }

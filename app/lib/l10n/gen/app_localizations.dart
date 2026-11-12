@@ -113,7 +113,7 @@ abstract class L10n {
   /// No description provided for @a11yRestoreNotice.
   ///
   /// In zh, this message translates to:
-  /// **'开启后，在系统设置里关掉无障碍会被自动打开；要关闭手机操控，请在 DSH Go 里关。'**
+  /// **'开启后，在系统设置里关掉无障碍会被自动打开；要关闭设备操控，请在 DSH Go 里关。'**
   String get a11yRestoreNotice;
 
   /// No description provided for @a11yRestoreForceStop.
@@ -215,7 +215,7 @@ abstract class L10n {
   /// No description provided for @accessFeatureFiles.
   ///
   /// In zh, this message translates to:
-  /// **'读写手机里的文件'**
+  /// **'读写设备里的文件'**
   String get accessFeatureFiles;
 
   /// No description provided for @accessFeatureFilesNeeds.
@@ -239,7 +239,7 @@ abstract class L10n {
   /// No description provided for @accessFeaturePhone.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控'**
+  /// **'设备操控'**
   String get accessFeaturePhone;
 
   /// No description provided for @accessFeaturePhoneNeeds.
@@ -287,7 +287,7 @@ abstract class L10n {
   /// No description provided for @accessFilesRiskBody.
   ///
   /// In zh, this message translates to:
-  /// **'AI 能读取和修改相册、下载、文档等手机文件。'**
+  /// **'AI 能读取和修改相册、下载、文档等设备文件。'**
   String get accessFilesRiskBody;
 
   /// No description provided for @accessStepCount.
@@ -437,7 +437,7 @@ abstract class L10n {
   /// No description provided for @accessA11yWhy.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控靠它看屏幕、点按'**
+  /// **'设备操控靠它看屏幕、点按'**
   String get accessA11yWhy;
 
   /// No description provided for @accessPopupTitle.
@@ -449,7 +449,7 @@ abstract class L10n {
   /// No description provided for @accessPopupWhy.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控做完能回到 DSH Go'**
+  /// **'设备操控做完能回到 DSH Go'**
   String get accessPopupWhy;
 
   /// No description provided for @accessVivoPopupPath.
@@ -3965,7 +3965,7 @@ abstract class L10n {
   /// No description provided for @botsUpdateForPhone.
   ///
   /// In zh, this message translates to:
-  /// **'新版才能在手机上用'**
+  /// **'新版才能在设备上用'**
   String get botsUpdateForPhone;
 
   /// No description provided for @botsInstallDescription.
@@ -5747,7 +5747,7 @@ abstract class L10n {
   /// No description provided for @catalogPhoneControl.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控'**
+  /// **'设备操控'**
   String get catalogPhoneControl;
 
   /// No description provided for @catalogPhoneControlSummary.
@@ -6725,7 +6725,7 @@ abstract class L10n {
   /// No description provided for @chatVoiceUnavailable.
   ///
   /// In zh, this message translates to:
-  /// **'这台手机没有可用的语音识别'**
+  /// **'这台设备没有可用的语音识别'**
   String get chatVoiceUnavailable;
 
   /// No description provided for @chatVoiceNotHeard.
@@ -6971,7 +6971,7 @@ abstract class L10n {
   /// No description provided for @chatOpenInPhoneApp.
   ///
   /// In zh, this message translates to:
-  /// **'用手机上的应用打开'**
+  /// **'用设备上的应用打开'**
   String get chatOpenInPhoneApp;
 
   /// No description provided for @chatMoreActions.
@@ -6983,7 +6983,7 @@ abstract class L10n {
   /// No description provided for @chatAlreadyInDownloads.
   ///
   /// In zh, this message translates to:
-  /// **'已在手机的「下载」里'**
+  /// **'已在设备的「下载」里'**
   String get chatAlreadyInDownloads;
 
   /// No description provided for @chatArtifactCopyPathOnly.
@@ -8321,7 +8321,7 @@ abstract class L10n {
   /// No description provided for @companionMenuRemoveConfirm.
   ///
   /// In zh, this message translates to:
-  /// **'这台手机上的角色素材会被删除，聊天记录不受影响。下次进来时要重新导入。'**
+  /// **'这台设备上的角色素材会被删除，聊天记录不受影响。下次进来时要重新导入。'**
   String get companionMenuRemoveConfirm;
 
   /// No description provided for @companionCreditAuthor.
@@ -8339,7 +8339,7 @@ abstract class L10n {
   /// No description provided for @companionSetupBody.
   ///
   /// In zh, this message translates to:
-  /// **'角色素材不在 App 里，要用时才放进手机。选择素材包（zip）导入后就能见到她。'**
+  /// **'角色素材不在 App 里，要用时才放进设备。选择素材包（zip）导入后就能见到她。'**
   String get companionSetupBody;
 
   /// No description provided for @companionSetupImport.
@@ -8357,7 +8357,7 @@ abstract class L10n {
   /// No description provided for @companionFailedBody.
   ///
   /// In zh, this message translates to:
-  /// **'这台手机上加载失败了（{reason}）。可以重新导入素材包再试一次。'**
+  /// **'这台设备上加载失败了（{reason}）。可以重新导入素材包再试一次。'**
   String companionFailedBody(String reason);
 
   /// No description provided for @companionPackBroken.
@@ -8375,7 +8375,7 @@ abstract class L10n {
   /// No description provided for @companionPackNoRuntime.
   ///
   /// In zh, this message translates to:
-  /// **'这个包只有角色，手机上还没有运行库。先导入完整的素材包。'**
+  /// **'这个包只有角色，设备上还没有运行库。先导入完整的素材包。'**
   String get companionPackNoRuntime;
 
   /// No description provided for @companionPackNoModel.
@@ -8399,7 +8399,7 @@ abstract class L10n {
   /// No description provided for @companionPackStorage.
   ///
   /// In zh, this message translates to:
-  /// **'写入失败，看看手机存储空间够不够。'**
+  /// **'写入失败，看看设备存储空间够不够。'**
   String get companionPackStorage;
 
   /// No description provided for @companionGreetFirst.
@@ -8627,7 +8627,7 @@ abstract class L10n {
   /// No description provided for @companionPrivacyLine.
   ///
   /// In zh, this message translates to:
-  /// **'素材只存在这台手机上，聊天走当前主机。'**
+  /// **'素材只存在这台设备上，聊天走当前主机。'**
   String get companionPrivacyLine;
 
   /// No description provided for @companionMemoryTitle.
@@ -8819,7 +8819,7 @@ abstract class L10n {
   /// No description provided for @companionModeLightHint.
   ///
   /// In zh, this message translates to:
-  /// **'只聊天。手机直连模型，不用启动引擎'**
+  /// **'只聊天。设备直连模型，不用启动引擎'**
   String get companionModeLightHint;
 
   /// No description provided for @companionModeFull.
@@ -8831,7 +8831,7 @@ abstract class L10n {
   /// No description provided for @companionModeFullHint.
   ///
   /// In zh, this message translates to:
-  /// **'主机上的 DSH 引擎，带工具和手机操控'**
+  /// **'主机上的 DSH 引擎，带工具和设备操控'**
   String get companionModeFullHint;
 
   /// No description provided for @companionLightNoKey.
@@ -8861,13 +8861,13 @@ abstract class L10n {
   /// No description provided for @companionMenuRestartLightHint.
   ///
   /// In zh, this message translates to:
-  /// **'清掉这台手机上的聊天记录'**
+  /// **'清掉这台设备上的聊天记录'**
   String get companionMenuRestartLightHint;
 
   /// No description provided for @companionMenuRestartLightConfirm.
   ///
   /// In zh, this message translates to:
-  /// **'她会忘记这段对话，这台手机上的聊天记录会被删掉。'**
+  /// **'她会忘记这段对话，这台设备上的聊天记录会被删掉。'**
   String get companionMenuRestartLightConfirm;
 
   /// No description provided for @companionInviteRest.
@@ -8921,7 +8921,7 @@ abstract class L10n {
   /// No description provided for @companionSetupBodyBundled.
   ///
   /// In zh, this message translates to:
-  /// **'她就在 App 里，点一下就到，素材只解压到这台手机上。也可以导入别的素材包（zip）。'**
+  /// **'她就在 App 里，点一下就到，素材只解压到这台设备上。也可以导入别的素材包（zip）。'**
   String get companionSetupBodyBundled;
 
   /// No description provided for @companionSetupImportOther.
@@ -8933,7 +8933,7 @@ abstract class L10n {
   /// No description provided for @companionMenuRemoveConfirmBundled.
   ///
   /// In zh, this message translates to:
-  /// **'这台手机上解压出来的角色素材会被删除，聊天记录不受影响。之后随时可以再接她回来。'**
+  /// **'这台设备上解压出来的角色素材会被删除，聊天记录不受影响。之后随时可以再接她回来。'**
   String get companionMenuRemoveConfirmBundled;
 
   /// No description provided for @companionHug1.
@@ -9077,7 +9077,7 @@ abstract class L10n {
   /// No description provided for @companionMenuVoiceHint.
   ///
   /// In zh, this message translates to:
-  /// **'用手机自带的语音读出她说的话'**
+  /// **'用设备自带的语音读出她说的话'**
   String get companionMenuVoiceHint;
 
   /// No description provided for @companionVoiceHello.
@@ -9089,7 +9089,7 @@ abstract class L10n {
   /// No description provided for @companionVoiceUnavailable.
   ///
   /// In zh, this message translates to:
-  /// **'这台手机没有能用的中文语音。可以在系统设置的「文字转语音」里装一个。'**
+  /// **'这台设备没有能用的中文语音。可以在系统设置的「文字转语音」里装一个。'**
   String get companionVoiceUnavailable;
 
   /// No description provided for @companionWidgetWaiting.
@@ -9125,7 +9125,7 @@ abstract class L10n {
   /// No description provided for @companionVoiceSystem.
   ///
   /// In zh, this message translates to:
-  /// **'手机自带'**
+  /// **'设备自带'**
   String get companionVoiceSystem;
 
   /// No description provided for @companionVoiceSystemHint.
@@ -9179,7 +9179,7 @@ abstract class L10n {
   /// No description provided for @companionVoiceKeyHelper.
   ///
   /// In zh, this message translates to:
-  /// **'存在这台手机的安全存储里'**
+  /// **'存在这台设备的安全存储里'**
   String get companionVoiceKeyHelper;
 
   /// No description provided for @companionVoiceModel.
@@ -9299,7 +9299,7 @@ abstract class L10n {
   /// No description provided for @companionVoiceFallback.
   ///
   /// In zh, this message translates to:
-  /// **'外接的声音这次没连上，先用了手机自带的声音'**
+  /// **'外接的声音这次没连上，先用了设备自带的声音'**
   String get companionVoiceFallback;
 
   /// No description provided for @companionGreetFirstNameless.
@@ -9335,7 +9335,7 @@ abstract class L10n {
   /// No description provided for @companionVoiceKeyWhere.
   ///
   /// In zh, this message translates to:
-  /// **'在 {site} 申请；存在这台手机的安全存储里'**
+  /// **'在 {site} 申请；存在这台设备的安全存储里'**
   String companionVoiceKeyWhere(String site);
 
   /// No description provided for @companionVoiceVoiceCustomHelper.
@@ -11629,6 +11629,180 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'{count} 项'**
   String engineSettingsGroupCount(int count);
+
+  /// No description provided for @engineSourceTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'引擎来源'**
+  String get engineSourceTitle;
+
+  /// No description provided for @engineSourceOwned.
+  ///
+  /// In zh, this message translates to:
+  /// **'App 自带的引擎'**
+  String get engineSourceOwned;
+
+  /// No description provided for @engineSourceOwnedDetail.
+  ///
+  /// In zh, this message translates to:
+  /// **'由 DSH Go 管理并打好补丁，插件需要单独安装'**
+  String get engineSourceOwnedDetail;
+
+  /// No description provided for @engineSourceInstalled.
+  ///
+  /// In zh, this message translates to:
+  /// **'这台设备上已装的 DSH'**
+  String get engineSourceInstalled;
+
+  /// No description provided for @engineSourceInstalledDetail.
+  ///
+  /// In zh, this message translates to:
+  /// **'复用你已安装的 {version}，共用同一个 .dsh 目录和插件'**
+  String engineSourceInstalledDetail(String version);
+
+  /// No description provided for @engineSourceOfficial.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在运行的官方 DSH'**
+  String get engineSourceOfficial;
+
+  /// No description provided for @engineSourceOfficialDetail.
+  ///
+  /// In zh, this message translates to:
+  /// **'连到 127.0.0.1:{port} 上已经在跑的 DeepSeek Harness，不迁移数据'**
+  String engineSourceOfficialDetail(int port);
+
+  /// No description provided for @engineSourceScanning.
+  ///
+  /// In zh, this message translates to:
+  /// **'正在检查这台设备上已安装的 DSH…'**
+  String get engineSourceScanning;
+
+  /// No description provided for @engineSourceNotFound.
+  ///
+  /// In zh, this message translates to:
+  /// **'没检测到已安装的 DSH。在终端里执行 npm i -g @deepseek-ai/dsh 后可再来选择。'**
+  String get engineSourceNotFound;
+
+  /// No description provided for @engineSourceUseInstalled.
+  ///
+  /// In zh, this message translates to:
+  /// **'用这台设备上已装的 DSH'**
+  String get engineSourceUseInstalled;
+
+  /// No description provided for @engineSourceSwitchNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'切换引擎来源后，聊天记录留在原来那一份环境里，不会跟随。'**
+  String get engineSourceSwitchNote;
+
+  /// No description provided for @engineSourceDegraded.
+  ///
+  /// In zh, this message translates to:
+  /// **'未打 DSH Go 的补丁：部分功能不可用，但不影响启动和对话。'**
+  String get engineSourceDegraded;
+
+  /// No description provided for @engineSourceRevert.
+  ///
+  /// In zh, this message translates to:
+  /// **'改用 App 自带的引擎'**
+  String get engineSourceRevert;
+
+  /// No description provided for @engineSourceCurrent.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前使用：{name}'**
+  String engineSourceCurrent(String name);
+
+  /// No description provided for @engineCapabilitySection.
+  ///
+  /// In zh, this message translates to:
+  /// **'补丁带来的功能'**
+  String get engineCapabilitySection;
+
+  /// No description provided for @engineCapabilityAllOk.
+  ///
+  /// In zh, this message translates to:
+  /// **'补丁完整，全部功能可用'**
+  String get engineCapabilityAllOk;
+
+  /// No description provided for @engineCapabilityLost.
+  ///
+  /// In zh, this message translates to:
+  /// **'缺 {count} 项补丁功能'**
+  String engineCapabilityLost(int count);
+
+  /// No description provided for @engineCapabilitySessionDeletion.
+  ///
+  /// In zh, this message translates to:
+  /// **'删除会话'**
+  String get engineCapabilitySessionDeletion;
+
+  /// No description provided for @engineCapabilityPluginConfig.
+  ///
+  /// In zh, this message translates to:
+  /// **'插件配置编辑'**
+  String get engineCapabilityPluginConfig;
+
+  /// No description provided for @engineCapabilityPluginInstall.
+  ///
+  /// In zh, this message translates to:
+  /// **'插件安装与市场'**
+  String get engineCapabilityPluginInstall;
+
+  /// No description provided for @engineCapabilitySessionTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'会话标题'**
+  String get engineCapabilitySessionTitle;
+
+  /// No description provided for @engineCapabilityModelDefaults.
+  ///
+  /// In zh, this message translates to:
+  /// **'默认模型记忆'**
+  String get engineCapabilityModelDefaults;
+
+  /// No description provided for @engineCapabilitySchedules.
+  ///
+  /// In zh, this message translates to:
+  /// **'定时任务'**
+  String get engineCapabilitySchedules;
+
+  /// No description provided for @engineCapabilityJobs.
+  ///
+  /// In zh, this message translates to:
+  /// **'后台任务'**
+  String get engineCapabilityJobs;
+
+  /// No description provided for @engineCapabilityFileRefs.
+  ///
+  /// In zh, this message translates to:
+  /// **'文件引用与搜索'**
+  String get engineCapabilityFileRefs;
+
+  /// No description provided for @engineCapabilitySessionDeletionUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前引擎缺「删除会话」的补丁，暂时不能删除。换成 App 自带的引擎即可。'**
+  String get engineCapabilitySessionDeletionUnavailable;
+
+  /// No description provided for @engineStorePruneTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'清理旧版本'**
+  String get engineStorePruneTitle;
+
+  /// No description provided for @engineStorePruneDetail.
+  ///
+  /// In zh, this message translates to:
+  /// **'保留 {kept} 个版本，其余删掉'**
+  String engineStorePruneDetail(int kept);
+
+  /// No description provided for @engineStoreFreed.
+  ///
+  /// In zh, this message translates to:
+  /// **'已释放 {mb} MB'**
+  String engineStoreFreed(int mb);
 
   /// No description provided for @featuresCordisSubtitle.
   ///
@@ -14129,7 +14303,7 @@ abstract class L10n {
   /// No description provided for @hubSettingsStorageTitle.
   ///
   /// In zh, this message translates to:
-  /// **'让 AI 访问手机文件？'**
+  /// **'让 AI 访问设备文件？'**
   String get hubSettingsStorageTitle;
 
   /// No description provided for @hubSettingsStorageAllow.
@@ -14177,13 +14351,13 @@ abstract class L10n {
   /// No description provided for @hubSettingsPhoneFiles.
   ///
   /// In zh, this message translates to:
-  /// **'访问手机文件'**
+  /// **'访问设备文件'**
   String get hubSettingsPhoneFiles;
 
   /// No description provided for @hubSettingsPhoneFilesHint.
   ///
   /// In zh, this message translates to:
-  /// **'AI 可读写手机存储'**
+  /// **'AI 可读写设备存储'**
   String get hubSettingsPhoneFilesHint;
 
   /// No description provided for @hubSettingsVisualReplies.
@@ -14201,7 +14375,7 @@ abstract class L10n {
   /// No description provided for @hubSettingsPhoneControl.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控'**
+  /// **'设备操控'**
   String get hubSettingsPhoneControl;
 
   /// No description provided for @hubSettingsPhoneControlHint.
@@ -14579,7 +14753,7 @@ abstract class L10n {
   /// No description provided for @hubSettingsStorageBody.
   ///
   /// In zh, this message translates to:
-  /// **'AI 能读取和修改相册、下载、文档等手机文件，引擎会重启一次。'**
+  /// **'AI 能读取和修改相册、下载、文档等设备文件，引擎会重启一次。'**
   String get hubSettingsStorageBody;
 
   /// No description provided for @hubSettingsBalance.
@@ -14879,13 +15053,13 @@ abstract class L10n {
   /// No description provided for @hubPermissionPhone.
   ///
   /// In zh, this message translates to:
-  /// **'手机'**
+  /// **'设备'**
   String get hubPermissionPhone;
 
   /// No description provided for @hubPermissionPhoneConfirm.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控确认'**
+  /// **'设备操控确认'**
   String get hubPermissionPhoneConfirm;
 
   /// No description provided for @hubHardwareEnterSends.
@@ -15233,7 +15407,7 @@ abstract class L10n {
   /// No description provided for @localEnvInstallMessage.
   ///
   /// In zh, this message translates to:
-  /// **'在这台手机上运行 DSH'**
+  /// **'在这台设备上运行 DSH'**
   String get localEnvInstallMessage;
 
   /// No description provided for @localEnvFactStorage.
@@ -17231,7 +17405,7 @@ abstract class L10n {
   /// No description provided for @phoneActionLogEmptyHint.
   ///
   /// In zh, this message translates to:
-  /// **'DSH 在手机上的每一步都会记在这里'**
+  /// **'DSH 在设备上的每一步都会记在这里'**
   String get phoneActionLogEmptyHint;
 
   /// No description provided for @phoneAppRuleDeny.
@@ -17879,7 +18053,7 @@ abstract class L10n {
   /// No description provided for @phoneControlTitle.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控'**
+  /// **'设备操控'**
   String get phoneControlTitle;
 
   /// No description provided for @phoneControlSubtitle.
@@ -17891,7 +18065,7 @@ abstract class L10n {
   /// No description provided for @phoneControlWorking.
   ///
   /// In zh, this message translates to:
-  /// **'正在操作手机'**
+  /// **'正在操作设备'**
   String get phoneControlWorking;
 
   /// No description provided for @phoneControlTaskNoConfirmHint.
@@ -17963,7 +18137,7 @@ abstract class L10n {
   /// No description provided for @phoneControlReady.
   ///
   /// In zh, this message translates to:
-  /// **'可以操作手机'**
+  /// **'可以操作设备'**
   String get phoneControlReady;
 
   /// No description provided for @phoneControlSetup.
@@ -18107,7 +18281,7 @@ abstract class L10n {
   /// No description provided for @phoneControlModuleNotReady.
   ///
   /// In zh, this message translates to:
-  /// **'这个版本里，手机操控模块还没有就绪'**
+  /// **'这个版本里，设备操控模块还没有就绪'**
   String get phoneControlModuleNotReady;
 
   /// No description provided for @phoneControlSafeModeUnavailable.
@@ -18227,13 +18401,13 @@ abstract class L10n {
   /// No description provided for @phoneDisclosureStopBody.
   ///
   /// In zh, this message translates to:
-  /// **'操作时屏幕上有悬浮条，可以暂停、停止或插话。手机要亮屏、解锁。'**
+  /// **'操作时屏幕上有悬浮条，可以暂停、停止或插话。设备要亮屏、解锁。'**
   String get phoneDisclosureStopBody;
 
   /// No description provided for @phoneDisclosureTitle.
   ///
   /// In zh, this message translates to:
-  /// **'开启手机操控前'**
+  /// **'开启设备操控前'**
   String get phoneDisclosureTitle;
 
   /// No description provided for @phoneDisclosureIntro.
@@ -18977,7 +19151,7 @@ abstract class L10n {
   /// No description provided for @phoneControlRemoteHint.
   ///
   /// In zh, this message translates to:
-  /// **'「{host}」上的 DSH 操作不了这台手机，切回「本机」后可用'**
+  /// **'「{host}」上的 DSH 操作不了这台设备，切回「本机」后可用'**
   String phoneControlRemoteHint(String host);
 
   /// No description provided for @phoneRestrictedSubtitle.
@@ -19073,7 +19247,7 @@ abstract class L10n {
   /// No description provided for @phoneAppRulesSkipStepsBody.
   ///
   /// In zh, this message translates to:
-  /// **'微信这类 App 有风控，曾有手机助手操作后账号被强制下线。改成照常后，只有发消息这类操作还会先问你。'**
+  /// **'微信这类 App 有风控，曾有设备助手操作后账号被强制下线。改成照常后，只有发消息这类操作还会先问你。'**
   String get phoneAppRulesSkipStepsBody;
 
   /// No description provided for @phoneResetDeletesChatsWorkspaces.
@@ -19199,13 +19373,13 @@ abstract class L10n {
   /// No description provided for @phoneDirectHint.
   ///
   /// In zh, this message translates to:
-  /// **'实验功能，默认关闭，下次启动生效。部分手机（例如 Android 16）会拦截直接启动，届时自动改用兼容启动，数据不受影响。'**
+  /// **'实验功能，默认关闭，下次启动生效。部分设备（部分系统）会拦截直接启动，届时自动改用兼容启动，数据不受影响。'**
   String get phoneDirectHint;
 
   /// No description provided for @phoneDirectFailedHint.
   ///
   /// In zh, this message translates to:
-  /// **'这台手机上直接启动没有成功，已改用兼容启动。停止引擎后打开可再试一次。'**
+  /// **'这台设备上直接启动没有成功，已改用兼容启动。停止引擎后打开可再试一次。'**
   String get phoneDirectFailedHint;
 
   /// No description provided for @phoneDirectCompatibleHint.
@@ -19367,7 +19541,7 @@ abstract class L10n {
   /// No description provided for @phoneBackgroundGuideBody.
   ///
   /// In zh, this message translates to:
-  /// **'需要你确认时，会显示 DSH Go 卡片。卡片不可用时会尝试通知或回到 App。请在系统设置中允许手机操控通知和弹出提醒。'**
+  /// **'需要你确认时，会显示 DSH Go 卡片。卡片不可用时会尝试通知或回到 App。请在系统设置中允许设备操控通知和弹出提醒。'**
   String get phoneBackgroundGuideBody;
 
   /// No description provided for @phoneBackgroundOemHint.
@@ -19397,7 +19571,7 @@ abstract class L10n {
   /// No description provided for @phoneBackgroundNotificationBlocked.
   ///
   /// In zh, this message translates to:
-  /// **'请允许手机操控通知的弹出提醒'**
+  /// **'请允许设备操控通知的弹出提醒'**
   String get phoneBackgroundNotificationBlocked;
 
   /// No description provided for @phonePrivilegedUpgrade.
@@ -19595,7 +19769,7 @@ abstract class L10n {
   /// No description provided for @phoneModeAutoUnlockNote.
   ///
   /// In zh, this message translates to:
-  /// **'如需让 AI 操作系统设置、密码等，可在 设置 › 手机操控 › 解除限制 中开启。'**
+  /// **'如需让 AI 操作系统设置、密码等，可在 设置 › 设备操控 › 解除限制 中开启。'**
   String get phoneModeAutoUnlockNote;
 
   /// No description provided for @phoneModeConfirmAuto.
@@ -22391,13 +22565,13 @@ abstract class L10n {
   /// No description provided for @pluginsPermissionLocalThirdParty.
   ///
   /// In zh, this message translates to:
-  /// **'插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的手机存储，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。'**
+  /// **'插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的设备存储，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。'**
   String get pluginsPermissionLocalThirdParty;
 
   /// No description provided for @pluginsPermissionLocalTrusted.
   ///
   /// In zh, this message translates to:
-  /// **'插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的手机存储，不受工作区沙箱限制。只装你信任的插件。'**
+  /// **'插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的设备存储，不受工作区沙箱限制。只装你信任的插件。'**
   String get pluginsPermissionLocalTrusted;
 
   /// No description provided for @pluginsPermissionRemoteThirdParty.
@@ -22913,7 +23087,7 @@ abstract class L10n {
   /// No description provided for @plugslotsVoiceWhen.
   ///
   /// In zh, this message translates to:
-  /// **'朗读时你一开口就停。声音只在手机上判断，不保存、不上传'**
+  /// **'朗读时你一开口就停。声音只在设备上判断，不保存、不上传'**
   String get plugslotsVoiceWhen;
 
   /// No description provided for @plugslotsVoiceDeny.
@@ -24581,7 +24755,7 @@ abstract class L10n {
   /// No description provided for @remoteThisPhoneDsh.
   ///
   /// In zh, this message translates to:
-  /// **'这台手机上的 DSH'**
+  /// **'这台设备上的 DSH'**
   String get remoteThisPhoneDsh;
 
   /// No description provided for @remoteRemoteLabel.
@@ -24677,7 +24851,7 @@ abstract class L10n {
   /// No description provided for @remoteHostsIntro.
   ///
   /// In zh, this message translates to:
-  /// **'在手机上接着用电脑或服务器上的 DSH'**
+  /// **'在设备上接着用电脑或服务器上的 DSH'**
   String get remoteHostsIntro;
 
   /// No description provided for @remoteSshHosts.
@@ -24851,7 +25025,7 @@ abstract class L10n {
   /// No description provided for @remoteRelaySignOutBody.
   ///
   /// In zh, this message translates to:
-  /// **'这台手机会从账号中移除。主机上的 DSH 和对话不受影响，随时可以重新登录。'**
+  /// **'这台设备会从账号中移除。主机上的 DSH 和对话不受影响，随时可以重新登录。'**
   String get remoteRelaySignOutBody;
 
   /// No description provided for @remoteRelaySignInTitle.
@@ -24953,7 +25127,7 @@ abstract class L10n {
   /// No description provided for @remoteDeleteHostBody.
   ///
   /// In zh, this message translates to:
-  /// **'这台主机的设置和保存在手机上的密码、私钥都会删除。主机上的 DSH 和对话不受影响。'**
+  /// **'这台主机的设置和保存在设备上的密码、私钥都会删除。主机上的 DSH 和对话不受影响。'**
   String get remoteDeleteHostBody;
 
   /// No description provided for @remoteErrReadKey.
@@ -25031,13 +25205,13 @@ abstract class L10n {
   /// No description provided for @remotePasswordStorageHelp.
   ///
   /// In zh, this message translates to:
-  /// **'只保存在这台手机上，由 Android Keystore 加密'**
+  /// **'只保存在这台设备上，由 系统凭据存储 加密'**
   String get remotePasswordStorageHelp;
 
   /// No description provided for @remoteKeyStorageHelp.
   ///
   /// In zh, this message translates to:
-  /// **'只保存在这台手机上，由 Android Keystore 加密。支持 Ed25519、RSA、ECDSA'**
+  /// **'只保存在这台设备上，由 系统凭据存储 加密。支持 Ed25519、RSA、ECDSA'**
   String get remoteKeyStorageHelp;
 
   /// No description provided for @remotePrivateKey.
@@ -25247,7 +25421,7 @@ abstract class L10n {
   /// No description provided for @remoteDirectoryPhoneStorage.
   ///
   /// In zh, this message translates to:
-  /// **'手机存储'**
+  /// **'设备存储'**
   String get remoteDirectoryPhoneStorage;
 
   /// No description provided for @remoteDirectoryDownloads.
@@ -25259,7 +25433,7 @@ abstract class L10n {
   /// No description provided for @remoteDirectoryDownloadsPath.
   ///
   /// In zh, this message translates to:
-  /// **'手机存储/Download'**
+  /// **'设备存储/Download'**
   String get remoteDirectoryDownloadsPath;
 
   /// No description provided for @remoteDirectoryDocuments.
@@ -25271,7 +25445,7 @@ abstract class L10n {
   /// No description provided for @remoteDirectoryDocumentsPath.
   ///
   /// In zh, this message translates to:
-  /// **'手机存储/Documents'**
+  /// **'设备存储/Documents'**
   String get remoteDirectoryDocumentsPath;
 
   /// No description provided for @remoteDirectoryLocations.
@@ -25493,7 +25667,7 @@ abstract class L10n {
   /// No description provided for @remoteDirectoryPhonePath.
   ///
   /// In zh, this message translates to:
-  /// **'手机存储/{path}'**
+  /// **'设备存储/{path}'**
   String remoteDirectoryPhonePath(String path);
 
   /// No description provided for @remoteDirectoryInvalidName.
@@ -25835,7 +26009,7 @@ abstract class L10n {
   /// No description provided for @remoteNetworkLocalIpVersion.
   ///
   /// In zh, this message translates to:
-  /// **'手机 ICE IP 版本'**
+  /// **'设备 ICE IP 版本'**
   String get remoteNetworkLocalIpVersion;
 
   /// No description provided for @remoteNetworkRemoteIpVersion.
@@ -26033,19 +26207,19 @@ abstract class L10n {
   /// No description provided for @askAiQuestionPhoneControl.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控是怎么工作的？有什么风险？'**
+  /// **'设备操控是怎么工作的？有什么风险？'**
   String get askAiQuestionPhoneControl;
 
   /// No description provided for @askAiQuestionPhoneAlways.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控选「始终免确认」会怎样？和「每次都询问」比风险在哪？'**
+  /// **'设备操控选「始终免确认」会怎样？和「每次都询问」比风险在哪？'**
   String get askAiQuestionPhoneAlways;
 
   /// No description provided for @askAiQuestionAppRules.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控的应用名单有什么用？放开银行、支付类 App 有什么风险？'**
+  /// **'设备操控的应用名单有什么用？放开银行、支付类 App 有什么风险？'**
   String get askAiQuestionAppRules;
 
   /// No description provided for @askAiQuestionFullAccess.
@@ -26057,7 +26231,7 @@ abstract class L10n {
   /// No description provided for @askAiQuestionPhoneFiles.
   ///
   /// In zh, this message translates to:
-  /// **'「访问手机文件」打开后，AI 能读写哪些文件？怎么关掉？'**
+  /// **'「访问设备文件」打开后，AI 能读写哪些文件？怎么关掉？'**
   String get askAiQuestionPhoneFiles;
 
   /// No description provided for @askAiQuestionAllowForChat.
@@ -26123,7 +26297,7 @@ abstract class L10n {
   /// No description provided for @searchNeedsPhoneControl.
   ///
   /// In zh, this message translates to:
-  /// **'开启手机操控后可用'**
+  /// **'开启设备操控后可用'**
   String get searchNeedsPhoneControl;
 
   /// No description provided for @searchNeedsNativeUi.
@@ -26195,7 +26369,7 @@ abstract class L10n {
   /// No description provided for @searchKwPhone.
   ///
   /// In zh, this message translates to:
-  /// **'无障碍,操作手机,自动点击,代操作,点按'**
+  /// **'无障碍,操作设备,自动点击,代操作,点按'**
   String get searchKwPhone;
 
   /// No description provided for @searchKwAppRules.
@@ -26339,7 +26513,7 @@ abstract class L10n {
   /// No description provided for @searchKwPhoneFiles.
   ///
   /// In zh, this message translates to:
-  /// **'存储,文件,相册,下载,手机存储'**
+  /// **'存储,文件,相册,下载,设备存储'**
   String get searchKwPhoneFiles;
 
   /// No description provided for @searchKwVisualReplies.
@@ -26735,7 +26909,7 @@ abstract class L10n {
   /// No description provided for @searchKwPhoneConfirmEntry.
   ///
   /// In zh, this message translates to:
-  /// **'确认方式,手机操控,免确认'**
+  /// **'确认方式,设备操控,免确认'**
   String get searchKwPhoneConfirmEntry;
 
   /// No description provided for @searchKwWebCodingView.
@@ -28883,7 +29057,7 @@ abstract class L10n {
   /// No description provided for @statePhoneNotReady.
   ///
   /// In zh, this message translates to:
-  /// **'手机操控模块未就绪'**
+  /// **'设备操控模块未就绪'**
   String get statePhoneNotReady;
 
   /// No description provided for @stateBackgroundRestricted.
@@ -28955,7 +29129,7 @@ abstract class L10n {
   /// No description provided for @stateCheckPhoneNetwork.
   ///
   /// In zh, this message translates to:
-  /// **'检查手机网络后重试'**
+  /// **'检查设备网络后重试'**
   String get stateCheckPhoneNetwork;
 
   /// No description provided for @stateServiceUnavailableRetry.
@@ -29099,7 +29273,7 @@ abstract class L10n {
   /// No description provided for @stateFileNoApp.
   ///
   /// In zh, this message translates to:
-  /// **'手机上没有能打开这类文件的应用'**
+  /// **'设备上没有能打开这类文件的应用'**
   String get stateFileNoApp;
 
   /// No description provided for @stateFileConnectionLimit.
@@ -29933,7 +30107,7 @@ abstract class L10n {
   /// No description provided for @statePluginPhonePnpmMissing.
   ///
   /// In zh, this message translates to:
-  /// **'这台手机缺少 pnpm'**
+  /// **'这台设备缺少 pnpm'**
   String get statePluginPhonePnpmMissing;
 
   /// No description provided for @statePluginHostPnpmMissing.
@@ -31055,7 +31229,7 @@ abstract class L10n {
   /// No description provided for @updateSignatureMismatchMessage.
   ///
   /// In zh, this message translates to:
-  /// **'手机上的 DSH Go 签名不同（多半是测试包），需要先卸载旧版再装新版。卸载会清空对话、Linux 环境和设置。'**
+  /// **'设备上的 DSH Go 签名不同（多半是测试包），需要先卸载旧版再装新版。卸载会清空对话、Linux 环境和设置。'**
   String get updateSignatureMismatchMessage;
 
   /// No description provided for @updateWrongPackage.
@@ -31079,19 +31253,19 @@ abstract class L10n {
   /// No description provided for @updateDowngradeBlockedMessage.
   ///
   /// In zh, this message translates to:
-  /// **'手机上的 DSH 比这个安装包还新。'**
+  /// **'设备上的 DSH 比这个安装包还新。'**
   String get updateDowngradeBlockedMessage;
 
   /// No description provided for @updateIncompatible.
   ///
   /// In zh, this message translates to:
-  /// **'和这台手机不兼容'**
+  /// **'和这台设备不兼容'**
   String get updateIncompatible;
 
   /// No description provided for @updateIncompatibleMessage.
   ///
   /// In zh, this message translates to:
-  /// **'安装包要求的系统版本或处理器架构和手机不符。'**
+  /// **'安装包要求的系统版本或处理器架构和设备不符。'**
   String get updateIncompatibleMessage;
 
   /// No description provided for @updatePackageCorrupt.
@@ -31343,7 +31517,7 @@ abstract class L10n {
   /// No description provided for @usageStatsFooter.
   ///
   /// In zh, this message translates to:
-  /// **'只含使用次数、版本和手机品牌，不含对话、文件和账号。'**
+  /// **'只含使用次数、版本和设备品牌，不含对话、文件和账号。'**
   String get usageStatsFooter;
 
   /// No description provided for @usageNoticeBody.
@@ -31493,7 +31667,7 @@ abstract class L10n {
   /// No description provided for @viewArtifactPhoneOpen.
   ///
   /// In zh, this message translates to:
-  /// **'用手机上的应用打开'**
+  /// **'用设备上的应用打开'**
   String get viewArtifactPhoneOpen;
 
   /// No description provided for @viewArtifactPdfFailed.
@@ -33047,7 +33221,7 @@ abstract class L10n {
   /// No description provided for @viewSharePhoneInstall.
   ///
   /// In zh, this message translates to:
-  /// **'手机上一键安装：{value}'**
+  /// **'设备上一键安装：{value}'**
   String viewSharePhoneInstall(String value);
 
   /// No description provided for @viewShareImages.
@@ -33473,7 +33647,7 @@ abstract class L10n {
   /// No description provided for @voiceModeSystemHint.
   ///
   /// In zh, this message translates to:
-  /// **'使用手机设置中的识别服务'**
+  /// **'使用设备设置中的识别服务'**
   String get voiceModeSystemHint;
 
   /// No description provided for @voiceModeEngineHint.
@@ -33623,7 +33797,7 @@ abstract class L10n {
   /// No description provided for @voiceModelFooter.
   ///
   /// In zh, this message translates to:
-  /// **'下载后在手机上识别中文、英文、粤语、日语和韩语，录音不出手机。'**
+  /// **'下载后在设备上识别中文、英文、粤语、日语和韩语，录音不出设备。'**
   String get voiceModelFooter;
 
   /// No description provided for @voiceModelWaiting.
@@ -33707,7 +33881,7 @@ abstract class L10n {
   /// No description provided for @voiceModelFailCertificate.
   ///
   /// In zh, this message translates to:
-  /// **'安全连接失败，请检查手机时间'**
+  /// **'安全连接失败，请检查设备时间'**
   String get voiceModelFailCertificate;
 
   /// No description provided for @voiceModelFailServer.
@@ -34327,6 +34501,12 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'还没连上「{name}」，连上后再打开网页版'**
   String webConnectHostFirst(String name);
+
+  /// No description provided for @webNoEmbeddedBrowser.
+  ///
+  /// In zh, this message translates to:
+  /// **'这台电脑没有可内嵌的系统浏览器内核，请用系统浏览器打开这个页面'**
+  String get webNoEmbeddedBrowser;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

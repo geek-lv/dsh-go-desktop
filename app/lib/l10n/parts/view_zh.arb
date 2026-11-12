@@ -47,7 +47,7 @@
   "viewArtifactConvertFailed": "没能转换",
   "viewArtifactConverting": "正在转换为 PDF 预览…",
   "viewArtifactImageFailed": "无法显示这张图片",
-  "viewArtifactPhoneOpen": "用手机上的应用打开",
+  "viewArtifactPhoneOpen": "用设备上的应用打开",
   "viewArtifactPdfFailed": "无法打开这个 PDF，试试用其他应用打开",
   "viewArtifactPages": "共 {count} 页",
   "@viewArtifactPages": {
@@ -981,7 +981,7 @@
       }
     }
   },
-  "viewSharePhoneInstall": "手机上一键安装：{value}",
+  "viewSharePhoneInstall": "设备上一键安装：{value}",
   "@viewSharePhoneInstall": {
     "placeholders": {
       "value": {

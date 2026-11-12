@@ -19,7 +19,7 @@ class L10nZh extends L10n {
   String get a11yRestoreNeedsGrant => '需要授权';
 
   @override
-  String get a11yRestoreNotice => '开启后，在系统设置里关掉无障碍会被自动打开；要关闭手机操控，请在 DSH Go 里关。';
+  String get a11yRestoreNotice => '开启后，在系统设置里关掉无障碍会被自动打开；要关闭设备操控，请在 DSH Go 里关。';
 
   @override
   String get a11yRestoreForceStop => '被强制停止后，重新打开 DSH Go 才能恢复。';
@@ -70,7 +70,7 @@ class L10nZh extends L10n {
   String get accessSkip => '跳过';
 
   @override
-  String get accessFeatureFiles => '读写手机里的文件';
+  String get accessFeatureFiles => '读写设备里的文件';
 
   @override
   String get accessFeatureFilesNeeds => '需要文件访问权限';
@@ -82,7 +82,7 @@ class L10nZh extends L10n {
   String get accessFeaturePetNeeds => '需要悬浮窗权限';
 
   @override
-  String get accessFeaturePhone => '手机操控';
+  String get accessFeaturePhone => '设备操控';
 
   @override
   String get accessFeaturePhoneNeeds => '需要无障碍和通知权限';
@@ -108,7 +108,7 @@ class L10nZh extends L10n {
   String get accessVoiceMetered => '当前是移动数据，下载会消耗流量';
 
   @override
-  String get accessFilesRiskBody => 'AI 能读取和修改相册、下载、文档等手机文件。';
+  String get accessFilesRiskBody => 'AI 能读取和修改相册、下载、文档等设备文件。';
 
   @override
   String accessStepCount(int index, int total) {
@@ -191,13 +191,13 @@ class L10nZh extends L10n {
   String get accessA11yTitle => '打开无障碍';
 
   @override
-  String get accessA11yWhy => '手机操控靠它看屏幕、点按';
+  String get accessA11yWhy => '设备操控靠它看屏幕、点按';
 
   @override
   String get accessPopupTitle => '允许后台弹出界面';
 
   @override
-  String get accessPopupWhy => '手机操控做完能回到 DSH Go';
+  String get accessPopupWhy => '设备操控做完能回到 DSH Go';
 
   @override
   String accessVivoPopupPath(String app) {
@@ -2149,7 +2149,7 @@ class L10nZh extends L10n {
   String get botsInstall => '安装 DS Bot';
 
   @override
-  String get botsUpdateForPhone => '新版才能在手机上用';
+  String get botsUpdateForPhone => '新版才能在设备上用';
 
   @override
   String get botsInstallDescription => '一组长期在线的 Bot，各有记忆和分工';
@@ -3110,7 +3110,7 @@ class L10nZh extends L10n {
   String get catalogRemoteSummary => '连接电脑或服务器';
 
   @override
-  String get catalogPhoneControl => '手机操控';
+  String get catalogPhoneControl => '设备操控';
 
   @override
   String get catalogPhoneControlSummary => '看屏幕、帮你点按';
@@ -3635,7 +3635,7 @@ class L10nZh extends L10n {
   String get chatVoicePermissionNeeded => '需要麦克风权限才能语音输入';
 
   @override
-  String get chatVoiceUnavailable => '这台手机没有可用的语音识别';
+  String get chatVoiceUnavailable => '这台设备没有可用的语音识别';
 
   @override
   String get chatVoiceNotHeard => '没有听清，再说一次';
@@ -3782,13 +3782,13 @@ class L10nZh extends L10n {
   String get chatSavingToDownloads => '正在存到「下载」…';
 
   @override
-  String get chatOpenInPhoneApp => '用手机上的应用打开';
+  String get chatOpenInPhoneApp => '用设备上的应用打开';
 
   @override
   String get chatMoreActions => '更多操作';
 
   @override
-  String get chatAlreadyInDownloads => '已在手机的「下载」里';
+  String get chatAlreadyInDownloads => '已在设备的「下载」里';
 
   @override
   String get chatArtifactCopyPathOnly => '当前连接无法读取文件，只能复制路径';
@@ -4515,7 +4515,7 @@ class L10nZh extends L10n {
   String get companionMenuRemovePack => '移除素材';
 
   @override
-  String get companionMenuRemoveConfirm => '这台手机上的角色素材会被删除，聊天记录不受影响。下次进来时要重新导入。';
+  String get companionMenuRemoveConfirm => '这台设备上的角色素材会被删除，聊天记录不受影响。下次进来时要重新导入。';
 
   @override
   String companionCreditAuthor(String name) {
@@ -4526,7 +4526,7 @@ class L10nZh extends L10n {
   String get companionSetupTitle => '把她接回家';
 
   @override
-  String get companionSetupBody => '角色素材不在 App 里，要用时才放进手机。选择素材包（zip）导入后就能见到她。';
+  String get companionSetupBody => '角色素材不在 App 里，要用时才放进设备。选择素材包（zip）导入后就能见到她。';
 
   @override
   String get companionSetupImport => '导入素材包';
@@ -4536,7 +4536,7 @@ class L10nZh extends L10n {
 
   @override
   String companionFailedBody(String reason) {
-    return '这台手机上加载失败了（$reason）。可以重新导入素材包再试一次。';
+    return '这台设备上加载失败了（$reason）。可以重新导入素材包再试一次。';
   }
 
   @override
@@ -4546,7 +4546,7 @@ class L10nZh extends L10n {
   String get companionPackRuntimeMismatch => '素材包里的运行库和这个版本的 App 对不上。';
 
   @override
-  String get companionPackNoRuntime => '这个包只有角色，手机上还没有运行库。先导入完整的素材包。';
+  String get companionPackNoRuntime => '这个包只有角色，设备上还没有运行库。先导入完整的素材包。';
 
   @override
   String get companionPackNoModel => '包里没有找到 Live2D 模型（.model3.json）。';
@@ -4558,7 +4558,7 @@ class L10nZh extends L10n {
   String get companionPackTooLarge => '素材包太大了。';
 
   @override
-  String get companionPackStorage => '写入失败，看看手机存储空间够不够。';
+  String get companionPackStorage => '写入失败，看看设备存储空间够不够。';
 
   @override
   String companionGreetFirst(String name) {
@@ -4674,7 +4674,7 @@ class L10nZh extends L10n {
   String get companionArriving => '她正在游过来…';
 
   @override
-  String get companionPrivacyLine => '素材只存在这台手机上，聊天走当前主机。';
+  String get companionPrivacyLine => '素材只存在这台设备上，聊天走当前主机。';
 
   @override
   String get companionMemoryTitle => '她记得的事';
@@ -4772,13 +4772,13 @@ class L10nZh extends L10n {
   String get companionModeLight => '轻量';
 
   @override
-  String get companionModeLightHint => '只聊天。手机直连模型，不用启动引擎';
+  String get companionModeLightHint => '只聊天。设备直连模型，不用启动引擎';
 
   @override
   String get companionModeFull => '完整';
 
   @override
-  String get companionModeFullHint => '主机上的 DSH 引擎，带工具和手机操控';
+  String get companionModeFullHint => '主机上的 DSH 引擎，带工具和设备操控';
 
   @override
   String get companionLightNoKey => '轻量模式要用 DeepSeek API Key，在设置里填上就能和我聊啦。';
@@ -4793,10 +4793,10 @@ class L10nZh extends L10n {
   String get companionNotConnectedTryLight => '现在连不上主机。只想聊天的话，可以在右上角菜单换成轻量模式。';
 
   @override
-  String get companionMenuRestartLightHint => '清掉这台手机上的聊天记录';
+  String get companionMenuRestartLightHint => '清掉这台设备上的聊天记录';
 
   @override
-  String get companionMenuRestartLightConfirm => '她会忘记这段对话，这台手机上的聊天记录会被删掉。';
+  String get companionMenuRestartLightConfirm => '她会忘记这段对话，这台设备上的聊天记录会被删掉。';
 
   @override
   String get companionInviteRest => '要不要陪我在软垫上歇一会儿？';
@@ -4823,13 +4823,13 @@ class L10nZh extends L10n {
   String get companionSetupBundled => '接她回家';
 
   @override
-  String get companionSetupBodyBundled => '她就在 App 里，点一下就到，素材只解压到这台手机上。也可以导入别的素材包（zip）。';
+  String get companionSetupBodyBundled => '她就在 App 里，点一下就到，素材只解压到这台设备上。也可以导入别的素材包（zip）。';
 
   @override
   String get companionSetupImportOther => '导入别的素材包';
 
   @override
-  String get companionMenuRemoveConfirmBundled => '这台手机上解压出来的角色素材会被删除，聊天记录不受影响。之后随时可以再接她回来。';
+  String get companionMenuRemoveConfirmBundled => '这台设备上解压出来的角色素材会被删除，聊天记录不受影响。之后随时可以再接她回来。';
 
   @override
   String get companionHug1 => '唔……抱抱。';
@@ -4909,13 +4909,13 @@ class L10nZh extends L10n {
   String get companionMenuVoice => '她的声音';
 
   @override
-  String get companionMenuVoiceHint => '用手机自带的语音读出她说的话';
+  String get companionMenuVoiceHint => '用设备自带的语音读出她说的话';
 
   @override
   String get companionVoiceHello => '你好呀，这是我的声音。喜欢的话就留着吧。';
 
   @override
-  String get companionVoiceUnavailable => '这台手机没有能用的中文语音。可以在系统设置的「文字转语音」里装一个。';
+  String get companionVoiceUnavailable => '这台设备没有能用的中文语音。可以在系统设置的「文字转语音」里装一个。';
 
   @override
   String get companionWidgetWaiting => '在小屋里等你';
@@ -4933,7 +4933,7 @@ class L10nZh extends L10n {
   String get companionVoiceSource => '声音来源';
 
   @override
-  String get companionVoiceSystem => '手机自带';
+  String get companionVoiceSystem => '设备自带';
 
   @override
   String get companionVoiceSystemHint => '系统的文字转语音，不联网也能用';
@@ -4960,7 +4960,7 @@ class L10nZh extends L10n {
   String get companionVoiceBaseHelper => '填到 /v1 为止，App 会接上 /audio/speech';
 
   @override
-  String get companionVoiceKeyHelper => '存在这台手机的安全存储里';
+  String get companionVoiceKeyHelper => '存在这台设备的安全存储里';
 
   @override
   String get companionVoiceModel => '模型';
@@ -5022,7 +5022,7 @@ class L10nZh extends L10n {
   String get companionVoiceNotSetUp => '先把上面的地址填好。';
 
   @override
-  String get companionVoiceFallback => '外接的声音这次没连上，先用了手机自带的声音';
+  String get companionVoiceFallback => '外接的声音这次没连上，先用了设备自带的声音';
 
   @override
   String get companionGreetFirstNameless => '你好呀，以后我就住在这里了，请多指教。';
@@ -5043,7 +5043,7 @@ class L10nZh extends L10n {
 
   @override
   String companionVoiceKeyWhere(String site) {
-    return '在 $site 申请；存在这台手机的安全存储里';
+    return '在 $site 申请；存在这台设备的安全存储里';
   }
 
   @override
@@ -6292,6 +6292,105 @@ class L10nZh extends L10n {
   @override
   String engineSettingsGroupCount(int count) {
     return '$count 项';
+  }
+
+  @override
+  String get engineSourceTitle => '引擎来源';
+
+  @override
+  String get engineSourceOwned => 'App 自带的引擎';
+
+  @override
+  String get engineSourceOwnedDetail => '由 DSH Go 管理并打好补丁，插件需要单独安装';
+
+  @override
+  String get engineSourceInstalled => '这台设备上已装的 DSH';
+
+  @override
+  String engineSourceInstalledDetail(String version) {
+    return '复用你已安装的 $version，共用同一个 .dsh 目录和插件';
+  }
+
+  @override
+  String get engineSourceOfficial => '正在运行的官方 DSH';
+
+  @override
+  String engineSourceOfficialDetail(int port) {
+    return '连到 127.0.0.1:$port 上已经在跑的 DeepSeek Harness，不迁移数据';
+  }
+
+  @override
+  String get engineSourceScanning => '正在检查这台设备上已安装的 DSH…';
+
+  @override
+  String get engineSourceNotFound => '没检测到已安装的 DSH。在终端里执行 npm i -g @deepseek-ai/dsh 后可再来选择。';
+
+  @override
+  String get engineSourceUseInstalled => '用这台设备上已装的 DSH';
+
+  @override
+  String get engineSourceSwitchNote => '切换引擎来源后，聊天记录留在原来那一份环境里，不会跟随。';
+
+  @override
+  String get engineSourceDegraded => '未打 DSH Go 的补丁：部分功能不可用，但不影响启动和对话。';
+
+  @override
+  String get engineSourceRevert => '改用 App 自带的引擎';
+
+  @override
+  String engineSourceCurrent(String name) {
+    return '当前使用：$name';
+  }
+
+  @override
+  String get engineCapabilitySection => '补丁带来的功能';
+
+  @override
+  String get engineCapabilityAllOk => '补丁完整，全部功能可用';
+
+  @override
+  String engineCapabilityLost(int count) {
+    return '缺 $count 项补丁功能';
+  }
+
+  @override
+  String get engineCapabilitySessionDeletion => '删除会话';
+
+  @override
+  String get engineCapabilityPluginConfig => '插件配置编辑';
+
+  @override
+  String get engineCapabilityPluginInstall => '插件安装与市场';
+
+  @override
+  String get engineCapabilitySessionTitle => '会话标题';
+
+  @override
+  String get engineCapabilityModelDefaults => '默认模型记忆';
+
+  @override
+  String get engineCapabilitySchedules => '定时任务';
+
+  @override
+  String get engineCapabilityJobs => '后台任务';
+
+  @override
+  String get engineCapabilityFileRefs => '文件引用与搜索';
+
+  @override
+  String get engineCapabilitySessionDeletionUnavailable => '当前引擎缺「删除会话」的补丁，暂时不能删除。换成 App 自带的引擎即可。';
+
+  @override
+  String get engineStorePruneTitle => '清理旧版本';
+
+  @override
+  String engineStorePruneDetail(int kept) {
+    return '保留 $kept 个版本，其余删掉';
+  }
+
+  @override
+  String engineStoreFreed(int mb) {
+    return '已释放 $mb MB';
   }
 
   @override
@@ -7671,7 +7770,7 @@ class L10nZh extends L10n {
   String get hubSettingsFullAccessBody => 'AI 执行命令、改动文件前不再问你。';
 
   @override
-  String get hubSettingsStorageTitle => '让 AI 访问手机文件？';
+  String get hubSettingsStorageTitle => '让 AI 访问设备文件？';
 
   @override
   String get hubSettingsStorageAllow => '允许读写';
@@ -7695,10 +7794,10 @@ class L10nZh extends L10n {
   String get hubSettingsAutoCommands => '自动执行命令';
 
   @override
-  String get hubSettingsPhoneFiles => '访问手机文件';
+  String get hubSettingsPhoneFiles => '访问设备文件';
 
   @override
-  String get hubSettingsPhoneFilesHint => 'AI 可读写手机存储';
+  String get hubSettingsPhoneFilesHint => 'AI 可读写设备存储';
 
   @override
   String get hubSettingsVisualReplies => '可视化回复';
@@ -7707,7 +7806,7 @@ class L10nZh extends L10n {
   String get hubSettingsVisualRepliesHint => '图表、对比卡和可点的选项';
 
   @override
-  String get hubSettingsPhoneControl => '手机操控';
+  String get hubSettingsPhoneControl => '设备操控';
 
   @override
   String get hubSettingsPhoneControlHint => '看屏幕、帮你点按';
@@ -7918,7 +8017,7 @@ class L10nZh extends L10n {
   }
 
   @override
-  String get hubSettingsStorageBody => 'AI 能读取和修改相册、下载、文档等手机文件，引擎会重启一次。';
+  String get hubSettingsStorageBody => 'AI 能读取和修改相册、下载、文档等设备文件，引擎会重启一次。';
 
   @override
   String hubSettingsBalance(String amount) {
@@ -8090,10 +8189,10 @@ class L10nZh extends L10n {
   String get hubThemeLightDark => '明暗';
 
   @override
-  String get hubPermissionPhone => '手机';
+  String get hubPermissionPhone => '设备';
 
   @override
-  String get hubPermissionPhoneConfirm => '手机操控确认';
+  String get hubPermissionPhoneConfirm => '设备操控确认';
 
   @override
   String get hubHardwareEnterSends => '外接键盘按 Enter 发送';
@@ -8275,7 +8374,7 @@ class L10nZh extends L10n {
   String get localEnvInstallTitle => '安装本机运行环境';
 
   @override
-  String get localEnvInstallMessage => '在这台手机上运行 DSH';
+  String get localEnvInstallMessage => '在这台设备上运行 DSH';
 
   @override
   String localEnvFactStorage(int storage) {
@@ -9328,7 +9427,7 @@ class L10nZh extends L10n {
   String get phoneActionLogEmpty => '还没有记录';
 
   @override
-  String get phoneActionLogEmptyHint => 'DSH 在手机上的每一步都会记在这里';
+  String get phoneActionLogEmptyHint => 'DSH 在设备上的每一步都会记在这里';
 
   @override
   String get phoneAppRuleDeny => '不碰';
@@ -9652,13 +9751,13 @@ class L10nZh extends L10n {
   String get phoneStopFailed => '没能停止，可以点悬浮条或通知上的「停止」';
 
   @override
-  String get phoneControlTitle => '手机操控';
+  String get phoneControlTitle => '设备操控';
 
   @override
   String get phoneControlSubtitle => '看屏幕、帮你点按，随时可以停';
 
   @override
-  String get phoneControlWorking => '正在操作手机';
+  String get phoneControlWorking => '正在操作设备';
 
   @override
   String get phoneControlTaskNoConfirmHint => '本任务免确认 · 悬浮条上也能暂停或停止';
@@ -9694,7 +9793,7 @@ class L10nZh extends L10n {
   String get phoneControlNeedsAccessibility => '还差一步：打开无障碍';
 
   @override
-  String get phoneControlReady => '可以操作手机';
+  String get phoneControlReady => '可以操作设备';
 
   @override
   String get phoneControlSetup => '准备';
@@ -9766,7 +9865,7 @@ class L10nZh extends L10n {
   String get phoneControlAllActions => '全部记录';
 
   @override
-  String get phoneControlModuleNotReady => '这个版本里，手机操控模块还没有就绪';
+  String get phoneControlModuleNotReady => '这个版本里，设备操控模块还没有就绪';
 
   @override
   String get phoneControlSafeModeUnavailable => '安全模式下不可用';
@@ -9826,10 +9925,10 @@ class L10nZh extends L10n {
   String get phoneDisclosureStopTitle => '你随时能停';
 
   @override
-  String get phoneDisclosureStopBody => '操作时屏幕上有悬浮条，可以暂停、停止或插话。手机要亮屏、解锁。';
+  String get phoneDisclosureStopBody => '操作时屏幕上有悬浮条，可以暂停、停止或插话。设备要亮屏、解锁。';
 
   @override
-  String get phoneDisclosureTitle => '开启手机操控前';
+  String get phoneDisclosureTitle => '开启设备操控前';
 
   @override
   String get phoneDisclosureIntro => 'DSH 会像你一样看屏幕、点按，帮你把事办完。开启前，先了解这几点：';
@@ -10246,7 +10345,7 @@ class L10nZh extends L10n {
 
   @override
   String phoneControlRemoteHint(String host) {
-    return '「$host」上的 DSH 操作不了这台手机，切回「本机」后可用';
+    return '「$host」上的 DSH 操作不了这台设备，切回「本机」后可用';
   }
 
   @override
@@ -10319,7 +10418,7 @@ class L10nZh extends L10n {
   String get phoneAppRulesLoosenBody => '银行、支付类 App 会检测自动操作，可能限制登录甚至冻结账号；DSH 默认不输密码、不付款。';
 
   @override
-  String get phoneAppRulesSkipStepsBody => '微信这类 App 有风控，曾有手机助手操作后账号被强制下线。改成照常后，只有发消息这类操作还会先问你。';
+  String get phoneAppRulesSkipStepsBody => '微信这类 App 有风控，曾有设备助手操作后账号被强制下线。改成照常后，只有发消息这类操作还会先问你。';
 
   @override
   String get phoneResetDeletesChatsWorkspaces => '对话和工作区';
@@ -10384,10 +10483,10 @@ class L10nZh extends L10n {
   String get phoneDirectEngine => '直接启动本机引擎';
 
   @override
-  String get phoneDirectHint => '实验功能，默认关闭，下次启动生效。部分手机（例如 Android 16）会拦截直接启动，届时自动改用兼容启动，数据不受影响。';
+  String get phoneDirectHint => '实验功能，默认关闭，下次启动生效。部分设备（部分系统）会拦截直接启动，届时自动改用兼容启动，数据不受影响。';
 
   @override
-  String get phoneDirectFailedHint => '这台手机上直接启动没有成功，已改用兼容启动。停止引擎后打开可再试一次。';
+  String get phoneDirectFailedHint => '这台设备上直接启动没有成功，已改用兼容启动。停止引擎后打开可再试一次。';
 
   @override
   String get phoneDirectCompatibleHint => '这次用了兼容启动，原因见上方。已保留此选项，下次启动会再试。';
@@ -10470,7 +10569,7 @@ class L10nZh extends L10n {
   String get phoneBackgroundGuideSubtitle => '让确认卡和任务结果及时出现';
 
   @override
-  String get phoneBackgroundGuideBody => '需要你确认时，会显示 DSH Go 卡片。卡片不可用时会尝试通知或回到 App。请在系统设置中允许手机操控通知和弹出提醒。';
+  String get phoneBackgroundGuideBody => '需要你确认时，会显示 DSH Go 卡片。卡片不可用时会尝试通知或回到 App。请在系统设置中允许设备操控通知和弹出提醒。';
 
   @override
   String get phoneBackgroundOemHint => '在 DSH Go 的系统权限页检查「后台弹出界面」（若提供）。允许后可改善自动返回；菜单名称随系统版本变化。';
@@ -10485,7 +10584,7 @@ class L10nZh extends L10n {
   String get phoneBackgroundOpenSettings => '打开系统设置';
 
   @override
-  String get phoneBackgroundNotificationBlocked => '请允许手机操控通知的弹出提醒';
+  String get phoneBackgroundNotificationBlocked => '请允许设备操控通知的弹出提醒';
 
   @override
   String get phonePrivilegedUpgrade => '此版本尚不支持该特权通道，请更新 DSH Go 后使用。';
@@ -10594,7 +10693,7 @@ class L10nZh extends L10n {
   String get phoneModeAutoNote => '系统设置和权限页面、密码和验证码、DSH Go 自身仍由你来操作；银行、支付类 App 默认不碰，可在设置里调整。';
 
   @override
-  String get phoneModeAutoUnlockNote => '如需让 AI 操作系统设置、密码等，可在 设置 › 手机操控 › 解除限制 中开启。';
+  String get phoneModeAutoUnlockNote => '如需让 AI 操作系统设置、密码等，可在 设置 › 设备操控 › 解除限制 中开启。';
 
   @override
   String get phoneModeConfirmAuto => '开启全程自动';
@@ -12132,10 +12231,10 @@ class L10nZh extends L10n {
 
   @override
   String get pluginsPermissionLocalThirdParty =>
-      '插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的手机存储，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。';
+      '插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的设备存储，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。';
 
   @override
-  String get pluginsPermissionLocalTrusted => '插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的手机存储，不受工作区沙箱限制。只装你信任的插件。';
+  String get pluginsPermissionLocalTrusted => '插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的设备存储，不受工作区沙箱限制。只装你信任的插件。';
 
   @override
   String get pluginsPermissionRemoteThirdParty => '插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。';
@@ -12443,7 +12542,7 @@ class L10nZh extends L10n {
   }
 
   @override
-  String get plugslotsVoiceWhen => '朗读时你一开口就停。声音只在手机上判断，不保存、不上传';
+  String get plugslotsVoiceWhen => '朗读时你一开口就停。声音只在设备上判断，不保存、不上传';
 
   @override
   String get plugslotsVoiceDeny => '不允许';
@@ -13407,7 +13506,7 @@ class L10nZh extends L10n {
   String get remoteSwitchHost => '切换主机';
 
   @override
-  String get remoteThisPhoneDsh => '这台手机上的 DSH';
+  String get remoteThisPhoneDsh => '这台设备上的 DSH';
 
   @override
   String get remoteRemoteLabel => '远程';
@@ -13457,7 +13556,7 @@ class L10nZh extends L10n {
   String get remoteConsole => '远程控制台';
 
   @override
-  String get remoteHostsIntro => '在手机上接着用电脑或服务器上的 DSH';
+  String get remoteHostsIntro => '在设备上接着用电脑或服务器上的 DSH';
 
   @override
   String get remoteSshHosts => 'SSH 主机';
@@ -13552,7 +13651,7 @@ class L10nZh extends L10n {
   String get remoteRelaySignOutTitle => '退出 DSH Remote？';
 
   @override
-  String get remoteRelaySignOutBody => '这台手机会从账号中移除。主机上的 DSH 和对话不受影响，随时可以重新登录。';
+  String get remoteRelaySignOutBody => '这台设备会从账号中移除。主机上的 DSH 和对话不受影响，随时可以重新登录。';
 
   @override
   String get remoteRelaySignInTitle => '登录 DSH Remote';
@@ -13607,7 +13706,7 @@ class L10nZh extends L10n {
   }
 
   @override
-  String get remoteDeleteHostBody => '这台主机的设置和保存在手机上的密码、私钥都会删除。主机上的 DSH 和对话不受影响。';
+  String get remoteDeleteHostBody => '这台主机的设置和保存在设备上的密码、私钥都会删除。主机上的 DSH 和对话不受影响。';
 
   @override
   String remoteErrReadKey(String error) {
@@ -13648,10 +13747,10 @@ class L10nZh extends L10n {
   String get remoteAuthentication => '登录方式';
 
   @override
-  String get remotePasswordStorageHelp => '只保存在这台手机上，由 Android Keystore 加密';
+  String get remotePasswordStorageHelp => '只保存在这台设备上，由 系统凭据存储 加密';
 
   @override
-  String get remoteKeyStorageHelp => '只保存在这台手机上，由 Android Keystore 加密。支持 Ed25519、RSA、ECDSA';
+  String get remoteKeyStorageHelp => '只保存在这台设备上，由 系统凭据存储 加密。支持 Ed25519、RSA、ECDSA';
 
   @override
   String get remotePrivateKey => '私钥';
@@ -13760,19 +13859,19 @@ class L10nZh extends L10n {
   String get remoteDirectoryHome => '主目录';
 
   @override
-  String get remoteDirectoryPhoneStorage => '手机存储';
+  String get remoteDirectoryPhoneStorage => '设备存储';
 
   @override
   String get remoteDirectoryDownloads => '下载';
 
   @override
-  String get remoteDirectoryDownloadsPath => '手机存储/Download';
+  String get remoteDirectoryDownloadsPath => '设备存储/Download';
 
   @override
   String get remoteDirectoryDocuments => '文档';
 
   @override
-  String get remoteDirectoryDocumentsPath => '手机存储/Documents';
+  String get remoteDirectoryDocumentsPath => '设备存储/Documents';
 
   @override
   String get remoteDirectoryLocations => '位置';
@@ -13896,7 +13995,7 @@ class L10nZh extends L10n {
 
   @override
   String remoteDirectoryPhonePath(String path) {
-    return '手机存储/$path';
+    return '设备存储/$path';
   }
 
   @override
@@ -14104,7 +14203,7 @@ class L10nZh extends L10n {
   String get remoteNetworkObservedAt => '最近观测';
 
   @override
-  String get remoteNetworkLocalIpVersion => '手机 ICE IP 版本';
+  String get remoteNetworkLocalIpVersion => '设备 ICE IP 版本';
 
   @override
   String get remoteNetworkRemoteIpVersion => '主机 ICE IP 版本';
@@ -14207,19 +14306,19 @@ class L10nZh extends L10n {
   String get askAiQuestionOverview => 'DSH Go 能做什么？我该从哪里开始？';
 
   @override
-  String get askAiQuestionPhoneControl => '手机操控是怎么工作的？有什么风险？';
+  String get askAiQuestionPhoneControl => '设备操控是怎么工作的？有什么风险？';
 
   @override
-  String get askAiQuestionPhoneAlways => '手机操控选「始终免确认」会怎样？和「每次都询问」比风险在哪？';
+  String get askAiQuestionPhoneAlways => '设备操控选「始终免确认」会怎样？和「每次都询问」比风险在哪？';
 
   @override
-  String get askAiQuestionAppRules => '手机操控的应用名单有什么用？放开银行、支付类 App 有什么风险？';
+  String get askAiQuestionAppRules => '设备操控的应用名单有什么用？放开银行、支付类 App 有什么风险？';
 
   @override
   String get askAiQuestionFullAccess => '「完全权限」打开后会怎样？有什么风险？';
 
   @override
-  String get askAiQuestionPhoneFiles => '「访问手机文件」打开后，AI 能读写哪些文件？怎么关掉？';
+  String get askAiQuestionPhoneFiles => '「访问设备文件」打开后，AI 能读写哪些文件？怎么关掉？';
 
   @override
   String get askAiQuestionAllowForChat => '「本对话都允许」会放行哪些操作？怎么关掉？';
@@ -14256,7 +14355,7 @@ class L10nZh extends L10n {
   String get searchNeedsLocal => '连接本机时可用';
 
   @override
-  String get searchNeedsPhoneControl => '开启手机操控后可用';
+  String get searchNeedsPhoneControl => '开启设备操控后可用';
 
   @override
   String get searchNeedsNativeUi => '原生界面可用';
@@ -14292,7 +14391,7 @@ class L10nZh extends L10n {
   String get searchKwSharedLinks => '分享链接,链接,公开链接,分享';
 
   @override
-  String get searchKwPhone => '无障碍,操作手机,自动点击,代操作,点按';
+  String get searchKwPhone => '无障碍,操作设备,自动点击,代操作,点按';
 
   @override
   String get searchKwAppRules => '名单,黑名单,白名单,禁止,应用';
@@ -14364,7 +14463,7 @@ class L10nZh extends L10n {
   String get searchKwAutoCommands => '别问我,不要确认,自动允许,完全权限,免确认';
 
   @override
-  String get searchKwPhoneFiles => '存储,文件,相册,下载,手机存储';
+  String get searchKwPhoneFiles => '存储,文件,相册,下载,设备存储';
 
   @override
   String get searchKwVisualReplies => '图表,卡片,可视化,选项';
@@ -14564,7 +14663,7 @@ class L10nZh extends L10n {
   String get searchKwAbout => '关于,版本,更新,许可,dsh-go';
 
   @override
-  String get searchKwPhoneConfirmEntry => '确认方式,手机操控,免确认';
+  String get searchKwPhoneConfirmEntry => '确认方式,设备操控,免确认';
 
   @override
   String get searchKwWebCodingView => '代码视图,工作视图,网页版';
@@ -15748,7 +15847,7 @@ class L10nZh extends L10n {
   String get statePetFailed => '出错了';
 
   @override
-  String get statePhoneNotReady => '手机操控模块未就绪';
+  String get statePhoneNotReady => '设备操控模块未就绪';
 
   @override
   String get stateBackgroundRestricted => '后台联网被系统限制';
@@ -15784,7 +15883,7 @@ class L10nZh extends L10n {
   String get stateAccountUnsupported => '当前引擎不支持账号登录';
 
   @override
-  String get stateCheckPhoneNetwork => '检查手机网络后重试';
+  String get stateCheckPhoneNetwork => '检查设备网络后重试';
 
   @override
   String get stateServiceUnavailableRetry => '服务暂时不可用，稍后重试';
@@ -15856,7 +15955,7 @@ class L10nZh extends L10n {
   String get stateFileMissing => '找不到这个文件了，可能已被删除或移走';
 
   @override
-  String get stateFileNoApp => '手机上没有能打开这类文件的应用';
+  String get stateFileNoApp => '设备上没有能打开这类文件的应用';
 
   @override
   String get stateFileConnectionLimit => '文件太大，这个连接传不过来';
@@ -16273,7 +16372,7 @@ class L10nZh extends L10n {
   String get statePluginPnpmMissing => '缺少 pnpm';
 
   @override
-  String get statePluginPhonePnpmMissing => '这台手机缺少 pnpm';
+  String get statePluginPhonePnpmMissing => '这台设备缺少 pnpm';
 
   @override
   String get statePluginHostPnpmMissing => '这台主机缺少 pnpm';
@@ -16948,7 +17047,7 @@ class L10nZh extends L10n {
   String get updateSignatureMismatch => '签名不一致，不能直接覆盖';
 
   @override
-  String get updateSignatureMismatchMessage => '手机上的 DSH Go 签名不同（多半是测试包），需要先卸载旧版再装新版。卸载会清空对话、Linux 环境和设置。';
+  String get updateSignatureMismatchMessage => '设备上的 DSH Go 签名不同（多半是测试包），需要先卸载旧版再装新版。卸载会清空对话、Linux 环境和设置。';
 
   @override
   String get updateWrongPackage => '不是 DSH 的安装包';
@@ -16960,13 +17059,13 @@ class L10nZh extends L10n {
   String get updateDowngradeBlocked => '不能降级安装';
 
   @override
-  String get updateDowngradeBlockedMessage => '手机上的 DSH 比这个安装包还新。';
+  String get updateDowngradeBlockedMessage => '设备上的 DSH 比这个安装包还新。';
 
   @override
-  String get updateIncompatible => '和这台手机不兼容';
+  String get updateIncompatible => '和这台设备不兼容';
 
   @override
-  String get updateIncompatibleMessage => '安装包要求的系统版本或处理器架构和手机不符。';
+  String get updateIncompatibleMessage => '安装包要求的系统版本或处理器架构和设备不符。';
 
   @override
   String get updatePackageCorrupt => '安装包已损坏';
@@ -17104,7 +17203,7 @@ class L10nZh extends L10n {
   String get usageStatsSection => '改进 DSH Go';
 
   @override
-  String get usageStatsFooter => '只含使用次数、版本和手机品牌，不含对话、文件和账号。';
+  String get usageStatsFooter => '只含使用次数、版本和设备品牌，不含对话、文件和账号。';
 
   @override
   String get usageNoticeBody => '不含对话和个人信息，可随时关闭';
@@ -17187,7 +17286,7 @@ class L10nZh extends L10n {
   String get viewArtifactImageFailed => '无法显示这张图片';
 
   @override
-  String get viewArtifactPhoneOpen => '用手机上的应用打开';
+  String get viewArtifactPhoneOpen => '用设备上的应用打开';
 
   @override
   String get viewArtifactPdfFailed => '无法打开这个 PDF，试试用其他应用打开';
@@ -18147,7 +18246,7 @@ class L10nZh extends L10n {
 
   @override
   String viewSharePhoneInstall(String value) {
-    return '手机上一键安装：$value';
+    return '设备上一键安装：$value';
   }
 
   @override
@@ -18428,7 +18527,7 @@ class L10nZh extends L10n {
   String get voiceModeAutoHint => '有语音模型时用它，否则用系统识别';
 
   @override
-  String get voiceModeSystemHint => '使用手机设置中的识别服务';
+  String get voiceModeSystemHint => '使用设备设置中的识别服务';
 
   @override
   String get voiceModeEngineHint => '用引擎里的语音模型识别';
@@ -18505,7 +18604,7 @@ class L10nZh extends L10n {
   String get voiceModelSection => '语音模型';
 
   @override
-  String get voiceModelFooter => '下载后在手机上识别中文、英文、粤语、日语和韩语，录音不出手机。';
+  String get voiceModelFooter => '下载后在设备上识别中文、英文、粤语、日语和韩语，录音不出设备。';
 
   @override
   String get voiceModelWaiting => '引擎启动后可以下载';
@@ -18553,7 +18652,7 @@ class L10nZh extends L10n {
   String get voiceModelFailTimeout => '下载长时间没有进展';
 
   @override
-  String get voiceModelFailCertificate => '安全连接失败，请检查手机时间';
+  String get voiceModelFailCertificate => '安全连接失败，请检查设备时间';
 
   @override
   String get voiceModelFailServer => '下载源暂时不可用';
@@ -18879,4 +18978,7 @@ class L10nZh extends L10n {
   String webConnectHostFirst(String name) {
     return '还没连上「$name」，连上后再打开网页版';
   }
+
+  @override
+  String get webNoEmbeddedBrowser => '这台电脑没有可内嵌的系统浏览器内核，请用系统浏览器打开这个页面';
 }

@@ -34,7 +34,7 @@
   "hubPlugins": "插件",
   "hubSettingsFullAccessTitle": "开启完全权限？",
   "hubSettingsFullAccessBody": "AI 执行命令、改动文件前不再问你。",
-  "hubSettingsStorageTitle": "让 AI 访问手机文件？",
+  "hubSettingsStorageTitle": "让 AI 访问设备文件？",
   "hubSettingsStorageAllow": "允许读写",
   "hubSettingsStorageDenied": "没有拿到存储权限。到系统设置里给 DSH Go 开启「所有文件访问」后再试",
   "hubSettingsRestartRequired": "重启引擎后生效",
@@ -42,11 +42,11 @@
   "hubSettingsInterface": "界面",
   "hubSettingsChat": "对话",
   "hubSettingsAutoCommands": "自动执行命令",
-  "hubSettingsPhoneFiles": "访问手机文件",
-  "hubSettingsPhoneFilesHint": "AI 可读写手机存储",
+  "hubSettingsPhoneFiles": "访问设备文件",
+  "hubSettingsPhoneFilesHint": "AI 可读写设备存储",
   "hubSettingsVisualReplies": "可视化回复",
   "hubSettingsVisualRepliesHint": "图表、对比卡和可点的选项",
-  "hubSettingsPhoneControl": "手机操控",
+  "hubSettingsPhoneControl": "设备操控",
   "hubSettingsPhoneControlHint": "看屏幕、帮你点按",
   "hubSettingsPreferences": "个人偏好",
   "hubSettingsAppearance": "外观",
@@ -192,7 +192,7 @@
       }
     }
   },
-  "hubSettingsStorageBody": "AI 能读取和修改相册、下载、文档等手机文件，引擎会重启一次。",
+  "hubSettingsStorageBody": "AI 能读取和修改相册、下载、文档等设备文件，引擎会重启一次。",
   "hubSettingsBalance": "余额 {amount}",
   "@hubSettingsBalance": {
     "placeholders": {
@@ -328,8 +328,8 @@
   },
   "hubEngineStartup": "启动",
   "hubThemeLightDark": "明暗",
-  "hubPermissionPhone": "手机",
-  "hubPermissionPhoneConfirm": "手机操控确认",
+  "hubPermissionPhone": "设备",
+  "hubPermissionPhoneConfirm": "设备操控确认",
   "hubHardwareEnterSends": "外接键盘按 Enter 发送",
   "hubHardwareEnterSendsHint": "开启后，Shift+Enter 换行。屏幕键盘仍换行；Ctrl/⌘+Enter 始终可发送。",
   "hubQuickPanel": "左滑快捷入口",

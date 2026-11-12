@@ -459,7 +459,7 @@
   },
   "botsUpdateRequired": "DS Bot 需要更新",
   "botsInstall": "安装 DS Bot",
-  "botsUpdateForPhone": "新版才能在手机上用",
+  "botsUpdateForPhone": "新版才能在设备上用",
   "botsInstallDescription": "一组长期在线的 Bot，各有记忆和分工",
   "botsInstallOnHost": "在{host}上装好后就能用",
   "@botsInstallOnHost": {

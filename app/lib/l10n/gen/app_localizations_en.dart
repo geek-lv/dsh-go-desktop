@@ -21,7 +21,7 @@ class L10nEn extends L10n {
 
   @override
   String get a11yRestoreNotice =>
-      'Once authorized, accessibility will be turned back on if disabled in system settings. To stop phone control, turn it off in DSH Go.';
+      'Once authorized, accessibility will be turned back on if disabled in system settings. To stop device control, turn it off in DSH Go.';
 
   @override
   String get a11yRestoreForceStop => 'After a force stop, reopen DSH Go to restore the service.';
@@ -72,7 +72,7 @@ class L10nEn extends L10n {
   String get accessSkip => 'Skip';
 
   @override
-  String get accessFeatureFiles => 'Read and write phone files';
+  String get accessFeatureFiles => 'Read and write device files';
 
   @override
   String get accessFeatureFilesNeeds => 'Needs file access';
@@ -84,7 +84,7 @@ class L10nEn extends L10n {
   String get accessFeaturePetNeeds => 'Needs display over other apps';
 
   @override
-  String get accessFeaturePhone => 'Phone control';
+  String get accessFeaturePhone => 'Device control';
 
   @override
   String get accessFeaturePhoneNeeds => 'Needs accessibility and notifications';
@@ -193,13 +193,13 @@ class L10nEn extends L10n {
   String get accessA11yTitle => 'Turn on accessibility';
 
   @override
-  String get accessA11yWhy => 'Phone control reads the screen and taps through it';
+  String get accessA11yWhy => 'Device control reads the screen and taps through it';
 
   @override
   String get accessPopupTitle => 'Allow pop-ups in background';
 
   @override
-  String get accessPopupWhy => 'Brings you back to DSH Go when phone control is done';
+  String get accessPopupWhy => 'Brings you back to DSH Go when device control is done';
 
   @override
   String accessVivoPopupPath(String app) {
@@ -2271,7 +2271,7 @@ class L10nEn extends L10n {
   String get botsInstall => 'Install DS Bot';
 
   @override
-  String get botsUpdateForPhone => 'Update to use it on your phone';
+  String get botsUpdateForPhone => 'Update to use it on your device';
 
   @override
   String get botsInstallDescription => 'Always-on bots, each with its own memory and role';
@@ -3264,7 +3264,7 @@ class L10nEn extends L10n {
   String get catalogRemoteSummary => 'Connect to a computer or server';
 
   @override
-  String get catalogPhoneControl => 'Phone control';
+  String get catalogPhoneControl => 'Device control';
 
   @override
   String get catalogPhoneControlSummary => 'See your screen and tap for you';
@@ -3832,7 +3832,7 @@ class L10nEn extends L10n {
   String get chatVoicePermissionNeeded => 'Voice input needs microphone access';
 
   @override
-  String get chatVoiceUnavailable => 'Speech recognition isn’t available on this phone';
+  String get chatVoiceUnavailable => 'Speech recognition isn’t available on this device';
 
   @override
   String get chatVoiceNotHeard => 'Didn’t catch that. Try again.';
@@ -4004,13 +4004,13 @@ class L10nEn extends L10n {
   String get chatSavingToDownloads => 'Saving to Downloads…';
 
   @override
-  String get chatOpenInPhoneApp => 'Open in an app on this phone';
+  String get chatOpenInPhoneApp => 'Open in an app on this device';
 
   @override
   String get chatMoreActions => 'More actions';
 
   @override
-  String get chatAlreadyInDownloads => 'Already in Downloads on this phone';
+  String get chatAlreadyInDownloads => 'Already in Downloads on this device';
 
   @override
   String get chatArtifactCopyPathOnly => 'This connection can’t read files. You can copy the path.';
@@ -4808,7 +4808,7 @@ class L10nEn extends L10n {
 
   @override
   String get companionMenuRemoveConfirm =>
-      'The character assets on this phone will be deleted. Chats aren\'t affected. You\'ll need to import them again next time.';
+      'The character assets on this device will be deleted. Chats aren\'t affected. You\'ll need to import them again next time.';
 
   @override
   String companionCreditAuthor(String name) {
@@ -4820,7 +4820,7 @@ class L10nEn extends L10n {
 
   @override
   String get companionSetupBody =>
-      'Character assets aren\'t part of the app and only land on your phone when you want them. Import an asset pack (zip) to meet her.';
+      'Character assets aren\'t part of the app and only land on your device when you want them. Import an asset pack (zip) to meet her.';
 
   @override
   String get companionSetupImport => 'Import asset pack';
@@ -4830,7 +4830,7 @@ class L10nEn extends L10n {
 
   @override
   String companionFailedBody(String reason) {
-    return 'Loading failed on this phone ($reason). You can import the asset pack again and retry.';
+    return 'Loading failed on this device ($reason). You can import the asset pack again and retry.';
   }
 
   @override
@@ -4841,7 +4841,7 @@ class L10nEn extends L10n {
 
   @override
   String get companionPackNoRuntime =>
-      'This pack only has a character and there\'s no runtime on this phone yet. Import a full asset pack first.';
+      'This pack only has a character and there\'s no runtime on this device yet. Import a full asset pack first.';
 
   @override
   String get companionPackNoModel => 'No Live2D model (.model3.json) found in the pack.';
@@ -4853,7 +4853,7 @@ class L10nEn extends L10n {
   String get companionPackTooLarge => 'This asset pack is too large.';
 
   @override
-  String get companionPackStorage => 'Couldn\'t write the files. Check your phone\'s free storage.';
+  String get companionPackStorage => 'Couldn\'t write the files. Check your device\'s free storage.';
 
   @override
   String companionGreetFirst(String name) {
@@ -4969,7 +4969,7 @@ class L10nEn extends L10n {
   String get companionArriving => 'She\'s swimming over…';
 
   @override
-  String get companionPrivacyLine => 'Assets stay on this phone. Chats go through the current host.';
+  String get companionPrivacyLine => 'Assets stay on this device. Chats go through the current host.';
 
   @override
   String get companionMemoryTitle => 'What she remembers';
@@ -5069,13 +5069,13 @@ class L10nEn extends L10n {
   String get companionModeLight => 'Light';
 
   @override
-  String get companionModeLightHint => 'Chat only. The phone talks to the model; no engine';
+  String get companionModeLightHint => 'Chat only. The device talks to the model; no engine';
 
   @override
   String get companionModeFull => 'Full';
 
   @override
-  String get companionModeFullHint => 'DSH on the host, with tools and phone control';
+  String get companionModeFullHint => 'DSH on the host, with tools and device control';
 
   @override
   String get companionLightNoKey => 'Light mode needs a DeepSeek API key. Add one in Settings and we can talk.';
@@ -5091,11 +5091,11 @@ class L10nEn extends L10n {
       'I can\'t reach the host right now. If you just want to chat, switch to Light in the menu at the top right.';
 
   @override
-  String get companionMenuRestartLightHint => 'Clear the chat on this phone';
+  String get companionMenuRestartLightHint => 'Clear the chat on this device';
 
   @override
   String get companionMenuRestartLightConfirm =>
-      'She will forget this conversation, and the chat on this phone is deleted.';
+      'She will forget this conversation, and the chat on this device is deleted.';
 
   @override
   String get companionInviteRest => 'Rest on the cushion with me for a bit?';
@@ -5123,14 +5123,14 @@ class L10nEn extends L10n {
 
   @override
   String get companionSetupBodyBundled =>
-      'She comes with the app: one tap and she\'s here, unpacked only on this phone. You can also import another asset pack (zip).';
+      'She comes with the app: one tap and she\'s here, unpacked only on this device. You can also import another asset pack (zip).';
 
   @override
   String get companionSetupImportOther => 'Import another pack';
 
   @override
   String get companionMenuRemoveConfirmBundled =>
-      'The character assets unpacked on this phone will be deleted. Chats aren\'t affected. You can bring her back anytime.';
+      'The character assets unpacked on this device will be deleted. Chats aren\'t affected. You can bring her back anytime.';
 
   @override
   String get companionHug1 => 'Mm... a hug.';
@@ -5210,14 +5210,14 @@ class L10nEn extends L10n {
   String get companionMenuVoice => 'Her voice';
 
   @override
-  String get companionMenuVoiceHint => 'Reads her words aloud with the phone\'s own voice';
+  String get companionMenuVoiceHint => 'Reads her words aloud with the device\'s own voice';
 
   @override
   String get companionVoiceHello => 'Hi, this is my voice. Keep it on if you like it.';
 
   @override
   String get companionVoiceUnavailable =>
-      'This phone has no Chinese voice to use. You can add one under Text-to-speech in system settings.';
+      'This device has no Chinese voice to use. You can add one under Text-to-speech in system settings.';
 
   @override
   String get companionWidgetWaiting => 'Waiting for you in the room';
@@ -5235,7 +5235,7 @@ class L10nEn extends L10n {
   String get companionVoiceSource => 'Voice';
 
   @override
-  String get companionVoiceSystem => 'The phone\'s own';
+  String get companionVoiceSystem => 'The device\'s own';
 
   @override
   String get companionVoiceSystemHint => 'System text-to-speech, works offline';
@@ -5263,7 +5263,7 @@ class L10nEn extends L10n {
   String get companionVoiceBaseHelper => 'Up to /v1; the app adds /audio/speech';
 
   @override
-  String get companionVoiceKeyHelper => 'Kept in this phone\'s secure storage';
+  String get companionVoiceKeyHelper => 'Kept in this device\'s secure storage';
 
   @override
   String get companionVoiceModel => 'Model';
@@ -5326,7 +5326,7 @@ class L10nEn extends L10n {
   String get companionVoiceNotSetUp => 'Fill in the address above first.';
 
   @override
-  String get companionVoiceFallback => 'Couldn\'t reach her voice service, so the phone\'s own voice stood in';
+  String get companionVoiceFallback => 'Couldn\'t reach her voice service, so the device\'s own voice stood in';
 
   @override
   String get companionGreetFirstNameless => 'Hi, I live here now. Nice to meet you.';
@@ -5347,7 +5347,7 @@ class L10nEn extends L10n {
 
   @override
   String companionVoiceKeyWhere(String site) {
-    return 'Get one at $site; kept in this phone\'s secure storage';
+    return 'Get one at $site; kept in this device\'s secure storage';
   }
 
   @override
@@ -6641,6 +6641,108 @@ class L10nEn extends L10n {
   String engineSettingsGroupCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count settings', one: '1 setting');
     return '$_temp0';
+  }
+
+  @override
+  String get engineSourceTitle => 'Engine source';
+
+  @override
+  String get engineSourceOwned => 'Engine bundled with the app';
+
+  @override
+  String get engineSourceOwnedDetail => 'Managed and patched by DSH Go; plugins are installed separately';
+
+  @override
+  String get engineSourceInstalled => 'DSH already installed on this device';
+
+  @override
+  String engineSourceInstalledDetail(String version) {
+    return 'Reuse your $version and share the same .dsh folder and plugins';
+  }
+
+  @override
+  String get engineSourceOfficial => 'Official DSH that is running';
+
+  @override
+  String engineSourceOfficialDetail(int port) {
+    return 'Connect to the DeepSeek Harness running on 127.0.0.1:$port; nothing migrates';
+  }
+
+  @override
+  String get engineSourceScanning => 'Checking for DSH installed on this device…';
+
+  @override
+  String get engineSourceNotFound =>
+      'No installed DSH found. Run npm i -g @deepseek-ai/dsh in a terminal, then pick it here.';
+
+  @override
+  String get engineSourceUseInstalled => 'Use the DSH installed on this device';
+
+  @override
+  String get engineSourceSwitchNote => 'Switching the engine source keeps chats in the environment they were made in.';
+
+  @override
+  String get engineSourceDegraded =>
+      'DSH Go patches are not applied: some features are unavailable, starting and chatting still work.';
+
+  @override
+  String get engineSourceRevert => 'Switch back to the app\'s engine';
+
+  @override
+  String engineSourceCurrent(String name) {
+    return 'In use: $name';
+  }
+
+  @override
+  String get engineCapabilitySection => 'Features that need the patches';
+
+  @override
+  String get engineCapabilityAllOk => 'Patches complete: every feature available';
+
+  @override
+  String engineCapabilityLost(int count) {
+    return '$count patched features missing';
+  }
+
+  @override
+  String get engineCapabilitySessionDeletion => 'Deleting chats';
+
+  @override
+  String get engineCapabilityPluginConfig => 'Editing plugin config';
+
+  @override
+  String get engineCapabilityPluginInstall => 'Installing plugins and the market';
+
+  @override
+  String get engineCapabilitySessionTitle => 'Chat titles';
+
+  @override
+  String get engineCapabilityModelDefaults => 'Remembering the default model';
+
+  @override
+  String get engineCapabilitySchedules => 'Schedules';
+
+  @override
+  String get engineCapabilityJobs => 'Background jobs';
+
+  @override
+  String get engineCapabilityFileRefs => 'File references and search';
+
+  @override
+  String get engineCapabilitySessionDeletionUnavailable =>
+      'This engine is missing the delete-chats patch, so chats cannot be deleted yet. Switch to the app\'s engine to delete them.';
+
+  @override
+  String get engineStorePruneTitle => 'Clean up old versions';
+
+  @override
+  String engineStorePruneDetail(int kept) {
+    return 'Keep $kept versions, delete the rest';
+  }
+
+  @override
+  String engineStoreFreed(int mb) {
+    return 'Freed $mb MB';
   }
 
   @override
@@ -8082,7 +8184,7 @@ class L10nEn extends L10n {
   String get hubSettingsFullAccessBody => 'AI won’t ask before running commands or changing files.';
 
   @override
-  String get hubSettingsStorageTitle => 'Let AI access phone files?';
+  String get hubSettingsStorageTitle => 'Let AI access device files?';
 
   @override
   String get hubSettingsStorageAllow => 'Allow access';
@@ -8107,10 +8209,10 @@ class L10nEn extends L10n {
   String get hubSettingsAutoCommands => 'Auto-run commands';
 
   @override
-  String get hubSettingsPhoneFiles => 'Access phone files';
+  String get hubSettingsPhoneFiles => 'Access device files';
 
   @override
-  String get hubSettingsPhoneFilesHint => 'AI can read and write phone storage';
+  String get hubSettingsPhoneFilesHint => 'AI can read and write device storage';
 
   @override
   String get hubSettingsVisualReplies => 'Visual replies';
@@ -8119,7 +8221,7 @@ class L10nEn extends L10n {
   String get hubSettingsVisualRepliesHint => 'Charts, comparisons and tappable options';
 
   @override
-  String get hubSettingsPhoneControl => 'Phone control';
+  String get hubSettingsPhoneControl => 'Device control';
 
   @override
   String get hubSettingsPhoneControlHint => 'See your screen and tap for you';
@@ -8536,10 +8638,10 @@ class L10nEn extends L10n {
   String get hubThemeLightDark => 'Light and dark';
 
   @override
-  String get hubPermissionPhone => 'Phone';
+  String get hubPermissionPhone => 'Device';
 
   @override
-  String get hubPermissionPhoneConfirm => 'Phone control confirmation';
+  String get hubPermissionPhoneConfirm => 'Device control confirmation';
 
   @override
   String get hubHardwareEnterSends => 'Send with hardware Enter';
@@ -8725,7 +8827,7 @@ class L10nEn extends L10n {
   String get localEnvInstallTitle => 'Install on this phone';
 
   @override
-  String get localEnvInstallMessage => 'Run DSH right on this phone';
+  String get localEnvInstallMessage => 'Run DSH right on this device';
 
   @override
   String localEnvFactStorage(int storage) {
@@ -9797,7 +9899,7 @@ class L10nEn extends L10n {
   String get phoneActionLogEmpty => 'No actions yet';
 
   @override
-  String get phoneActionLogEmptyHint => 'Every step DSH takes on your phone appears here';
+  String get phoneActionLogEmptyHint => 'Every step DSH takes on this device appears here';
 
   @override
   String get phoneAppRuleDeny => 'Hands off';
@@ -10135,13 +10237,13 @@ class L10nEn extends L10n {
   String get phoneStopFailed => 'Couldn’t stop. Tap “Stop” on the floating bar or notification.';
 
   @override
-  String get phoneControlTitle => 'Phone control';
+  String get phoneControlTitle => 'Device control';
 
   @override
   String get phoneControlSubtitle => 'Reads the screen and taps for you. Stop anytime.';
 
   @override
-  String get phoneControlWorking => 'Operating your phone';
+  String get phoneControlWorking => 'Operating this device';
 
   @override
   String get phoneControlTaskNoConfirmHint =>
@@ -10178,7 +10280,7 @@ class L10nEn extends L10n {
   String get phoneControlNeedsAccessibility => 'One step left: turn on accessibility';
 
   @override
-  String get phoneControlReady => 'Ready to control your phone';
+  String get phoneControlReady => 'Ready to control this device';
 
   @override
   String get phoneControlSetup => 'Setup';
@@ -10251,7 +10353,7 @@ class L10nEn extends L10n {
   String get phoneControlAllActions => 'All actions';
 
   @override
-  String get phoneControlModuleNotReady => 'Phone control isn’t ready in this version';
+  String get phoneControlModuleNotReady => 'Device control isn’t ready in this version';
 
   @override
   String get phoneControlSafeModeUnavailable => 'Unavailable in Safe mode';
@@ -10318,7 +10420,7 @@ class L10nEn extends L10n {
       'A floating bar lets you pause, stop or steer. Keep the screen on and unlocked.';
 
   @override
-  String get phoneDisclosureTitle => 'Before turning on Phone control';
+  String get phoneDisclosureTitle => 'Before turning on Device control';
 
   @override
   String get phoneDisclosureIntro =>
@@ -10773,7 +10875,7 @@ class L10nEn extends L10n {
 
   @override
   String phoneControlRemoteHint(String host) {
-    return 'DSH on “$host” can’t control this phone. Switch to “This phone” to use it.';
+    return 'DSH on “$host” can’t control this device. Switch to “This device” to use it.';
   }
 
   @override
@@ -10848,7 +10950,7 @@ class L10nEn extends L10n {
 
   @override
   String get phoneAppRulesSkipStepsBody =>
-      'Apps like WeChat watch for automation, and phone assistants have had accounts signed out. With “As usual”, only actions like sending messages still ask first.';
+      'Apps like WeChat watch for automation, and device assistants have had accounts signed out. With “As usual”, only actions like sending messages still ask first.';
 
   @override
   String get phoneResetDeletesChatsWorkspaces => 'chats and workspaces';
@@ -10917,11 +11019,11 @@ class L10nEn extends L10n {
 
   @override
   String get phoneDirectHint =>
-      'Experimental and off by default; applies on the next start. Some phones (Android 16, for one) block a direct start, and the app then goes back to compatible launch on its own. Your data isn’t affected.';
+      'Experimental and off by default; applies on the next start. Some devices (Android 16, for one) block a direct start, and the app then goes back to compatible launch on its own. Your data isn’t affected.';
 
   @override
   String get phoneDirectFailedHint =>
-      'Direct launch didn’t work on this phone, so compatible launch is used. Stop the engine and turn this on to try again.';
+      'Direct launch didn’t work on this device, so compatible launch is used. Stop the engine and turn this on to try again.';
 
   @override
   String get phoneDirectCompatibleHint =>
@@ -11008,7 +11110,7 @@ class L10nEn extends L10n {
 
   @override
   String get phoneBackgroundGuideBody =>
-      'When a step needs your decision, a DSH Go card appears. If the card is unavailable, the app tries a notification or returns here. Allow phone-control notifications and pop-up alerts in system settings.';
+      'When a step needs your decision, a DSH Go card appears. If the card is unavailable, the app tries a notification or returns here. Allow device-control notifications and pop-up alerts in system settings.';
 
   @override
   String get phoneBackgroundOemHint =>
@@ -11025,7 +11127,7 @@ class L10nEn extends L10n {
   String get phoneBackgroundOpenSettings => 'Open system settings';
 
   @override
-  String get phoneBackgroundNotificationBlocked => 'Allow pop-up alerts for phone-control notifications';
+  String get phoneBackgroundNotificationBlocked => 'Allow pop-up alerts for device-control notifications';
 
   @override
   String get phonePrivilegedUpgrade =>
@@ -11142,7 +11244,7 @@ class L10nEn extends L10n {
 
   @override
   String get phoneModeAutoUnlockNote =>
-      'To let AI handle system settings, passwords and the like, turn it on in Settings › Phone control › Lift limits.';
+      'To let AI handle system settings, passwords and the like, turn it on in Settings › Device control › Lift limits.';
 
   @override
   String get phoneModeConfirmAuto => 'Go fully automatic';
@@ -12728,11 +12830,11 @@ class L10nEn extends L10n {
 
   @override
   String get pluginsPermissionLocalThirdParty =>
-      'Plugins run with DSH’s permissions: they can read and write files, run commands, and read API keys and phone storage you’ve granted access to. They aren’t restricted by the workspace sandbox. Provided by a third party and not reviewed by DSH.';
+      'Plugins run with DSH’s permissions: they can read and write files, run commands, and read API keys and device storage you’ve granted access to. They aren’t restricted by the workspace sandbox. Provided by a third party and not reviewed by DSH.';
 
   @override
   String get pluginsPermissionLocalTrusted =>
-      'Plugins run with DSH’s permissions: they can read and write files, run commands, and read API keys and phone storage you’ve granted access to. They aren’t restricted by the workspace sandbox. Only install plugins you trust.';
+      'Plugins run with DSH’s permissions: they can read and write files, run commands, and read API keys and device storage you’ve granted access to. They aren’t restricted by the workspace sandbox. Only install plugins you trust.';
 
   @override
   String get pluginsPermissionRemoteThirdParty =>
@@ -13058,7 +13160,7 @@ class L10nEn extends L10n {
 
   @override
   String get plugslotsVoiceWhen =>
-      'Reading stops the moment you speak. Your voice is checked on this phone, never saved or sent';
+      'Reading stops the moment you speak. Your voice is checked on this device, never saved or sent';
 
   @override
   String get plugslotsVoiceDeny => 'Don\'t allow';
@@ -14060,7 +14162,7 @@ class L10nEn extends L10n {
   String get remoteSwitchHost => 'Switch host';
 
   @override
-  String get remoteThisPhoneDsh => 'DSH on this phone';
+  String get remoteThisPhoneDsh => 'DSH on this device';
 
   @override
   String get remoteRemoteLabel => 'Remote';
@@ -14111,7 +14213,7 @@ class L10nEn extends L10n {
   String get remoteConsole => 'Remote console';
 
   @override
-  String get remoteHostsIntro => 'Keep using DSH from your computer or server on your phone';
+  String get remoteHostsIntro => 'Keep using DSH from your computer or server on this device';
 
   @override
   String get remoteSshHosts => 'SSH hosts';
@@ -14207,7 +14309,7 @@ class L10nEn extends L10n {
 
   @override
   String get remoteRelaySignOutBody =>
-      'This phone will be removed from your account. DSH and chats on the host stay. You can sign in again anytime.';
+      'This device will be removed from your account. DSH and chats on the host stay. You can sign in again anytime.';
 
   @override
   String get remoteRelaySignInTitle => 'Sign in to DSH Remote';
@@ -14264,7 +14366,7 @@ class L10nEn extends L10n {
 
   @override
   String get remoteDeleteHostBody =>
-      'This host’s settings and the password and private key saved on this phone will be deleted. DSH and chats on the host stay.';
+      'This host’s settings and the password and private key saved on this device will be deleted. DSH and chats on the host stay.';
 
   @override
   String remoteErrReadKey(String error) {
@@ -14305,11 +14407,11 @@ class L10nEn extends L10n {
   String get remoteAuthentication => 'Sign-in method';
 
   @override
-  String get remotePasswordStorageHelp => 'Saved only on this phone, encrypted by Android Keystore';
+  String get remotePasswordStorageHelp => 'Saved only on this device, encrypted by the system credential store';
 
   @override
   String get remoteKeyStorageHelp =>
-      'Saved only on this phone, encrypted by Android Keystore. Supports Ed25519, RSA and ECDSA.';
+      'Saved only on this device, encrypted by the system credential store. Supports Ed25519, RSA and ECDSA.';
 
   @override
   String get remotePrivateKey => 'Private key';
@@ -14418,19 +14520,19 @@ class L10nEn extends L10n {
   String get remoteDirectoryHome => 'Home';
 
   @override
-  String get remoteDirectoryPhoneStorage => 'Phone storage';
+  String get remoteDirectoryPhoneStorage => 'Device storage';
 
   @override
   String get remoteDirectoryDownloads => 'Downloads';
 
   @override
-  String get remoteDirectoryDownloadsPath => 'Phone storage/Download';
+  String get remoteDirectoryDownloadsPath => 'Device storage/Download';
 
   @override
   String get remoteDirectoryDocuments => 'Documents';
 
   @override
-  String get remoteDirectoryDocumentsPath => 'Phone storage/Documents';
+  String get remoteDirectoryDocumentsPath => 'Device storage/Documents';
 
   @override
   String get remoteDirectoryLocations => 'Locations';
@@ -14561,7 +14663,7 @@ class L10nEn extends L10n {
 
   @override
   String remoteDirectoryPhonePath(String path) {
-    return 'Phone storage/$path';
+    return 'Device storage/$path';
   }
 
   @override
@@ -14818,7 +14920,7 @@ class L10nEn extends L10n {
   String get remoteNetworkObservedAt => 'Last checked';
 
   @override
-  String get remoteNetworkLocalIpVersion => 'Phone ICE IP version';
+  String get remoteNetworkLocalIpVersion => 'Device ICE IP version';
 
   @override
   String get remoteNetworkRemoteIpVersion => 'Host ICE IP version';
@@ -14927,22 +15029,22 @@ class L10nEn extends L10n {
   String get askAiQuestionOverview => 'What can DSH Go do, and where should I start?';
 
   @override
-  String get askAiQuestionPhoneControl => 'How does phone control work, and what are the risks?';
+  String get askAiQuestionPhoneControl => 'How does device control work, and what are the risks?';
 
   @override
   String get askAiQuestionPhoneAlways =>
-      'What changes with “Always skip confirmation” in phone control, and how is it riskier than asking each time?';
+      'What changes with “Always skip confirmation” in device control, and how is it riskier than asking each time?';
 
   @override
   String get askAiQuestionAppRules =>
-      'What is the app list in phone control for, and what are the risks of allowing banking and payment apps?';
+      'What is the app list in device control for, and what are the risks of allowing banking and payment apps?';
 
   @override
   String get askAiQuestionFullAccess => 'What happens with full access on, and what are the risks?';
 
   @override
   String get askAiQuestionPhoneFiles =>
-      'With “Access phone files” on, which files can AI read and change, and how do I turn it off?';
+      'With “Access device files” on, which files can AI read and change, and how do I turn it off?';
 
   @override
   String get askAiQuestionAllowForChat => 'What does “Allow for chat” let through, and how do I turn it off?';
@@ -14980,7 +15082,7 @@ class L10nEn extends L10n {
   String get searchNeedsLocal => 'Available on this phone\'s engine';
 
   @override
-  String get searchNeedsPhoneControl => 'Available once phone control is on';
+  String get searchNeedsPhoneControl => 'Available once device control is on';
 
   @override
   String get searchNeedsNativeUi => 'Available in the native interface';
@@ -15016,7 +15118,7 @@ class L10nEn extends L10n {
   String get searchKwSharedLinks => 'links,share,shared,public link';
 
   @override
-  String get searchKwPhone => 'accessibility,automation,tap,control phone';
+  String get searchKwPhone => 'accessibility,automation,tap,control device';
 
   @override
   String get searchKwAppRules => 'apps,blocklist,allowlist,deny,app list';
@@ -15291,7 +15393,7 @@ class L10nEn extends L10n {
   String get searchKwAbout => 'about,version,update,licenses';
 
   @override
-  String get searchKwPhoneConfirmEntry => 'confirmation,phone control,don\'t ask';
+  String get searchKwPhoneConfirmEntry => 'confirmation,device control,don\'t ask';
 
   @override
   String get searchKwWebCodingView => 'coding view,work view,web';
@@ -16591,7 +16693,7 @@ class L10nEn extends L10n {
   String get statePetFailed => 'Something went wrong';
 
   @override
-  String get statePhoneNotReady => 'Phone control isn’t ready';
+  String get statePhoneNotReady => 'Device control isn’t ready';
 
   @override
   String get stateBackgroundRestricted => 'Background network access is restricted';
@@ -16627,7 +16729,7 @@ class L10nEn extends L10n {
   String get stateAccountUnsupported => 'This engine doesn’t support account sign-in';
 
   @override
-  String get stateCheckPhoneNetwork => 'Check your phone’s network and try again';
+  String get stateCheckPhoneNetwork => 'Check this device’s network and try again';
 
   @override
   String get stateServiceUnavailableRetry => 'Service unavailable. Try again later.';
@@ -16699,7 +16801,7 @@ class L10nEn extends L10n {
   String get stateFileMissing => 'File not found. It may have been deleted or moved.';
 
   @override
-  String get stateFileNoApp => 'No app on this phone can open this file type';
+  String get stateFileNoApp => 'No app on this device can open this file type';
 
   @override
   String get stateFileConnectionLimit => 'File is too large for this connection';
@@ -17118,7 +17220,7 @@ class L10nEn extends L10n {
   String get statePluginPnpmMissing => 'pnpm missing';
 
   @override
-  String get statePluginPhonePnpmMissing => 'pnpm is missing on this phone';
+  String get statePluginPhonePnpmMissing => 'pnpm is missing on this device';
 
   @override
   String get statePluginHostPnpmMissing => 'pnpm is missing on this host';
@@ -17858,7 +17960,7 @@ class L10nEn extends L10n {
 
   @override
   String get updateSignatureMismatchMessage =>
-      'The DSH Go on your phone has a different signature (usually a test build). Uninstall it before installing this version. Uninstalling erases your chats, Linux environment, and settings.';
+      'The DSH Go on this device has a different signature (usually a test build). Uninstall it before installing this version. Uninstalling erases your chats, Linux environment, and settings.';
 
   @override
   String get updateWrongPackage => 'This isn’t a DSH package';
@@ -17870,14 +17972,14 @@ class L10nEn extends L10n {
   String get updateDowngradeBlocked => 'Can’t install an older version';
 
   @override
-  String get updateDowngradeBlockedMessage => 'The DSH on your phone is newer than this package.';
+  String get updateDowngradeBlockedMessage => 'The DSH on this device is newer than this package.';
 
   @override
-  String get updateIncompatible => 'Incompatible with this phone';
+  String get updateIncompatible => 'Incompatible with this device';
 
   @override
   String get updateIncompatibleMessage =>
-      'The package’s required Android version or processor architecture doesn’t match your phone.';
+      'The package’s required OS version or processor architecture doesn’t match this device.';
 
   @override
   String get updatePackageCorrupt => 'Package is damaged';
@@ -18017,7 +18119,7 @@ class L10nEn extends L10n {
   String get usageStatsSection => 'Improve DSH Go';
 
   @override
-  String get usageStatsFooter => 'Only usage counts, versions and the phone’s maker. Never chats, files or accounts.';
+  String get usageStatsFooter => 'Only usage counts, versions and the device’s maker. Never chats, files or accounts.';
 
   @override
   String get usageNoticeBody => 'No chats or personal info.\nTurn off anytime.';
@@ -18102,7 +18204,7 @@ class L10nEn extends L10n {
   String get viewArtifactImageFailed => 'Can’t display this image';
 
   @override
-  String get viewArtifactPhoneOpen => 'Open in an app on this phone';
+  String get viewArtifactPhoneOpen => 'Open in an app on this device';
 
   @override
   String get viewArtifactPdfFailed => 'Can’t open this PDF. Try another app.';
@@ -19146,7 +19248,7 @@ class L10nEn extends L10n {
 
   @override
   String viewSharePhoneInstall(String value) {
-    return 'Install on your phone: $value';
+    return 'Install on this device: $value';
   }
 
   @override
@@ -19453,7 +19555,7 @@ class L10nEn extends L10n {
   String get voiceModeAutoHint => 'Uses the voice model when it’s ready, otherwise the phone’s service';
 
   @override
-  String get voiceModeSystemHint => 'Use the recognition service selected on this phone';
+  String get voiceModeSystemHint => 'Use the recognition service selected on this device';
 
   @override
   String get voiceModeEngineHint => 'Recognizes speech with the engine’s voice model';
@@ -19531,7 +19633,7 @@ class L10nEn extends L10n {
 
   @override
   String get voiceModelFooter =>
-      'Once downloaded, Chinese, English, Cantonese, Japanese and Korean are recognized on the phone; recordings stay on it.';
+      'Once downloaded, Chinese, English, Cantonese, Japanese and Korean are recognized on this device; recordings stay on it.';
 
   @override
   String get voiceModelWaiting => 'Available once the engine is running';
@@ -19579,7 +19681,7 @@ class L10nEn extends L10n {
   String get voiceModelFailTimeout => 'The download stopped making progress';
 
   @override
-  String get voiceModelFailCertificate => 'Secure connection failed; check the phone’s date';
+  String get voiceModelFailCertificate => 'Secure connection failed; check the device’s date';
 
   @override
   String get voiceModelFailServer => 'The download source is unavailable for now';
@@ -19909,4 +20011,8 @@ class L10nEn extends L10n {
   String webConnectHostFirst(String name) {
     return 'Connect to “$name” to open DSH Web';
   }
+
+  @override
+  String get webNoEmbeddedBrowser =>
+      'This computer has no embeddable system browser engine. Open this page in your browser.';
 }

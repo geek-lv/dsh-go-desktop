@@ -551,7 +551,7 @@
     }
   },
   "remoteSwitchHost": "切换主机",
-  "remoteThisPhoneDsh": "这台手机上的 DSH",
+  "remoteThisPhoneDsh": "这台设备上的 DSH",
   "remoteRemoteLabel": "远程",
   "remoteRemotePlatform": "远程 · {platform}",
   "@remoteRemotePlatform": {
@@ -574,7 +574,7 @@
   "remotePassword": "密码",
   "remoteRestoreServer": "改回默认服务器 dsh.r2049.cn",
   "remoteConsole": "远程控制台",
-  "remoteHostsIntro": "在手机上接着用电脑或服务器上的 DSH",
+  "remoteHostsIntro": "在设备上接着用电脑或服务器上的 DSH",
   "remoteSshHosts": "SSH 主机",
   "remoteSshRequirements": "需要那台主机开着 SSH，并装好 DSH",
   "remoteAddSshHost": "添加 SSH 主机",
@@ -631,7 +631,7 @@
   "remoteNoHosts": "还没有主机",
   "remoteRelaySetupHelp": "在主机的 DSH 里装好远程插件并登录",
   "remoteRelaySignOutTitle": "退出 DSH Remote？",
-  "remoteRelaySignOutBody": "这台手机会从账号中移除。主机上的 DSH 和对话不受影响，随时可以重新登录。",
+  "remoteRelaySignOutBody": "这台设备会从账号中移除。主机上的 DSH 和对话不受影响，随时可以重新登录。",
   "remoteRelaySignInTitle": "登录 DSH Remote",
   "remoteRelaySignInHelp": "无需配置网络，连接端到端加密",
   "remoteBrowserSignIn": "在浏览器中登录",
@@ -662,7 +662,7 @@
       }
     }
   },
-  "remoteDeleteHostBody": "这台主机的设置和保存在手机上的密码、私钥都会删除。主机上的 DSH 和对话不受影响。",
+  "remoteDeleteHostBody": "这台主机的设置和保存在设备上的密码、私钥都会删除。主机上的 DSH 和对话不受影响。",
   "remoteErrReadKey": "没能读取：{error}",
   "@remoteErrReadKey": {
     "placeholders": {
@@ -682,8 +682,8 @@
   "remoteUsername": "用户名",
   "remotePort": "端口",
   "remoteAuthentication": "登录方式",
-  "remotePasswordStorageHelp": "只保存在这台手机上，由 Android Keystore 加密",
-  "remoteKeyStorageHelp": "只保存在这台手机上，由 Android Keystore 加密。支持 Ed25519、RSA、ECDSA",
+  "remotePasswordStorageHelp": "只保存在这台设备上，由 系统凭据存储 加密",
+  "remoteKeyStorageHelp": "只保存在这台设备上，由 系统凭据存储 加密。支持 Ed25519、RSA、ECDSA",
   "remotePrivateKey": "私钥",
   "remoteShow": "显示",
   "remoteImportKeyFile": "从文件导入",
@@ -732,11 +732,11 @@
   "remoteDirectoryChoose": "选择",
   "remoteDirectoryDefault": "默认工作目录",
   "remoteDirectoryHome": "主目录",
-  "remoteDirectoryPhoneStorage": "手机存储",
+  "remoteDirectoryPhoneStorage": "设备存储",
   "remoteDirectoryDownloads": "下载",
-  "remoteDirectoryDownloadsPath": "手机存储/Download",
+  "remoteDirectoryDownloadsPath": "设备存储/Download",
   "remoteDirectoryDocuments": "文档",
-  "remoteDirectoryDocumentsPath": "手机存储/Documents",
+  "remoteDirectoryDocumentsPath": "设备存储/Documents",
   "remoteDirectoryLocations": "位置",
   "remoteDirectoryRecent": "最近",
   "remoteDirectoryEnterPath": "输入路径",
@@ -815,7 +815,7 @@
   "remoteWorkspaceRemoveAction": "移除工作区",
   "remoteWorkspaceNewGroup": "新建分组",
   "remoteWorkspaceGroupName": "分组名称",
-  "remoteDirectoryPhonePath": "手机存储/{path}",
+  "remoteDirectoryPhonePath": "设备存储/{path}",
   "@remoteDirectoryPhonePath": {
     "placeholders": {
       "path": {
@@ -1035,7 +1035,7 @@
   },
   "remoteNetworkSnapshotHint": "显示最近一次确认的路径与延迟，刷新可重新检测。",
   "remoteNetworkObservedAt": "最近观测",
-  "remoteNetworkLocalIpVersion": "手机 ICE IP 版本",
+  "remoteNetworkLocalIpVersion": "设备 ICE IP 版本",
   "remoteNetworkRemoteIpVersion": "主机 ICE IP 版本",
   "remoteNetworkIceProtocol": "ICE 协议",
   "remoteTransferSettings": "远程传输",

@@ -358,5 +358,76 @@
   "engineFieldEditOnWeb": "Edit this item on the web",
   "engineSettingsHostChanged": "The host changed. Reopen these settings to edit.",
   "engineSecretTargetChanged": "This field changed. Reopen it to edit.",
-  "engineSettingsGroupCount": "{count, plural, =1{1 setting} other{{count} settings}}"
+  "engineSettingsGroupCount": "{count, plural, =1{1 setting} other{{count} settings}}",
+  "engineSourceTitle": "Engine source",
+  "engineSourceOwned": "Engine bundled with the app",
+  "engineSourceOwnedDetail": "Managed and patched by DSH Go; plugins are installed separately",
+  "engineSourceInstalled": "DSH already installed on this device",
+  "engineSourceInstalledDetail": "Reuse your {version} and share the same .dsh folder and plugins",
+  "engineSourceOfficial": "Official DSH that is running",
+  "engineSourceOfficialDetail": "Connect to the DeepSeek Harness running on 127.0.0.1:{port}; nothing migrates",
+  "engineSourceScanning": "Checking for DSH installed on this device…",
+  "engineSourceNotFound": "No installed DSH found. Run npm i -g @deepseek-ai/dsh in a terminal, then pick it here.",
+  "engineSourceUseInstalled": "Use the DSH installed on this device",
+  "engineSourceSwitchNote": "Switching the engine source keeps chats in the environment they were made in.",
+  "engineSourceDegraded": "DSH Go patches are not applied: some features are unavailable, starting and chatting still work.",
+  "engineSourceRevert": "Switch back to the app's engine",
+  "engineSourceCurrent": "In use: {name}",
+  "@engineSourceInstalledDetail": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "@engineSourceOfficialDetail": {
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "@engineSourceCurrent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "engineCapabilitySection": "Features that need the patches",
+  "engineCapabilityAllOk": "Patches complete: every feature available",
+  "engineCapabilityLost": "{count} patched features missing",
+  "engineCapabilitySessionDeletion": "Deleting chats",
+  "engineCapabilityPluginConfig": "Editing plugin config",
+  "engineCapabilityPluginInstall": "Installing plugins and the market",
+  "engineCapabilitySessionTitle": "Chat titles",
+  "engineCapabilityModelDefaults": "Remembering the default model",
+  "engineCapabilitySchedules": "Schedules",
+  "engineCapabilityJobs": "Background jobs",
+  "engineCapabilityFileRefs": "File references and search",
+  "engineCapabilitySessionDeletionUnavailable": "This engine is missing the delete-chats patch, so chats cannot be deleted yet. Switch to the app's engine to delete them.",
+  "engineStorePruneTitle": "Clean up old versions",
+  "engineStorePruneDetail": "Keep {kept} versions, delete the rest",
+  "engineStoreFreed": "Freed {mb} MB",
+  "@engineCapabilityLost": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@engineStorePruneDetail": {
+    "placeholders": {
+      "kept": {
+        "type": "int"
+      }
+    }
+  },
+  "@engineStoreFreed": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  }
 }

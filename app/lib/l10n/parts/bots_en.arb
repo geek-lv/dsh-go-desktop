@@ -170,7 +170,7 @@
   "botsMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
   "botsUpdateRequired": "DS Bot needs an update",
   "botsInstall": "Install DS Bot",
-  "botsUpdateForPhone": "Update to use it on your phone",
+  "botsUpdateForPhone": "Update to use it on your device",
   "botsInstallDescription": "Always-on bots, each with its own memory and role",
   "botsInstallOnHost": "Install on {host} to get started",
   "botsRunsOnHost": "Runs on {host}",

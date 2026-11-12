@@ -22,7 +22,7 @@
   "companionMenuRestartHint": "开始一段新对话",
   "companionMenuRestartConfirm": "她会忘记这段对话。旧的记录还留在主机上，不会被删除。",
   "companionMenuRemovePack": "移除素材",
-  "companionMenuRemoveConfirm": "这台手机上的角色素材会被删除，聊天记录不受影响。下次进来时要重新导入。",
+  "companionMenuRemoveConfirm": "这台设备上的角色素材会被删除，聊天记录不受影响。下次进来时要重新导入。",
   "companionCreditAuthor": "作者：{name}",
   "@companionCreditAuthor": {
     "placeholders": {
@@ -32,10 +32,10 @@
     }
   },
   "companionSetupTitle": "把她接回家",
-  "companionSetupBody": "角色素材不在 App 里，要用时才放进手机。选择素材包（zip）导入后就能见到她。",
+  "companionSetupBody": "角色素材不在 App 里，要用时才放进设备。选择素材包（zip）导入后就能见到她。",
   "companionSetupImport": "导入素材包",
   "companionFailedTitle": "她没能出来",
-  "companionFailedBody": "这台手机上加载失败了（{reason}）。可以重新导入素材包再试一次。",
+  "companionFailedBody": "这台设备上加载失败了（{reason}）。可以重新导入素材包再试一次。",
   "@companionFailedBody": {
     "placeholders": {
       "reason": {
@@ -45,11 +45,11 @@
   },
   "companionPackBroken": "这个文件打不开，可能不是素材包或已经损坏。",
   "companionPackRuntimeMismatch": "素材包里的运行库和这个版本的 App 对不上。",
-  "companionPackNoRuntime": "这个包只有角色，手机上还没有运行库。先导入完整的素材包。",
+  "companionPackNoRuntime": "这个包只有角色，设备上还没有运行库。先导入完整的素材包。",
   "companionPackNoModel": "包里没有找到 Live2D 模型（.model3.json）。",
   "companionPackUnsafe": "包里有不允许的文件或路径，没有导入。",
   "companionPackTooLarge": "素材包太大了。",
-  "companionPackStorage": "写入失败，看看手机存储空间够不够。",
+  "companionPackStorage": "写入失败，看看设备存储空间够不够。",
   "companionGreetFirst": "你好呀，我是{name}。以后就住在这里了，请多指教。",
   "@companionGreetFirst": {
     "placeholders": {
@@ -94,7 +94,7 @@
   "companionListening": "在听…",
   "companionTouchHint": "摸摸她的头试试",
   "companionArriving": "她正在游过来…",
-  "companionPrivacyLine": "素材只存在这台手机上，聊天走当前主机。",
+  "companionPrivacyLine": "素材只存在这台设备上，聊天走当前主机。",
   "companionMemoryTitle": "她记得的事",
   "companionMemoryScope": "保存在{host}上。她现在还不会自己想起这些，之后的版本会接上。",
   "@companionMemoryScope": {
@@ -133,15 +133,15 @@
   "companionTouchHintHome": "点点贝壳、泡泡和软垫，点心还能拖到她嘴边",
   "companionMenuMode": "对话方式",
   "companionModeLight": "轻量",
-  "companionModeLightHint": "只聊天。手机直连模型，不用启动引擎",
+  "companionModeLightHint": "只聊天。设备直连模型，不用启动引擎",
   "companionModeFull": "完整",
-  "companionModeFullHint": "主机上的 DSH 引擎，带工具和手机操控",
+  "companionModeFullHint": "主机上的 DSH 引擎，带工具和设备操控",
   "companionLightNoKey": "轻量模式要用 DeepSeek API Key，在设置里填上就能和我聊啦。",
   "companionLightBadKey": "API Key 好像不对，或者已经失效了。",
   "companionLightBusy": "那边有点忙，等一下再和我说吧。",
   "companionNotConnectedTryLight": "现在连不上主机。只想聊天的话，可以在右上角菜单换成轻量模式。",
-  "companionMenuRestartLightHint": "清掉这台手机上的聊天记录",
-  "companionMenuRestartLightConfirm": "她会忘记这段对话，这台手机上的聊天记录会被删掉。",
+  "companionMenuRestartLightHint": "清掉这台设备上的聊天记录",
+  "companionMenuRestartLightConfirm": "她会忘记这段对话，这台设备上的聊天记录会被删掉。",
   "companionInviteRest": "要不要陪我在软垫上歇一会儿？",
   "companionInviteAccept": "好呀",
   "companionInviteDecline": "等会儿",
@@ -150,9 +150,9 @@
   "companionMenuInvite": "主动邀请",
   "companionMenuInviteHint": "你安静陪着她时，她偶尔会邀你一起歇一会儿",
   "companionSetupBundled": "接她回家",
-  "companionSetupBodyBundled": "她就在 App 里，点一下就到，素材只解压到这台手机上。也可以导入别的素材包（zip）。",
+  "companionSetupBodyBundled": "她就在 App 里，点一下就到，素材只解压到这台设备上。也可以导入别的素材包（zip）。",
   "companionSetupImportOther": "导入别的素材包",
-  "companionMenuRemoveConfirmBundled": "这台手机上解压出来的角色素材会被删除，聊天记录不受影响。之后随时可以再接她回来。",
+  "companionMenuRemoveConfirmBundled": "这台设备上解压出来的角色素材会被删除，聊天记录不受影响。之后随时可以再接她回来。",
   "companionHug1": "唔……抱抱。",
   "companionHug2": "被你这样抱着，好安心。",
   "companionHug3": "再抱一会儿，就一会儿。",
@@ -204,15 +204,15 @@
   "companionTaskQuestionUntitled": "你那边有个问题在等你回答。",
   "companionTaskOpen": "去看看",
   "companionMenuVoice": "她的声音",
-  "companionMenuVoiceHint": "用手机自带的语音读出她说的话",
+  "companionMenuVoiceHint": "用设备自带的语音读出她说的话",
   "companionVoiceHello": "你好呀，这是我的声音。喜欢的话就留着吧。",
-  "companionVoiceUnavailable": "这台手机没有能用的中文语音。可以在系统设置的「文字转语音」里装一个。",
+  "companionVoiceUnavailable": "这台设备没有能用的中文语音。可以在系统设置的「文字转语音」里装一个。",
   "companionWidgetWaiting": "在小屋里等你",
   "companionVoiceOn": "让她出声",
   "companionVoiceOffHint": "打开时她会先用选好的声音打个招呼。",
   "companionVoiceOff": "关",
   "companionVoiceSource": "声音来源",
-  "companionVoiceSystem": "手机自带",
+  "companionVoiceSystem": "设备自带",
   "companionVoiceSystemHint": "系统的文字转语音，不联网也能用",
   "companionVoiceOpenai": "OpenAI 兼容接口",
   "companionVoiceOpenaiHint": "OpenAI、硅基流动，以及大多数自建的 GPT-SoVITS、CosyVoice、edge-tts 服务",
@@ -221,7 +221,7 @@
   "companionVoiceApi": "接口",
   "companionVoiceBase": "地址",
   "companionVoiceBaseHelper": "填到 /v1 为止，App 会接上 /audio/speech",
-  "companionVoiceKeyHelper": "存在这台手机的安全存储里",
+  "companionVoiceKeyHelper": "存在这台设备的安全存储里",
   "companionVoiceModel": "模型",
   "companionVoiceVoice": "音色",
   "companionVoiceVoiceHelper": "服务给的音色名，比如 alloy，或你自建服务里的角色名",
@@ -248,7 +248,7 @@
     }
   },
   "companionVoiceNotSetUp": "先把上面的地址填好。",
-  "companionVoiceFallback": "外接的声音这次没连上，先用了手机自带的声音",
+  "companionVoiceFallback": "外接的声音这次没连上，先用了设备自带的声音",
   "companionGreetFirstNameless": "你好呀，以后我就住在这里了，请多指教。",
   "companionRenamed": "「{name}」……好，以后我就叫这个名字啦。",
   "@companionRenamed": {
@@ -261,7 +261,7 @@
   "companionVoicePreset": "常用服务",
   "companionVoicePresetHint": "小米 MiMo、OpenAI、硅基流动、阿里云百炼：填个 Key 就能用",
   "companionVoiceService": "服务",
-  "companionVoiceKeyWhere": "在 {site} 申请；存在这台手机的安全存储里",
+  "companionVoiceKeyWhere": "在 {site} 申请；存在这台设备的安全存储里",
   "@companionVoiceKeyWhere": {
     "placeholders": {
       "site": {

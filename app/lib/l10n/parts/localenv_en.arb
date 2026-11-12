@@ -7,7 +7,7 @@
   "localEnvRemoteDetail": "Use DSH on your computer or server",
   "localEnvRecommended": "Recommended",
   "localEnvInstallTitle": "Install on this phone",
-  "localEnvInstallMessage": "Run DSH right on this phone",
+  "localEnvInstallMessage": "Run DSH right on this device",
   "localEnvFactStorage": "About {storage} MB of storage",
   "localEnvFactMemory": "About {memory} MB of memory while running",
   "localEnvUseRemote": "Use a remote host instead",

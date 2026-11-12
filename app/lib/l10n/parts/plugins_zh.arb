@@ -764,8 +764,8 @@
       }
     }
   },
-  "pluginsPermissionLocalThirdParty": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的手机存储，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。",
-  "pluginsPermissionLocalTrusted": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的手机存储，不受工作区沙箱限制。只装你信任的插件。",
+  "pluginsPermissionLocalThirdParty": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的设备存储，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。",
+  "pluginsPermissionLocalTrusted": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key 和已授权的设备存储，不受工作区沙箱限制。只装你信任的插件。",
   "pluginsPermissionRemoteThirdParty": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key，不受工作区沙箱限制。由第三方提供，DSH 官方未审核。",
   "pluginsPermissionRemoteTrusted": "插件以 DSH 的权限运行：能读写文件、执行命令、读取 API Key，不受工作区沙箱限制。只装你信任的插件。",
   "pluginsSelectedQrCount": "已选 {count} 项 · 可生成二维码",

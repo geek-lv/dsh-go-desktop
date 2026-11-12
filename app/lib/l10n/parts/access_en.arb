@@ -4,11 +4,11 @@
   "accessPickMessage": "Pick any, then turn each one on",
   "accessPickConfirm": "Turn on selected",
   "accessSkip": "Skip",
-  "accessFeatureFiles": "Read and write phone files",
+  "accessFeatureFiles": "Read and write device files",
   "accessFeatureFilesNeeds": "Needs file access",
   "accessFeaturePet": "Pet over other apps",
   "accessFeaturePetNeeds": "Needs display over other apps",
-  "accessFeaturePhone": "Phone control",
+  "accessFeaturePhone": "Device control",
   "accessFeaturePhoneNeeds": "Needs accessibility and notifications",
   "accessFeatureBackground": "Keep running in background",
   "accessFeatureBackgroundNeeds": "Tells you when tasks finish; needs notifications and background access",
@@ -79,9 +79,9 @@
     }
   },
   "accessA11yTitle": "Turn on accessibility",
-  "accessA11yWhy": "Phone control reads the screen and taps through it",
+  "accessA11yWhy": "Device control reads the screen and taps through it",
   "accessPopupTitle": "Allow pop-ups in background",
-  "accessPopupWhy": "Brings you back to DSH Go when phone control is done",
+  "accessPopupWhy": "Brings you back to DSH Go when device control is done",
   "accessVivoPopupPath": "Permission management › {app} › Display pop-up windows in background",
   "@accessVivoPopupPath": {
     "placeholders": {

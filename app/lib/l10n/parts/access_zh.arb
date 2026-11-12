@@ -4,11 +4,11 @@
   "accessPickMessage": "选好后逐项开启",
   "accessPickConfirm": "开启所选",
   "accessSkip": "跳过",
-  "accessFeatureFiles": "读写手机里的文件",
+  "accessFeatureFiles": "读写设备里的文件",
   "accessFeatureFilesNeeds": "需要文件访问权限",
   "accessFeaturePet": "桌宠与悬浮窗",
   "accessFeaturePetNeeds": "需要悬浮窗权限",
-  "accessFeaturePhone": "手机操控",
+  "accessFeaturePhone": "设备操控",
   "accessFeaturePhoneNeeds": "需要无障碍和通知权限",
   "accessFeatureBackground": "后台持续运行",
   "accessFeatureBackgroundNeeds": "任务跑完通知你，需要通知和后台权限",
@@ -23,7 +23,7 @@
     }
   },
   "accessVoiceMetered": "当前是移动数据，下载会消耗流量",
-  "accessFilesRiskBody": "AI 能读取和修改相册、下载、文档等手机文件。",
+  "accessFilesRiskBody": "AI 能读取和修改相册、下载、文档等设备文件。",
   "accessStepCount": "{index} / {total}",
   "@accessStepCount": {
     "placeholders": {
@@ -79,9 +79,9 @@
     }
   },
   "accessA11yTitle": "打开无障碍",
-  "accessA11yWhy": "手机操控靠它看屏幕、点按",
+  "accessA11yWhy": "设备操控靠它看屏幕、点按",
   "accessPopupTitle": "允许后台弹出界面",
-  "accessPopupWhy": "手机操控做完能回到 DSH Go",
+  "accessPopupWhy": "设备操控做完能回到 DSH Go",
   "accessVivoPopupPath": "权限管理 › {app} › 后台弹出界面",
   "@accessVivoPopupPath": {
     "placeholders": {

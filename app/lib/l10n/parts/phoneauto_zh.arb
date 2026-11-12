@@ -7,7 +7,7 @@
   "phoneModeAutoHint": "不再询问，全程免打扰",
   "phoneModeAutoNoteTitle": "这些仍由你来操作",
   "phoneModeAutoNote": "系统设置和权限页面、密码和验证码、DSH Go 自身仍由你来操作；银行、支付类 App 默认不碰，可在设置里调整。",
-  "phoneModeAutoUnlockNote": "如需让 AI 操作系统设置、密码等，可在 设置 › 手机操控 › 解除限制 中开启。",
+  "phoneModeAutoUnlockNote": "如需让 AI 操作系统设置、密码等，可在 设置 › 设备操控 › 解除限制 中开启。",
   "phoneModeConfirmAuto": "开启全程自动",
   "phoneYoursTitle": "这些由你来操作",
   "phoneYoursSystem": "系统设置和权限页面",

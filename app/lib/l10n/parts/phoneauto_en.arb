@@ -7,7 +7,7 @@
   "phoneModeAutoHint": "Never asks, never interrupts",
   "phoneModeAutoNoteTitle": "These stay with you",
   "phoneModeAutoNote": "System settings and permission pages, passwords and verification codes, and DSH Go itself stay with you. Banking and payment apps are off limits by default; you can change that in Settings.",
-  "phoneModeAutoUnlockNote": "To let AI handle system settings, passwords and the like, turn it on in Settings › Phone control › Lift limits.",
+  "phoneModeAutoUnlockNote": "To let AI handle system settings, passwords and the like, turn it on in Settings › Device control › Lift limits.",
   "phoneModeConfirmAuto": "Go fully automatic",
   "phoneYoursTitle": "These stay with you",
   "phoneYoursSystem": "System settings and permission pages",

@@ -31,7 +31,7 @@
   "localEnvRemoteDetail": "连接电脑或服务器上的 DSH",
   "localEnvRecommended": "推荐",
   "localEnvInstallTitle": "安装本机运行环境",
-  "localEnvInstallMessage": "在这台手机上运行 DSH",
+  "localEnvInstallMessage": "在这台设备上运行 DSH",
   "localEnvFactStorage": "约 {storage} MB 存储空间",
   "@localEnvFactStorage": {
     "placeholders": {

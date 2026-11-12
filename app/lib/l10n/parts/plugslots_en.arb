@@ -200,7 +200,7 @@
       }
     }
   },
-  "plugslotsVoiceWhen": "Reading stops the moment you speak. Your voice is checked on this phone, never saved or sent",
+  "plugslotsVoiceWhen": "Reading stops the moment you speak. Your voice is checked on this device, never saved or sent",
   "plugslotsVoiceDeny": "Don't allow",
   "plugslotsVoiceSwitch": "Hear you speak",
   "plugslotsPickerUnavailable": "File selection is unavailable on this device",

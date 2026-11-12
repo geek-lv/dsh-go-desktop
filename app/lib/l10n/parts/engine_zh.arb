@@ -703,5 +703,76 @@
         "type": "int"
       }
     }
+  },
+  "engineSourceTitle": "引擎来源",
+  "engineSourceOwned": "App 自带的引擎",
+  "engineSourceOwnedDetail": "由 DSH Go 管理并打好补丁，插件需要单独安装",
+  "engineSourceInstalled": "这台设备上已装的 DSH",
+  "engineSourceInstalledDetail": "复用你已安装的 {version}，共用同一个 .dsh 目录和插件",
+  "engineSourceOfficial": "正在运行的官方 DSH",
+  "engineSourceOfficialDetail": "连到 127.0.0.1:{port} 上已经在跑的 DeepSeek Harness，不迁移数据",
+  "engineSourceScanning": "正在检查这台设备上已安装的 DSH…",
+  "engineSourceNotFound": "没检测到已安装的 DSH。在终端里执行 npm i -g @deepseek-ai/dsh 后可再来选择。",
+  "engineSourceUseInstalled": "用这台设备上已装的 DSH",
+  "engineSourceSwitchNote": "切换引擎来源后，聊天记录留在原来那一份环境里，不会跟随。",
+  "engineSourceDegraded": "未打 DSH Go 的补丁：部分功能不可用，但不影响启动和对话。",
+  "engineSourceRevert": "改用 App 自带的引擎",
+  "engineSourceCurrent": "当前使用：{name}",
+  "@engineSourceInstalledDetail": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "@engineSourceOfficialDetail": {
+    "placeholders": {
+      "port": {
+        "type": "int"
+      }
+    }
+  },
+  "@engineSourceCurrent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "engineCapabilitySection": "补丁带来的功能",
+  "engineCapabilityAllOk": "补丁完整，全部功能可用",
+  "engineCapabilityLost": "缺 {count} 项补丁功能",
+  "engineCapabilitySessionDeletion": "删除会话",
+  "engineCapabilityPluginConfig": "插件配置编辑",
+  "engineCapabilityPluginInstall": "插件安装与市场",
+  "engineCapabilitySessionTitle": "会话标题",
+  "engineCapabilityModelDefaults": "默认模型记忆",
+  "engineCapabilitySchedules": "定时任务",
+  "engineCapabilityJobs": "后台任务",
+  "engineCapabilityFileRefs": "文件引用与搜索",
+  "engineCapabilitySessionDeletionUnavailable": "当前引擎缺「删除会话」的补丁，暂时不能删除。换成 App 自带的引擎即可。",
+  "engineStorePruneTitle": "清理旧版本",
+  "engineStorePruneDetail": "保留 {kept} 个版本，其余删掉",
+  "engineStoreFreed": "已释放 {mb} MB",
+  "@engineCapabilityLost": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@engineStorePruneDetail": {
+    "placeholders": {
+      "kept": {
+        "type": "int"
+      }
+    }
+  },
+  "@engineStoreFreed": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
   }
 }
