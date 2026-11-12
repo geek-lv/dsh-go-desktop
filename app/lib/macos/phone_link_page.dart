@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desktop/platform_services.dart';
 import '../l10n/l10n.dart';
 import '../runtime/runtime_bridge.dart';
 import '../runtime/runtime_state.dart';
@@ -58,9 +59,19 @@ class _PhoneLinkPageState extends ConsumerState<PhoneLinkPage> {
     );
   }
 
-  Future<void> _openSharing() => Process.run('/usr/bin/open', <String>[
-    'x-apple.systempreferences:com.apple.Sharing-Settings.extension',
-  ]);
+  /// 打开系统的「共享 / 远程登录」设置页。各平台的目标不同：
+  ///   macOS   x-apple.systempreferences 的 Sharing 面板；
+  ///   Windows  ms-settings:remote  （设置 › 系统 › 远程桌面）；
+  ///   Linux    没有统一入口，交给 openExternally 尽力打开（通常是空操作）。
+  Future<void> _openSharing() async {
+    final target = Platform.isMacOS
+        ? 'x-apple.systempreferences:com.apple.Sharing-Settings.extension'
+        : Platform.isWindows
+        ? 'ms-settings:remote'
+        : '';
+    if (target.isEmpty) return;
+    await PlatformServices.current().openExternally(target);
+  }
 
   @override
   Widget build(BuildContext context) {

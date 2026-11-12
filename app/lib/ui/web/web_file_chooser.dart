@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:webview_all/webview_all.dart';
 import 'package:webview_all_android/webview_all_android.dart';
 
-import 'package:webview_all/webview_all.dart';
-
-import 'webview_common.dart';
 
 /// A document chooser belongs to the document that requested it. Navigation,
 /// a renderer loss or disposal retires it even if Android returns a file later.

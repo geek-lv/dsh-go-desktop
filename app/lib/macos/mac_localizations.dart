@@ -14,9 +14,31 @@ import 'package:flutter/foundation.dart';
 import '../l10n/gen/app_localizations_en.dart';
 import '../l10n/gen/app_localizations_zh.dart';
 
-/// macOS 文案是否生效。`flutter test` 里固定为 false：既有测试和 golden 都是按
-/// 手机文案写的，跑在 Mac 上也不该变。
-bool get macTextActive => !kIsWeb && Platform.isMacOS && Platform.environment['FLUTTER_TEST'] != 'true';
+/// 桌面端（macOS / Windows / Linux）的文案覆盖是否生效。
+///
+/// 原来只覆盖 macOS。三端同源之后，Android 版里「这台手机」「手机操控」「手机存储」
+/// 这类**指代当前设备**的说法在桌面上都说不通，所以 Windows 与 Linux 也走这层覆盖。
+///
+/// `flutter test` 里固定为 false：既有测试和 golden 都是按手机文案写的。
+bool get macTextActive =>
+    !kIsWeb &&
+    (Platform.isMacOS || Platform.isWindows || Platform.isLinux) &&
+    Platform.environment['FLUTTER_TEST'] != 'true';
+
+/// 桌面端是否还需要「运行时权限申请」这一步。
+///
+/// Android 有一套运行时权限（存储、无障碍、电池优化、通知），首次运行要逐项引导用户
+/// 去系统设置里开。macOS 保留这一步（辅助功能 / 屏幕录制仍需要用户授权）。
+///
+/// **Windows 与 Linux 不需要**：文件、通知、窗口都不要求用户在系统里单独授权，
+/// 所以引导流程里整步跳过（见 ui/shell/root_gate.dart 的 _afterAppearance）。
+bool get isDesktopWithoutRuntimePermissions => !kIsWeb && (Platform.isWindows || Platform.isLinux);
+
+/// 文案里指代「当前这台设备」的词（中文）。
+String get desktopDeviceZh => Platform.isMacOS ? 'Mac' : '本机';
+
+/// 中文文案里「操控本机」这项能力的名字（Android 版叫「手机操控」）。
+String get desktopControlZh => Platform.isMacOS ? 'Mac 操控' : '本机操控';
 
 /// 中文 macOS 文案。
 class MacL10nZh extends L10nZh {

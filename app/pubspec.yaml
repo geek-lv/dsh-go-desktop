@@ -160,6 +160,11 @@ flutter:
     - assets/skills/dsh-go-support/
     # macOS 本机引擎运行时（runtime/build-runtime-macos.sh 生成；未生成时只有一个占位 manifest）。
     - assets/runtime-macos/
+    # Windows / Linux 本机引擎运行时（runtime/build-runtime-desktop.sh 生成）。
+    # 未生成时目录里只有 manifest.json / README / .gitkeep，App 仍能构建，
+    # 只是「本机引擎」显示未安装，引导页会提示去下载。
+    - assets/runtime-windows/
+    - assets/runtime-linux/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

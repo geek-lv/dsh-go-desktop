@@ -18,6 +18,8 @@ import 'package:crypto/crypto.dart';
 import 'package:dsh_client/dsh_client.dart';
 import 'package:yaml/yaml.dart';
 
+import '../desktop/platform_services.dart';
+
 /// 一个正在运行的官方 DSH。
 class OfficialDsh {
   const OfficialDsh({required this.port, required this.version, required this.cookie});
@@ -100,19 +102,15 @@ String? readOfficialVersion([String? home]) {
 
 /// 官方 DSH 的本地监听端口：lsof 里命令名为 `DeepSeek`、监听 127.0.0.1 的那一行。
 Future<int?> findOfficialDshPort() async {
+  // 平台差异收口在 PlatformServices：macOS 用 /usr/sbin/lsof，Windows 用
+  // netstat -ano，Linux 用 ss -ltnp。原实现硬编码 lsof，在 Windows 上直接抛异常，
+  // 「官方 DSH」模式永远不可用。
   try {
-    final result = await Process.run('/usr/sbin/lsof', <String>['-nP', '-iTCP', '-sTCP:LISTEN'])
+    final ports = await PlatformServices.current()
+        .findListenPorts('DeepSeek')
         .timeout(const Duration(seconds: 3));
-    if (result.exitCode != 0) return null;
-    final line = result.stdout
-        .toString()
-        .split('\n')
-        .where((l) => l.contains('DeepSeek') && l.contains('127.0.0.1:'))
-        .firstOrNull;
-    if (line == null) return null;
-    final match = RegExp(r'127\.0\.0\.1:(\d+)').firstMatch(line);
-    final port = match == null ? null : int.tryParse(match.group(1)!);
-    return port != null && port > 0 && port < 65536 ? port : null;
+    final port = ports.where((p) => p > 0 && p < 65536).firstOrNull;
+    return port;
   } catch (_) {
     return null;
   }

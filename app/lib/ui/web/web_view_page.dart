@@ -1079,7 +1079,7 @@ class _WebViewPageState extends State<WebViewPage> {
                 // A dead WebView leaves the tree; a reopen is a new one.
                 child: _gone
                     ? const SizedBox.expand()
-                    : WebViewWidget(key: ValueKey(_generation), controller: _controller!),
+                    : WebViewWidget(key: ValueKey(_generation), controller: _controller),
               ),
               // macOS cannot paint a WKWebView's background before its content
               // arrives, so cover it with the page colour until the first

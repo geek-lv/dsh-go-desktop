@@ -48,6 +48,13 @@ add_definitions(-DUNICODE -D_UNICODE)
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
   target_compile_options(${TARGET} PRIVATE /W4 /WX /wd"4100")
+  # DSH: 源码统一是 UTF-8。中文 Windows 的默认代码页是 936（GBK），MSVC 读 UTF-8
+  # 源码会报 C4819「该文件包含不能在当前代码页中表示的字符」，而上面有 /WX
+  # （警告视为错误），于是插件（connectivity_plus、flutter_webrtc 等）直接编译失败。
+  # /utf-8 让 MSVC 按 UTF-8 解析源码与执行字符集，与 macOS/Linux 侧一致。
+  target_compile_options(${TARGET} PRIVATE /utf-8)
+  # C4819 在某些 MSVC 版本上即使加了 /utf-8 仍会对第三方头文件告警，保险起见停用。
+  target_compile_options(${TARGET} PRIVATE /wd"4819")
   target_compile_options(${TARGET} PRIVATE /EHsc)
   target_compile_definitions(${TARGET} PRIVATE "_HAS_EXCEPTIONS=0")
   target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")

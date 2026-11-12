@@ -22,17 +22,28 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../desktop/platform_services.dart';
 import '../runtime/runtime_bridge.dart';
 import 'official_dsh.dart';
 import 'official_proxy.dart';
 
-/// macOS 上的一条本机引擎。
+/// 桌面三端的本机引擎（macOS / Windows / Linux）。
+///
+/// 名字里的 Mac 是历史：这套实现原本只跑 macOS，现在三端共用，平台差异
+/// （tar / du / xattr / uname / netstat / open）全部收口在 [PlatformServices]。
 class MacRuntimeBridge implements RuntimeBridge {
-  MacRuntimeBridge({String? appSupportPath, bool official = false})
-    : _appSupportOverride = appSupportPath,
-      _official = official; // ignore: prefer_initializing_formals
+  MacRuntimeBridge({
+    String? appSupportPath,
+    bool official = false,
+    PlatformServices? services,
+  }) : _appSupportOverride = appSupportPath,
+       _official = official, // ignore: prefer_initializing_formals
+       _services = services ?? PlatformServices.current();
 
   final String? _appSupportOverride;
+
+  /// 平台差异（系统命令、架构描述、外部打开）的唯一来源。单测可注入。
+  final PlatformServices _services;
 
   /// 用「正在运行的官方 DSH」而不是内置运行时。
   bool _official;
@@ -42,9 +53,22 @@ class MacRuntimeBridge implements RuntimeBridge {
 
   static const String _officialNotRunning = '官方 DSH 没有在运行：先打开 DeepSeek Harness，再回到这里。';
 
-  static const String _assetDir = 'assets/runtime-macos';
-  static const String _manifestAsset = '$_assetDir/manifest.json';
-  static const String _archiveAsset = '$_assetDir/runtime-arm64.tar.gz';
+  /// 运行时资源目录：按平台取（macOS / Windows / Linux 各一份产物）。
+  static String get _assetDir {
+    if (Platform.isWindows) return 'assets/runtime-windows';
+    if (Platform.isLinux) return 'assets/runtime-linux';
+    return 'assets/runtime-macos';
+  }
+
+  static String get _manifestAsset => '$_assetDir/manifest.json';
+
+  /// 归档文件名随平台/架构不同（macOS 是 runtime-arm64.tar.gz，桌面 x64 是
+  /// runtime-x64.tar.gz）。manifest 里的 `archive` 字段才是权威来源；这里的
+  /// 默认值只用于 manifest 缺失时（例如目录里只有占位文件）的兜底。
+  static String get _archiveAsset {
+    if (Platform.isWindows || Platform.isLinux) return '$_assetDir/runtime-x64.tar.gz';
+    return '$_assetDir/runtime-arm64.tar.gz';
+  }
 
   static final RegExp _tokenLine = RegExp(r'^dsh web: (http://127\.0\.0\.1:[0-9]+/)\?token=([A-Za-z0-9_-]+)');
   static const int _healthyMs = 120000;
@@ -305,7 +329,13 @@ class MacRuntimeBridge implements RuntimeBridge {
     } catch (_) {
       // 坏掉的 state 文件按未安装处理。
     }
-    final nodeBin = File('${dir.path}/node/bin/node');
+    // 运行时的 node 可执行文件位置随平台不同：
+    //   macOS / Linux  <runtime>/node/bin/node
+    //   Windows        <runtime>/node/node.exe   （Node 的 Windows 发行版没有 bin/）
+    // 以前只认 bin/node，Windows 上装好了也会被判成「未安装」。
+    final nodeBin = File(
+      Platform.isWindows ? '${dir.path}/node/node.exe' : '${dir.path}/node/bin/node',
+    );
     if (_installedVersion == null && await nodeBin.exists()) {
       // 没有 state 文件但运行时在：当作已装，版本取 manifest。
       _installedVersion = _bundledVersion;
@@ -320,6 +350,30 @@ class MacRuntimeBridge implements RuntimeBridge {
     } else {
       _phase = RuntimePhase.notInstalled;
     }
+  }
+
+  /// 引擎进程的 PATH。
+  ///
+  /// 把运行时自带的 node 目录排在最前，这样引擎里的 `node` / `npm` / `pnpm`
+  /// 调用走我们打包的那一份。后面的系统目录按平台给：
+  ///   macOS / Linux  /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+  ///   Windows        System32 / PowerShell / 系统 Node 所在目录（分隔符是分号）
+  String _enginePath(Directory runtimeDir) {
+    final separator = Platform.isWindows ? ';' : ':';
+    if (Platform.isWindows) {
+      final runtimeNode = '${runtimeDir.path}\\node';
+      final systemRoot = Platform.environment['SystemRoot'] ?? r'C:\Windows';
+      final parts = <String>[
+        runtimeNode,
+        '$systemRoot\\System32',
+        systemRoot,
+        '$systemRoot\\System32\\WindowsPowerShell\\v1.0',
+        // 系统里已经装的 Node（有些插件会调 npm），追加即可。
+        if (Platform.environment['ProgramFiles'] case final programFiles?) '$programFiles\\nodejs',
+      ];
+      return parts.join(separator);
+    }
+    return '${runtimeDir.path}/node/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin';
   }
 
   Future<void> _saveState() async {
@@ -386,26 +440,18 @@ class MacRuntimeBridge implements RuntimeBridge {
       await unpack.create(recursive: true);
       final total = (manifest['uncompressedBytes'] as num?)?.toInt() ?? 0;
       _progress('extract', 0, total);
-      final tar = await Process.start('/usr/bin/tar', <String>['-xzf', archive.path, '-C', unpack.path]);
-      tar.stdout.transform(utf8.decoder).listen((s) => _log(s, 'stdout'));
-      tar.stderr.transform(utf8.decoder).listen((s) => _log(s, 'stderr'));
-      Timer? poll;
-      if (total > 0) {
-        poll = Timer.periodic(const Duration(milliseconds: 400), (_) async {
-          try {
-            final du = await Process.run('/usr/bin/du', <String>['-sk', unpack.path]);
-            final kb = int.tryParse((du.stdout as String).trim().split(RegExp(r'\s+')).first) ?? 0;
-            _progress('extract', (kb * 1024).clamp(0, total), total);
-          } catch (_) {}
-        });
-      }
-      final code = await tar.exitCode;
-      poll?.cancel();
-      if (code != 0) throw StateError('tar exited with $code');
+      // 平台差异（tar / du）收口在 PlatformServices 里：macOS 用 /usr/bin/tar，
+      // Windows 用系统自带 tar.exe，Linux 用 PATH 里的 tar。原实现硬编码
+      // /usr/bin/tar，在 Windows 上会抛 ProcessException，安装直接失败。
+      final extracted = await _services.extractTarGz(
+        archive,
+        unpack,
+        totalBytes: total,
+        onProgress: (bytes) => _progress('extract', bytes, total),
+      );
 
       // tar 里有一个顶层目录 runtime/；把它挪成正式的 runtime/。
-      final root = Directory('${unpack.path}/runtime');
-      final source = await root.exists() ? root : unpack;
+      final source = await extracted.exists() ? extracted : unpack;
 
       // A crash between moving the old runtime aside and installing the new
       // one leaves only the backup. Put it back before doing anything else.
@@ -485,13 +531,23 @@ class MacRuntimeBridge implements RuntimeBridge {
     }
   }
 
-  /// Flutter 把 asset 放在 .app 里的固定位置；直接拷文件，避免把 200 MB 读进内存。
+  /// Flutter 把 asset 放在可执行文件旁边的固定位置；直接拷文件，避免把 200 MB
+  /// 读进内存。三个平台的布局不同：
+  ///
+  ///   macOS   `<App>.app/Contents/{Frameworks/App.framework/Resources,Resources}/flutter_assets/`
+  ///   Windows `<exe目录>/data/flutter_assets/`          （Flutter Windows runner 的布局）
+  ///   Linux   `<bundle>/data/flutter_assets/`
+  ///
+  /// 找不到就返回 null，由调用方回退到 manifest 的 `url` 下载。
   Future<File?> _bundledArchiveOnDisk() async {
-    if (!Platform.isMacOS) return null;
-    final exe = File(Platform.resolvedExecutable).parent.parent; // Contents/MacOS/.. -> Contents
+    final exeDir = File(Platform.resolvedExecutable).parent.path;
     final candidates = <String>[
-      '${exe.path}/Frameworks/App.framework/Resources/flutter_assets/$_archiveAsset',
-      '${exe.path}/Resources/flutter_assets/$_archiveAsset',
+      if (Platform.isMacOS) ...<String>[
+        '${File(Platform.resolvedExecutable).parent.parent.path}/Frameworks/App.framework/Resources/flutter_assets/$_archiveAsset',
+        '${File(Platform.resolvedExecutable).parent.parent.path}/Resources/flutter_assets/$_archiveAsset',
+      ],
+      // Windows 与 Linux：exe 旁边的 data/flutter_assets。
+      '$exeDir${Platform.pathSeparator}data${Platform.pathSeparator}flutter_assets${Platform.pathSeparator}$_archiveAsset',
     ];
     for (final path in candidates) {
       final file = File(path);
@@ -540,11 +596,58 @@ class MacRuntimeBridge implements RuntimeBridge {
     }
   }
 
+  /// 移动目录。以前调 `/bin/mv`，在 Windows 上不存在这条命令（安装会挂在
+  /// ProcessException 上）。改为纯 Dart：
+  ///   * 先试 [Directory.rename]（同一卷上是原子的、瞬时完成）；
+  ///   * 跨卷时 rename 会失败，退化成「递归复制 + 删源」。
   Future<void> _moveDirectory(Directory from, Directory to) async {
-    final code = await Process.run('/bin/mv', <String>[from.path, to.path]);
-    if (code.exitCode != 0) {
-      throw StateError('mv failed: ${code.stderr}');
+    try {
+      await from.rename(to.path);
+      return;
+    } on FileSystemException {
+      // 跨卷 / 目标已存在：走复制路径。
     }
+    if (await to.exists()) await to.delete(recursive: true);
+    await _copyDirectory(from, to);
+    await from.delete(recursive: true);
+  }
+
+  /// 递归复制目录内容（目标目录需已存在或由本方法创建）。
+  ///
+  /// 以前调 `/bin/cp -R`；Windows 上没有 cp，且 Dart 自己遍历更可控
+  /// （能保留可执行位以外的结构，且不依赖外部命令）。macOS 上原本用
+  /// `cp -R`，语义一致。
+  Future<void> _copyDirectory(Directory from, Directory to) async {
+    await to.create(recursive: true);
+    await for (final entity in from.list(recursive: false, followLinks: false)) {
+      final name = entity.path.split(Platform.pathSeparator).last;
+      final target = '${to.path}${Platform.pathSeparator}$name';
+      if (entity is Directory) {
+        await _copyDirectory(entity, Directory(target));
+      } else if (entity is File) {
+        await entity.copy(target);
+      } else if (entity is Link) {
+        // 符号链接：尽量保留链接本身，失败时退化为复制目标内容。
+        try {
+          await Link(target).create(await entity.target(), recursive: true);
+        } on FileSystemException {
+          final targetPath = await entity.resolveSymbolicLinks();
+          final file = File(targetPath);
+          if (await file.exists()) await file.copy(target);
+        }
+      }
+    }
+  }
+
+  /// Clone a directory. macOS 上原本用 `cp -cR`（APFS clonefile，秒级且不占额外
+  /// 空间），其他平台没有等价物，直接走完整复制。
+  Future<void> _cloneDirectory(Directory from, Directory to) async {
+    if (Platform.isMacOS) {
+      await to.create(recursive: true);
+      final clone = await Process.run('/bin/cp', <String>['-cR', '${from.path}/.', to.path]);
+      if (clone.exitCode == 0) return;
+    }
+    await _copyDirectory(from, to);
   }
 
   /// 补齐启动需要、但 tar 里可能没有的目录与安全模式 overlay。
@@ -616,7 +719,9 @@ class MacRuntimeBridge implements RuntimeBridge {
         'DSH_HOME': '${home.path}/.dsh',
         'USER': Platform.environment['USER'] ?? 'dsh',
         'LOGNAME': Platform.environment['LOGNAME'] ?? 'dsh',
-        'PATH': '${runtimeDir.path}/node/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin',
+        // PATH 必须按平台拼：Windows 用分号分隔，且目录布局不同（node.exe 在根，
+        // 没有 /usr/bin 这些），沿用 Unix 的 PATH 会让引擎找不到 node / pnpm。
+        'PATH': _enginePath(runtimeDir),
         'TMPDIR': '${(await _supportDir()).path}/tmp',
         'LANG': 'en_US.UTF-8',
         'TERM': 'xterm-256color',
@@ -630,7 +735,7 @@ class MacRuntimeBridge implements RuntimeBridge {
         launchEnv['${entry.key}'] = value;
       }
       await Directory(launchEnv['TMPDIR']!).create(recursive: true);
-      await Process.run('/usr/bin/xattr', <String>['-dr', 'com.apple.quarantine', runtimeDir.path]);
+      await _services.clearQuarantine(runtimeDir);
 
       _log('[dsh-go] starting ${argv.join(' ')}');
       final process = await Process.start(
@@ -807,18 +912,49 @@ class MacRuntimeBridge implements RuntimeBridge {
         await file.delete();
         return;
       }
-      final ps = await Process.run('/bin/ps', <String>['-o', 'command=', '-p', '$pid']);
-      final command = ps.exitCode == 0 ? '${ps.stdout}' : '';
-      if (command.contains(runtimeDir.path)) {
-        await Process.run('/bin/kill', <String>['-TERM', '$pid']);
-        await Future<void>.delayed(const Duration(milliseconds: 600));
-        await Process.run('/bin/kill', <String>['-KILL', '$pid']);
-        _log('[dsh-go] reaped stale engine (pid $pid)', 'stderr');
+      // `ps` / `kill` 是 Unix 命令。Windows 上改用 taskkill，并按窗口标题/进程名
+      // 判断——这里保守处理：只在确认命令行里含 runtime 路径时才动它。
+      if (Platform.isWindows) {
+        await _reapStaleEngineWindows(pid, runtimeDir);
+      } else {
+        final ps = await Process.run('/bin/ps', <String>['-o', 'command=', '-p', '$pid']);
+        final command = ps.exitCode == 0 ? '${ps.stdout}' : '';
+        if (command.contains(runtimeDir.path)) {
+          await Process.run('/bin/kill', <String>['-TERM', '$pid']);
+          await Future<void>.delayed(const Duration(milliseconds: 600));
+          await Process.run('/bin/kill', <String>['-KILL', '$pid']);
+          _log('[dsh-go] reaped stale engine (pid $pid)', 'stderr');
+        }
       }
       if (await file.exists()) await file.delete();
     } catch (_) {
       // 清不掉就算了，下一次启动还会再试。
     }
+  }
+
+  /// Windows 上回收残留的引擎进程。
+  ///
+  /// 用 `wmic process where processid=<pid> get commandline` 读命令行（Windows 11
+  /// 上 wmic 已弃用，所以退回到 PowerShell 的 Get-CimInstance）。只有命令行里确实
+  /// 含本运行时的路径时才 kill，避免误杀别的 node。
+  Future<void> _reapStaleEngineWindows(int pid, Directory runtimeDir) async {
+    String command = '';
+    try {
+      final ps = await Process.run('powershell', <String>[
+        '-NoProfile',
+        '-NonInteractive',
+        '-Command',
+        "(Get-CimInstance Win32_Process -Filter 'ProcessId=$pid').CommandLine",
+      ]);
+      if (ps.exitCode == 0) command = '${ps.stdout}';
+    } catch (_) {
+      return;
+    }
+    if (!command.contains(runtimeDir.path)) return;
+    try {
+      await Process.run('taskkill', <String>['/PID', '$pid', '/T', '/F']);
+      _log('[dsh-go] reaped stale engine (pid $pid)', 'stderr');
+    } catch (_) {}
   }
 
   Future<void> _clearPidFile() async {
@@ -833,6 +969,10 @@ class MacRuntimeBridge implements RuntimeBridge {
   /// pid、启动时间、默认启动命令和带 token 的地址写进去——手机就不会再起第二个 DSH，
   /// 也不会碰到官方 DSH 的 `~/.dsh`。
   Future<void> _publishPhoneAttach({required int processId, required Uri base, required String token}) async {
+    // 这套握手文件是给「手机通过 SSH 复用本机引擎」用的，依赖 Unix 的
+    // ps / chmod / ~/.dsh-app-remote 约定。Windows 上没有 SSH 服务器这一前提，
+    // 手机也不会按这套路径来读，直接跳过（不是降级，是平台不适用）。
+    if (Platform.isWindows) return;
     final home = Platform.environment['HOME'];
     if (home == null) return;
     try {
@@ -860,11 +1000,10 @@ class MacRuntimeBridge implements RuntimeBridge {
       final dshHome = await _dshHome();
       final dir = Directory('${dshHome.path}/dsh-app');
       await dir.create(recursive: true);
-      final model = await Process.run('/usr/sbin/sysctl', <String>['-n', 'hw.model']);
-      final arch = await Process.run('/usr/bin/uname', <String>['-m']);
+      final machine = await _services.describeMachine();
       final tail = _logs.length > 60 ? _logs.sublist(_logs.length - 60) : List<String>.of(_logs);
-      final archText = '${arch.stdout}'.trim();
-      final modelText = '${model.stdout}'.trim();
+      final archText = machine;
+      final modelText = machine;
       String clean(String line) => line
           .replaceAll(RegExp(r'token=[A-Za-z0-9._~-]+'), 'token=<redacted>')
           .replaceAllMapped(
@@ -893,7 +1032,11 @@ class MacRuntimeBridge implements RuntimeBridge {
         ..writeln('```');
       final file = File('${dir.path}/diagnostics.md');
       await file.writeAsString(buffer.toString());
-      await Process.run('/bin/chmod', <String>['600', file.path]);
+      // chmod 是 Unix 概念；Windows 上靠 ACL 继承即可（诊断文件不含 token，
+      // 且已用 clean() 脱敏）。
+      if (!Platform.isWindows) {
+        await Process.run('/bin/chmod', <String>['600', file.path]);
+      }
       await _ensureSupportSkill(dshHome);
     } catch (_) {
       // 诊断写不出来不影响引擎。
@@ -1034,20 +1177,6 @@ whenToUse: 用户在 DSH Go Mac 上遇到连接、引擎、手机连接或更新
         await stash.rename(kept.path);
       } catch (_) {}
     }
-  }
-
-  Future<void> _copyDirectory(Directory from, Directory to) async {
-    await to.create(recursive: true);
-    final result = await Process.run('/bin/cp', <String>['-R', '${from.path}/.', to.path]);
-    if (result.exitCode != 0) throw StateError('cp failed: ${result.stderr}');
-  }
-
-  /// Clone a directory on APFS; fall back to a full copy on other volumes.
-  Future<void> _cloneDirectory(Directory from, Directory to) async {
-    await to.create(recursive: true);
-    final clone = await Process.run('/bin/cp', <String>['-cR', '${from.path}/.', to.path]);
-    if (clone.exitCode == 0) return;
-    await _copyDirectory(from, to);
   }
 
   @override

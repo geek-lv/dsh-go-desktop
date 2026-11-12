@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../launch/launch_state.dart';
+import '../../macos/mac_localizations.dart';
 import '../../runtime/local_footprint.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
@@ -171,6 +172,14 @@ class _RootGateState extends ConsumerState<RootGate> {
   }
 
   void _afterAppearance() {
+    // 「权限申请」这一步是 Android 专属流程（存储 / 无障碍 / 电池优化 / 通知）。
+    // 桌面端（Windows / Linux）没有运行时权限概念：文件、通知、屏幕都不需要
+    // 用户在系统设置里单独开启，因此整步跳过，直接走「连接模型」。
+    // macOS 保留这一步——它的辅助功能 / 屏幕录制仍需要用户授权。
+    if (isDesktopWithoutRuntimePermissions) {
+      _afterAccess();
+      return;
+    }
     unawaited(_prefs.setSetupStep(SetupStep.access));
     _goTo(OnboardingStep.access);
   }
