@@ -6394,6 +6394,35 @@ class L10nZh extends L10n {
   }
 
   @override
+  String get engineImportTitle => '从官方 DSH 导入对话与工作区';
+
+  @override
+  String engineImportHint(int workspaces) {
+    return '把 $workspaces 个工作区的历史对话、工作区列表和技能拷进 App 现在的环境；已有的文件不覆盖。';
+  }
+
+  @override
+  String engineImportConfirm(int workspaces) {
+    return '导入 $workspaces 个工作区的对话？只新增文件，不改动已有的。';
+  }
+
+  @override
+  String engineImportDone(int files, String mb) {
+    return '已导入 $files 个文件（$mb MB）';
+  }
+
+  @override
+  String get engineImportNothing => '没有可导入的内容，或目标里已经有了。';
+
+  @override
+  String engineImportFailed(String error) {
+    return '导入失败：$error';
+  }
+
+  @override
+  String get engineImportNote => 'App 自带引擎与官方 DSH 用两套数据目录。想直接共用官方那份（含插件），把引擎来源切到「这台设备上已装的 DSH」。';
+
+  @override
   String get featuresCordisSubtitle => '动态插件 · 引擎重启后清空';
 
   @override
@@ -14225,6 +14254,12 @@ class L10nZh extends L10n {
 
   @override
   String get searchKwRemoteCompactHistory => '精简 简洁 历史 工具 传输 流量 远程 compact slim lite';
+
+  @override
+  String get remoteWorkspaceAllWorkspaces => '全部工作区';
+
+  @override
+  String get remoteWorkspaceOther => '其他会话';
 
   @override
   String get stateWorkspaceFilesHint => '已上传到当前工作区的文件：';

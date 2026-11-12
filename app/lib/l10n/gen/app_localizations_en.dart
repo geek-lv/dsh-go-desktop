@@ -6746,6 +6746,36 @@ class L10nEn extends L10n {
   }
 
   @override
+  String get engineImportTitle => 'Import chats and workspaces from the official DSH';
+
+  @override
+  String engineImportHint(int workspaces) {
+    return 'Copy the chats of $workspaces workspaces, the workspace list and skills into the app\'s own environment; existing files are kept.';
+  }
+
+  @override
+  String engineImportConfirm(int workspaces) {
+    return 'Import chats from $workspaces workspaces? Only new files are written.';
+  }
+
+  @override
+  String engineImportDone(int files, String mb) {
+    return 'Imported $files files ($mb MB)';
+  }
+
+  @override
+  String get engineImportNothing => 'Nothing to import, or the target already has it.';
+
+  @override
+  String engineImportFailed(String error) {
+    return 'Import failed: $error';
+  }
+
+  @override
+  String get engineImportNote =>
+      'The app\'s engine and the official DSH keep separate data folders. To share the official one (plugins included), switch the engine source to “DSH already installed on this device”.';
+
+  @override
   String get featuresCordisSubtitle => 'Dynamic plugins · Cleared when the engine restarts';
 
   @override
@@ -14944,6 +14974,12 @@ class L10nEn extends L10n {
 
   @override
   String get searchKwRemoteCompactHistory => 'compact slim lite history tools transfer bandwidth remote';
+
+  @override
+  String get remoteWorkspaceAllWorkspaces => 'All workspaces';
+
+  @override
+  String get remoteWorkspaceOther => 'Other chats';
 
   @override
   String get stateWorkspaceFilesHint => 'Files uploaded to the current workspace:';

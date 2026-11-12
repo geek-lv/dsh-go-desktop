@@ -11804,6 +11804,48 @@ abstract class L10n {
   /// **'已释放 {mb} MB'**
   String engineStoreFreed(int mb);
 
+  /// No description provided for @engineImportTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'从官方 DSH 导入对话与工作区'**
+  String get engineImportTitle;
+
+  /// No description provided for @engineImportHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'把 {workspaces} 个工作区的历史对话、工作区列表和技能拷进 App 现在的环境；已有的文件不覆盖。'**
+  String engineImportHint(int workspaces);
+
+  /// No description provided for @engineImportConfirm.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入 {workspaces} 个工作区的对话？只新增文件，不改动已有的。'**
+  String engineImportConfirm(int workspaces);
+
+  /// No description provided for @engineImportDone.
+  ///
+  /// In zh, this message translates to:
+  /// **'已导入 {files} 个文件（{mb} MB）'**
+  String engineImportDone(int files, String mb);
+
+  /// No description provided for @engineImportNothing.
+  ///
+  /// In zh, this message translates to:
+  /// **'没有可导入的内容，或目标里已经有了。'**
+  String get engineImportNothing;
+
+  /// No description provided for @engineImportFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入失败：{error}'**
+  String engineImportFailed(String error);
+
+  /// No description provided for @engineImportNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'App 自带引擎与官方 DSH 用两套数据目录。想直接共用官方那份（含插件），把引擎来源切到「这台设备上已装的 DSH」。'**
+  String get engineImportNote;
+
   /// No description provided for @featuresCordisSubtitle.
   ///
   /// In zh, this message translates to:
@@ -26053,6 +26095,18 @@ abstract class L10n {
   /// In zh, this message translates to:
   /// **'精简 简洁 历史 工具 传输 流量 远程 compact slim lite'**
   String get searchKwRemoteCompactHistory;
+
+  /// No description provided for @remoteWorkspaceAllWorkspaces.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部工作区'**
+  String get remoteWorkspaceAllWorkspaces;
+
+  /// No description provided for @remoteWorkspaceOther.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他会话'**
+  String get remoteWorkspaceOther;
 
   /// No description provided for @stateWorkspaceFilesHint.
   ///

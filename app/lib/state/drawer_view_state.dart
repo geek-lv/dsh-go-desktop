@@ -760,3 +760,20 @@ List<DrawerBlock>? watchDrawerBlocks(WidgetRef ref, {DateTime? now}) {
     scoped: scope.scoped,
   );
 }
+
+/// 「全部工作区」视图里被折叠的工作区分组（内存状态：重启回到展开）。
+class CollapsedWorkspaceGroups extends Notifier<Set<String>> {
+  @override
+  Set<String> build() => const {};
+
+  void toggle(String workspaceId) {
+    state = state.contains(workspaceId)
+        ? ({...state}..remove(workspaceId))
+        : {...state, workspaceId};
+  }
+
+  bool isCollapsed(String workspaceId) => state.contains(workspaceId);
+}
+
+final collapsedWorkspaceGroupsProvider =
+    NotifierProvider<CollapsedWorkspaceGroups, Set<String>>(CollapsedWorkspaceGroups.new);

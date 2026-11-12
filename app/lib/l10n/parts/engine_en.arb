@@ -429,5 +429,43 @@
         "type": "int"
       }
     }
+  },
+  "engineImportTitle": "Import chats and workspaces from the official DSH",
+  "engineImportHint": "Copy the chats of {workspaces} workspaces, the workspace list and skills into the app's own environment; existing files are kept.",
+  "engineImportConfirm": "Import chats from {workspaces} workspaces? Only new files are written.",
+  "engineImportDone": "Imported {files} files ({mb} MB)",
+  "engineImportNothing": "Nothing to import, or the target already has it.",
+  "engineImportFailed": "Import failed: {error}",
+  "engineImportNote": "The app's engine and the official DSH keep separate data folders. To share the official one (plugins included), switch the engine source to “DSH already installed on this device”.",
+  "@engineImportHint": {
+    "placeholders": {
+      "workspaces": {
+        "type": "int"
+      }
+    }
+  },
+  "@engineImportConfirm": {
+    "placeholders": {
+      "workspaces": {
+        "type": "int"
+      }
+    }
+  },
+  "@engineImportDone": {
+    "placeholders": {
+      "files": {
+        "type": "int"
+      },
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "@engineImportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

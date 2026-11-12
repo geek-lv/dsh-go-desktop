@@ -3942,6 +3942,44 @@
       }
     }
   },
+  "engineImportTitle": "从官方 DSH 导入对话与工作区",
+  "engineImportHint": "把 {workspaces} 个工作区的历史对话、工作区列表和技能拷进 App 现在的环境；已有的文件不覆盖。",
+  "@engineImportHint": {
+    "placeholders": {
+      "workspaces": {
+        "type": "int"
+      }
+    }
+  },
+  "engineImportConfirm": "导入 {workspaces} 个工作区的对话？只新增文件，不改动已有的。",
+  "@engineImportConfirm": {
+    "placeholders": {
+      "workspaces": {
+        "type": "int"
+      }
+    }
+  },
+  "engineImportDone": "已导入 {files} 个文件（{mb} MB）",
+  "@engineImportDone": {
+    "placeholders": {
+      "files": {
+        "type": "int"
+      },
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "engineImportNothing": "没有可导入的内容，或目标里已经有了。",
+  "engineImportFailed": "导入失败：{error}",
+  "@engineImportFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "engineImportNote": "App 自带引擎与官方 DSH 用两套数据目录。想直接共用官方那份（含插件），把引擎来源切到「这台设备上已装的 DSH」。",
   "featuresCordisSubtitle": "动态插件 · 引擎重启后清空",
   "featuresCordisUnavailable": "这个连接看不到 Cordis",
   "featuresCordisRemoteUnavailable": "经 DSH Remote 中转时不可用",
@@ -8933,6 +8971,8 @@
   "remoteErrHistoryModeChanged": "主机已不支持精简历史，请切换到其他主机后再连回来，或重启 App，重新加载历史",
   "remoteCompactHistoryHint": "支持的 DSH Remote 主机会精简历史工具详情，实时回复和审批不变。切换主机或重启 App 后生效；旧主机仍传输完整历史。",
   "searchKwRemoteCompactHistory": "精简 简洁 历史 工具 传输 流量 远程 compact slim lite",
+  "remoteWorkspaceAllWorkspaces": "全部工作区",
+  "remoteWorkspaceOther": "其他会话",
   "stateWorkspaceFilesHint": "已上传到当前工作区的文件：",
   "stateRemoteUploadNameInvalid": "文件名不受主机支持，请去掉特殊字符或缩短后再试",
   "stateRemoteUploadWorkspaceUnavailable": "当前对话没有可写的工作目录",

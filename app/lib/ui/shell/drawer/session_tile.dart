@@ -22,12 +22,14 @@ class SessionTile extends StatelessWidget {
     required this.current,
     required this.onTap,
     required this.onLongPress,
+    this.onSecondaryTap,
     this.pending,
     this.unread = false,
     this.pinned = false,
     this.indent = 0,
     this.selecting = false,
     this.selected = false,
+    this.compact = false,
   });
 
   final String title;
@@ -37,6 +39,9 @@ class SessionTile extends StatelessWidget {
   final bool current;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
+
+  /// 桌面端的右键（鼠标次要键）——位置用于在指针处弹出上下文菜单。
+  final void Function(Offset globalPosition)? onSecondaryTap;
   final PendingKind? pending;
   final bool unread;
 
@@ -53,6 +58,12 @@ class SessionTile extends StatelessWidget {
   /// A folder's glyph (20) plus its gap (10): members' titles line up with
   /// the folder's name.
   static const folderIndent = 30.0;
+
+  /// 桌面端列表装不下时用 80% 高度（[height] 的 0.8），一屏能多放几行。
+  final bool compact;
+
+  /// 这一行的高度：紧凑模式 80%。
+  static const compactFactor = 0.8;
 
   /// Width of the check slot while selecting (a 20 circle and a 10 gap).
   static const checkSlot = 30.0;
@@ -95,7 +106,13 @@ class SessionTile extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         type: MaterialType.transparency,
-        child: InkWell(
+        // 桌面端：右键在指针处弹菜单（长按是移动端的做法）。只声明次要键处理器，
+        // 主键点击仍然落到下面的 InkWell。
+        child: GestureDetector(
+          onSecondaryTapUp: onSecondaryTap == null
+              ? null
+              : (details) => onSecondaryTap!(details.globalPosition),
+          child: InkWell(
           onTap: onTap,
           onLongPress: onLongPress,
           customBorder: shape,
@@ -112,7 +129,7 @@ class SessionTile extends StatelessWidget {
                   color: fill.withValues(alpha: fill.a * t),
                   shape: shape,
                 ),
-                height: height,
+                height: compact ? height * compactFactor : height,
                 padding: EdgeInsets.only(left: 10 + indent, right: 10),
                 child: child,
               );
@@ -146,6 +163,7 @@ class SessionTile extends StatelessWidget {
                       : Padding(key: marker.key, padding: const EdgeInsets.only(left: 10), child: marker),
                 ),
               ],
+            ),
             ),
           ),
         ),

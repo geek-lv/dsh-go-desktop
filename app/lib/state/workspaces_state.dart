@@ -230,6 +230,7 @@ class WorkspacePrefs {
     this.pinned = const [],
     this.groups = const {},
     this.recent = const [],
+    this.groupByWorkspace = false,
   });
 
   factory WorkspacePrefs.fromJson(Object? json) {
@@ -245,6 +246,7 @@ class WorkspacePrefs {
             if (key is String && value is String && value.trim().isNotEmpty) key: value.trim(),
       },
       recent: _strings(map['recent']),
+      groupByWorkspace: map['groupByWorkspace'] == true,
     );
   }
 
@@ -264,21 +266,33 @@ class WorkspacePrefs {
   /// Folders picked recently, newest first.
   final List<String> recent;
 
+  /// 「全部工作区」：仍是全部会话，但按工作区分组显示（可折叠），而不是按日期平铺。
+  /// 只在 [selected] 为 null 时有意义。
+  final bool groupByWorkspace;
+
   static const maxRecent = 4;
 
-  Map<String, Object?> toJson() => {'selected': ?selected, 'pinned': pinned, 'groups': groups, 'recent': recent};
+  Map<String, Object?> toJson() => {
+    'selected': ?selected,
+    'pinned': pinned,
+    'groups': groups,
+    'recent': recent,
+    if (groupByWorkspace) 'groupByWorkspace': true,
+  };
 
   WorkspacePrefs copyWith({
     String? Function()? selected,
     List<String>? pinned,
     Map<String, String>? groups,
     List<String>? recent,
+    bool? groupByWorkspace,
   }) => WorkspacePrefs(
     loaded: loaded,
     selected: selected == null ? this.selected : selected(),
     pinned: pinned ?? this.pinned,
     groups: groups ?? this.groups,
     recent: recent ?? this.recent,
+    groupByWorkspace: groupByWorkspace ?? this.groupByWorkspace,
   );
 }
 
@@ -329,7 +343,12 @@ class WorkspacePrefsController extends Notifier<WorkspacePrefs> {
 
   /// Shows [workspaceId]'s conversations in the drawer (null: all) and starts
   /// new conversations there.
-  Future<void> select(String? workspaceId) => _save(state.copyWith(selected: () => workspaceId));
+  Future<void> select(String? workspaceId) =>
+      _save(state.copyWith(selected: () => workspaceId, groupByWorkspace: false));
+
+  /// 「全部工作区」：不选具体工作区，但按工作区分组显示。
+  Future<void> selectAllWorkspaces() =>
+      _save(state.copyWith(selected: () => null, groupByWorkspace: true));
 
   Future<void> setPinned(String workspaceId, bool pinned) => _save(
     state.copyWith(

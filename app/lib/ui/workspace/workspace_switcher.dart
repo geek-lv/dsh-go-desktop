@@ -41,6 +41,7 @@ class WorkspaceSwitcher extends ConsumerWidget {
     final retained = scope?.readOnly == true ? scope : null;
     if (!ready && retained == null) return const SizedBox(width: double.infinity);
     final selected = ref.watch(selectedWorkspaceProvider);
+    final groupByWorkspace = ref.watch(workspacePrefsProvider).groupByWorkspace;
     final theme = Theme.of(context);
     final tertiary = DshColors.of(context).textTertiary;
     final retainedLabel = retained?.workspaceLabel;
@@ -49,7 +50,7 @@ class WorkspaceSwitcher extends ConsumerWidget {
               ? defaultWorkspaceTitle
               : retainedLabel
         : selected == null
-        ? l10n.remoteWorkspaceAllChats
+        ? (groupByWorkspace ? l10n.remoteWorkspaceAllWorkspaces : l10n.remoteWorkspaceAllChats)
         : workspaceTitle(selected);
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -71,7 +72,9 @@ class WorkspaceSwitcher extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      selected == null && retained?.scoped != true ? AppIcons.conversations : AppIcons.workspace,
+                      selected == null && retained?.scoped != true
+                          ? (groupByWorkspace ? AppIcons.workspace : AppIcons.conversations)
+                          : AppIcons.workspace,
                       size: 18,
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -130,9 +133,15 @@ class WorkspaceSheet extends ConsumerWidget {
     final total = ref.watch(sessionsProvider.select((s) => s.value?.length ?? 0));
     final local = ref.watch(activeConnectionProvider.select((c) => c.value?.isLocal ?? true));
     final prefs = ref.read(workspacePrefsProvider.notifier);
+    final groupByWorkspace = ref.watch(workspacePrefsProvider).groupByWorkspace;
 
     void pick(String? id) {
       prefs.select(id);
+      Navigator.of(context).pop();
+    }
+
+    void pickAllWorkspaces() {
+      prefs.selectAllWorkspaces();
       Navigator.of(context).pop();
     }
 
@@ -154,8 +163,16 @@ class WorkspaceSheet extends ConsumerWidget {
                     icon: AppIcons.conversations,
                     title: l10n.remoteWorkspaceAllChats,
                     count: total,
-                    selected: selected == null,
+                    selected: selected == null && !groupByWorkspace,
                     onTap: () => pick(null),
+                  ),
+                  // 桌面端：全部工作区，按工作区分组、可折叠，都在同一列表里。
+                  _ChoiceRow(
+                    icon: AppIcons.workspace,
+                    title: l10n.remoteWorkspaceAllWorkspaces,
+                    count: workspaces.length,
+                    selected: selected == null && groupByWorkspace,
+                    onTap: pickAllWorkspaces,
                   ),
                 ],
               ),

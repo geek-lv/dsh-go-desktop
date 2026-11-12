@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,7 @@ import '../../desktop/install_trace.dart';
 import '../../runtime/dsh_discovery.dart';
 import '../../runtime/dsh_capabilities.dart';
 import '../../runtime/dsh_engines.dart';
+import '../../runtime/dsh_import.dart';
 import '../../runtime/dsh_npm.dart';
 import '../../runtime/engine_source.dart';
 import '../../runtime/runtime_bridge.dart';
@@ -17,6 +19,7 @@ import '../../runtime/runtime_state.dart';
 import '../../runtime/local_footprint.dart';
 import '../../state/app_info.dart';
 import '../../state/engine_control.dart';
+import '../../state/sessions_state.dart';
 import '../../state/safe_mode_state.dart';
 import '../../state/settings_state.dart';
 import '../common/app_dialog.dart';
@@ -716,7 +719,47 @@ class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
           ),
         _updateTile(context, ref),
         _pruneTile(context, ref),
+        _importTile(context, ref),
       ],
+    );
+  }
+
+  /// 「从官方 DSH 导入」：App 自带引擎与官方 DSH 用两套数据目录，这里把对话与工作区搬过来。
+  Widget _importTile(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final status = ref.watch(localRuntimeProvider).status;
+    // 只在用 App 自带引擎、且官方那份真的有会话时才出现。
+    if (status.external || status.official) return const SizedBox.shrink();
+    final official = DshImport.officialHome();
+    final workspaces = ref.watch(officialDshWorkspacesProvider).value ?? 0;
+    if (workspaces == 0) return const SizedBox.shrink();
+    return SettingsTile(
+      icon: AppIcons.download,
+      title: l10n.engineImportTitle,
+      subtitle: l10n.engineImportHint(workspaces),
+      onTap: () async {
+        final messenger = ScaffoldMessenger.maybeOf(context);
+        final target = Directory('${ref.read(appSupportDirProvider).path}${Platform.pathSeparator}'
+            'runtime${Platform.pathSeparator}home${Platform.pathSeparator}.dsh');
+        try {
+          final result = await DshImport.importFrom(source: official, target: target);
+          ref.invalidate(officialDshWorkspacesProvider);
+          // 会话列表读的是 host 的数据，导入后让它重新拉一次。
+          ref.invalidate(sessionsProvider);
+          messenger?.showSnackBar(
+            SnackBar(
+              content: Text(
+                result.files == 0
+                    ? l10n.engineImportNothing
+                    : l10n.engineImportDone(result.files, result.megabytes),
+              ),
+            ),
+          );
+        } catch (error) {
+          InstallTrace.error('import/ui', error);
+          messenger?.showSnackBar(SnackBar(content: Text(l10n.engineImportFailed('$error'))));
+        }
+      },
     );
   }
 

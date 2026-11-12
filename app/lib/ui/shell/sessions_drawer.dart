@@ -55,6 +55,7 @@ import 'drawer/drawer_destination.dart';
 import 'drawer/archive_notice.dart';
 import 'drawer/drawer_filter_bar.dart';
 import 'drawer/drawer_list.dart';
+import 'drawer/session_tile.dart';
 import 'drawer/selection_bars.dart';
 import 'drawer/session_deletion.dart';
 import 'session_search_page.dart';
@@ -468,8 +469,18 @@ class _SessionList extends ConsumerWidget {
       if (scope.readOnly) return _Centered(child: Text(readListStatusText(scope.status)));
       return workspace == null ? const _EmptyState() : const _WorkspaceEmptyState();
     }
-    return DrawerConversationList(
-      now: now,
+    // 桌面端行高自适应：一屏放不下就收到 80%（SessionTile.compactFactor），
+    // 多放几行比多滚一段更实用。
+    final prefs = ref.watch(workspacePrefsProvider);
+    final grouping = prefs.groupByWorkspace && prefs.selected == null;
+    final rows = scope.sessions.length + (grouping ? ref.watch(workspacesProvider).workspaces.length : 0);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final needed = rows * SessionTile.height + 24;
+        final compact = needed > constraints.maxHeight;
+        return DrawerConversationList(
+          compact: compact,
+          now: now,
       onNewChat: onClose,
       readOnly: scope.readOnly,
       leading: showBots
@@ -498,17 +509,79 @@ class _SessionList extends ConsumerWidget {
           _showActions(context, ref, s);
         }
       },
+          onSecondaryTap: (s, position) {
+            final current = ref.read(drawerScopeProvider);
+            if (ref.read(readListIdentityProvider) == identity &&
+                current?.readOnly == false &&
+                current!.sessions.any((row) => identical(row, s))) {
+              _showActions(context, ref, s, at: position);
+            }
+          },
+        );
+      },
     );
   }
 
-  Future<void> _showActions(BuildContext context, WidgetRef ref, SessionSummary s) async {
+  Future<void> _showActions(BuildContext context, WidgetRef ref, SessionSummary s, {Offset? at}) async {
     // Consent belongs to the host/generation present before the action sheet.
     final owner = captureSessionDeletionOwner(ref);
     try {
+      // 桌面端右键：在指针处弹上下文菜单（长按/底部弹层是移动端的做法）。
+      if (at != null) {
+        await _showDesktopMenu(context, ref, s, at, owner);
+        return;
+      }
       await _showOwnedActions(context, ref, s, owner);
     } finally {
       owner?.close();
     }
+  }
+
+  /// 在鼠标位置弹出的上下文菜单：动作与底部弹层完全一致，只是壳不同。
+  Future<void> _showDesktopMenu(
+    BuildContext context,
+    WidgetRef ref,
+    SessionSummary s,
+    Offset position,
+    SessionDeletionOwner? owner,
+  ) async {
+    final l10n = context.l10n;
+    final workspaces = ref.read(workspacesProvider);
+    final pinned = workspaces.pinnedSessionIds.contains(s.sessionId);
+    final inFolder = ref.read(drawerViewProvider).folderOf.containsKey(s.sessionId);
+    final overlay = Overlay.of(context).context.findRenderObject();
+    final size = overlay is RenderBox ? overlay.size : MediaQuery.sizeOf(context);
+    Widget row(IconData icon, String label) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [Icon(icon, size: 18), const SizedBox(width: 10), Text(label)],
+    );
+    final action = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromRect(position & const Size(1, 1), Offset.zero & size),
+      items: [
+        if (workspaces.ready)
+          PopupMenuItem(
+            value: pinned ? 'unpin' : 'pin',
+            child: row(pinned ? AppIcons.pinActive : AppIcons.pin, pinned ? l10n.shellUnpin : l10n.commonPin),
+          ),
+        PopupMenuItem(value: 'rename', child: row(AppIcons.rename, l10n.commonRename)),
+        PopupMenuItem(
+          value: 'folder',
+          child: row(AppIcons.moveToFolder, inFolder ? l10n.shellMoveToOtherFolder : l10n.shellMoveToFolder),
+        ),
+        PopupMenuItem(value: 'share', child: row(AppIcons.share, l10n.commonShare)),
+        PopupMenuItem(value: 'select', child: row(AppIcons.multiSelect, l10n.shellMultiSelect)),
+        PopupMenuItem(value: 'archive', child: row(AppIcons.archive, l10n.shellArchive)),
+        const PopupMenuDivider(),
+        PopupMenuItem(
+          value: 'delete',
+          enabled: ref.read(engineCapabilitiesProvider).available('session-deletion'),
+          child: row(AppIcons.delete, l10n.commonDelete),
+        ),
+      ],
+    );
+    if (!context.mounted || action == null) return;
+    await _applyAction(context, ref, s, action, owner);
   }
 
   Future<void> _showOwnedActions(
@@ -585,6 +658,18 @@ class _SessionList extends ConsumerWidget {
       ),
     );
     if (!context.mounted || action == null) return;
+    await _applyAction(context, ref, s, action, deletionOwner);
+  }
+
+  /// 动作的后半段：底部弹层与桌面右键菜单共用同一份实现。
+  Future<void> _applyAction(
+    BuildContext context,
+    WidgetRef ref,
+    SessionSummary s,
+    String action,
+    SessionDeletionOwner? deletionOwner,
+  ) async {
+    final title = sessionTitle(s);
     final messenger = ScaffoldMessenger.maybeOf(context);
     switch (action) {
       case 'pin' || 'unpin':
