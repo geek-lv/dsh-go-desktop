@@ -17,6 +17,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'install_trace.dart';
+
 /// 解压 tar.gz，并把「已解出多少字节」回报给调用方用于进度条。
 typedef ExtractProgress = void Function(int bytes);
 
@@ -61,6 +63,32 @@ abstract class PlatformServices {
 
   /// 用系统默认程序打开一个 URL 或路径。
   Future<void> openExternally(String target);
+
+  /// 启动 tar 并把 stderr 收集起来。
+  ///
+  /// 原实现把 stderr 整段丢掉（`listen((_) {})`），于是「tar 退出 2」在日志里
+  /// 只是一个数字：分不清是参数不对、归档损坏还是路径没权限。这里把 stderr
+  /// 交给调用方写进追踪。
+  Future<(Process, StringBuffer)> startTar(String exe, List<String> args) async {
+    InstallTrace.add('tar', 'start exe=$exe args=${args.join(' ')}');
+    final Process tar;
+    try {
+      tar = await Process.start(exe, args);
+    } catch (error, stack) {
+      InstallTrace.error('tar', 'cannot start $exe: $error', stack);
+      rethrow;
+    }
+    final errors = StringBuffer();
+    tar.stdout.transform(utf8.decoder).listen((_) {});
+    tar.stderr.transform(utf8.decoder).listen(errors.write);
+    return (tar, errors);
+  }
+
+  /// 记一行 tar 的结果。
+  void endTar(int code, StringBuffer errors) {
+    final text = errors.toString();
+    InstallTrace.add('tar', 'exit=$code${text.trim().isEmpty ? '' : ' stderr=${InstallTrace.tail(text)}'}');
+  }
 }
 
 /// macOS：与原实现逐字一致。
@@ -75,9 +103,7 @@ class MacosPlatformServices extends PlatformServices {
     ExtractProgress? onProgress,
   }) async {
     await destination.create(recursive: true);
-    final tar = await Process.start('/usr/bin/tar', <String>['-xzf', archive.path, '-C', destination.path]);
-    tar.stdout.transform(utf8.decoder).listen((_) {});
-    tar.stderr.transform(utf8.decoder).listen((_) {});
+    final (tar, errors) = await startTar('/usr/bin/tar', <String>['-xzf', archive.path, '-C', destination.path]);
     Timer? poll;
     if (totalBytes > 0 && onProgress != null) {
       poll = Timer.periodic(const Duration(milliseconds: 400), (_) async {
@@ -87,6 +113,7 @@ class MacosPlatformServices extends PlatformServices {
     }
     final code = await tar.exitCode;
     poll?.cancel();
+    endTar(code, errors);
     if (code != 0) throw StateError('tar exited with $code');
     return Directory('${destination.path}/runtime');
   }
@@ -97,7 +124,8 @@ class MacosPlatformServices extends PlatformServices {
       final du = await Process.run('/usr/bin/du', <String>['-sk', dir.path]);
       final kb = int.tryParse((du.stdout as String).trim().split(RegExp(r'\s+')).first) ?? 0;
       return kb * 1024;
-    } catch (_) {
+    } catch (error) {
+      InstallTrace.error('du', 'failed: $error');
       return null;
     }
   }
@@ -159,9 +187,7 @@ class WindowsPlatformServices extends PlatformServices {
   }) async {
     await destination.create(recursive: true);
     // `tar -xzf <archive> -C <dir>`：bsdtar 与 GNU tar 参数一致。
-    final tar = await Process.start(_tarExe, <String>['-xzf', archive.path, '-C', destination.path]);
-    tar.stdout.transform(utf8.decoder).listen((_) {});
-    tar.stderr.transform(utf8.decoder).listen((_) {});
+    final (tar, errors) = await startTar(_tarExe, <String>['-xzf', archive.path, '-C', destination.path]);
     Timer? poll;
     if (totalBytes > 0 && onProgress != null) {
       poll = Timer.periodic(const Duration(milliseconds: 400), (_) async {
@@ -171,6 +197,7 @@ class WindowsPlatformServices extends PlatformServices {
     }
     final code = await tar.exitCode;
     poll?.cancel();
+    endTar(code, errors);
     if (code != 0) throw StateError('tar.exe exited with $code');
     return Directory('${destination.path}${Platform.pathSeparator}runtime');
   }
@@ -190,7 +217,8 @@ class WindowsPlatformServices extends PlatformServices {
         }
       }
       return total;
-    } catch (_) {
+    } catch (error) {
+      InstallTrace.error('size', 'directorySize(${dir.path}) failed: $error');
       return null;
     }
   }
@@ -250,9 +278,7 @@ class LinuxPlatformServices extends PlatformServices {
     ExtractProgress? onProgress,
   }) async {
     await destination.create(recursive: true);
-    final tar = await Process.start('tar', <String>['-xzf', archive.path, '-C', destination.path]);
-    tar.stdout.transform(utf8.decoder).listen((_) {});
-    tar.stderr.transform(utf8.decoder).listen((_) {});
+    final (tar, errors) = await startTar('tar', <String>['-xzf', archive.path, '-C', destination.path]);
     Timer? poll;
     if (totalBytes > 0 && onProgress != null) {
       poll = Timer.periodic(const Duration(milliseconds: 400), (_) async {
@@ -262,6 +288,7 @@ class LinuxPlatformServices extends PlatformServices {
     }
     final code = await tar.exitCode;
     poll?.cancel();
+    endTar(code, errors);
     if (code != 0) throw StateError('tar exited with $code');
     return Directory('${destination.path}/runtime');
   }
@@ -272,7 +299,8 @@ class LinuxPlatformServices extends PlatformServices {
       final du = await Process.run('du', <String>['-sk', dir.path]);
       final kb = int.tryParse((du.stdout as String).trim().split(RegExp(r'\s+')).first) ?? 0;
       return kb * 1024;
-    } catch (_) {
+    } catch (error) {
+      InstallTrace.error('du', 'failed: $error');
       return null;
     }
   }

@@ -22,6 +22,15 @@ final macRuntimeBridgeProvider = Provider<MacRuntimeBridge>(
 /// 这个进程是不是 macOS 桌面版。
 bool get isMacDesktop => !kIsWeb && Platform.isMacOS;
 
+/// 这个进程是不是桌面端（macOS / Windows / Linux）。
+///
+/// 本机引擎（[MacRuntimeBridge]）在桌面三端共用，所以「要不要覆盖
+/// `runtimeBridgeProvider`」要看它而不是 [isMacDesktop]：Windows / Linux 上
+/// 没有 Kotlin 那侧的 `dsh/runtime` 通道，不覆盖就会抛 `MissingPluginException`，
+/// 界面只会显示「安装未完成」、日志一片空白。
+/// 仍然只属于 macOS 的功能（菜单栏、窗口版式、Peekaboo）继续用 [isMacDesktop]。
+bool get isDesktop => !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+
 /// 启动前的准备：窗口版式订阅。失败不影响启动。
 Future<void> startMacSupport() async {
   if (!isMacDesktop) return;

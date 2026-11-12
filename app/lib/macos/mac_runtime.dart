@@ -22,7 +22,9 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../desktop/install_trace.dart';
 import '../desktop/platform_services.dart';
+import '../runtime/dsh_discovery.dart';
 import '../runtime/runtime_bridge.dart';
 import 'official_dsh.dart';
 import 'official_proxy.dart';
@@ -50,6 +52,14 @@ class MacRuntimeBridge implements RuntimeBridge {
   bool get official => _official;
   OfficialDsh? _officialNow;
   DateTime? _officialAt;
+
+  /// 复用的「已安装核心」（用户自己 npm/pnpm 装的那份）。
+  ///
+  /// 设了就**不装、也不写**那棵树：只用它启动，overlay 写在我们自己的支持目录里，
+  /// DSH 数据走用户真实的 `~/.dsh`（会话、插件、密钥都是现成的）。
+  DiscoveredDsh? _external;
+  DiscoveredDsh? get externalCore => _external;
+  bool get isExternal => _external != null;
 
   static const String _officialNotRunning = '官方 DSH 没有在运行：先打开 DeepSeek Harness，再回到这里。';
 
@@ -123,11 +133,37 @@ class MacRuntimeBridge implements RuntimeBridge {
     return base;
   }
 
-  Future<Directory> _runtimeDir() async => Directory('${(await _supportDir()).path}/runtime');
-  Future<Directory> _homeDir() async => Directory('${(await _runtimeDir()).path}/home');
+  /// 引擎的安装目录：复用模式下是用户自己那份 npm 前缀（只读使用）。
+  Future<Directory> _runtimeDir() async =>
+      _external != null ? Directory(_external!.prefix) : Directory('${(await _supportDir()).path}/runtime');
+
+  /// 引擎的 `HOME`：App 自有引擎是 `<runtime>/home`；复用模式下是用户真实 home，
+  /// 于是 `$HOME/.dsh` 就是用户已经装好插件、登录过模型的那份数据。
+  Future<Directory> _homeDir() async {
+    if (_external != null) {
+      final env = Platform.environment;
+      final home = Platform.isWindows ? (env['USERPROFILE'] ?? env['HOME']) : env['HOME'];
+      if (home != null && home.isNotEmpty) return Directory(home);
+    }
+    return Directory('${(await _runtimeDir()).path}/home');
+  }
   Future<Directory> _dshHome() async => Directory('${(await _homeDir()).path}/.dsh');
 
   Future<File> _stateFile() async => File('${(await _supportDir()).path}/runtime-state.json');
+
+  /// 复用模式下 overlay 的目录（我们自己的，不碰用户的安装）。
+  /// 只有 `_ensureRuntimeLayout` 跑过之后才有值；argv 展开在它之后。
+  String? get _externalOverlayDir => _externalEtcOverride;
+
+  String? _externalEtcOverride;
+
+  /// 复用模式下 dsh-go-bridge 的位置：优先用 App 自有运行时里那份；
+  /// 没有就返回 null（不注入 bridge，引擎照常跑，只是少了 App 的集成能力）。
+  Future<String?> _externalBridgePath(Directory runtimeDir) async {
+    final managed = File('${(await _supportDir()).path}/runtime/bridge/lib/index.js');
+    if (await managed.exists()) return managed.path;
+    return null;
+  }
 
   // ---------------------------------------------------------------------------
   // 状态
@@ -140,6 +176,36 @@ class MacRuntimeBridge implements RuntimeBridge {
     }
     await _loadInstalledState();
     return RuntimeStatus.fromMap(_statusMap());
+  }
+
+  /// 切换到「复用这台设备上已安装的 DSH 核心」，或切回 App 自有的引擎（传 null）。
+  ///
+  /// 全程只读用户的安装：不安装、不打补丁、不写它的目录；起不来就报错，由上层回退。
+  Future<void> useExternalCore(DiscoveredDsh? core) async {
+    InstallTrace.add(
+      'engine',
+      'useExternalCore(${core?.version ?? 'null'}) ← 当前=${_external?.version ?? 'null'}',
+    );
+    if (identical(_external, core)) return;
+    if (_process != null) await stop();
+    _external = core;
+    _installedVersion = core?.version;
+    _phase = core == null ? RuntimePhase.notInstalled : RuntimePhase.installed;
+    if (core == null) {
+      // 切回 App 自有引擎：版本要从我们自己的 state 文件重新读，别留着外部的。
+      await _loadInstalledState();
+    }
+    _error = null;
+    _failure = null;
+    _baseUrl = null;
+    _token = null;
+    InstallTrace.add(
+      'engine',
+      core == null
+          ? 'engine source: app-owned runtime'
+          : 'engine source: 复用已安装核心 ${core.version} @ ${core.prefix}（${core.source}，只读）',
+    );
+    _emit();
   }
 
   /// 切换「内置运行时 / 官方 DSH」。
@@ -236,6 +302,9 @@ class MacRuntimeBridge implements RuntimeBridge {
     'nodeVersion': _nodeVersion,
     'baseUrl': _baseUrl,
     'token': _token,
+    'external': _external != null,
+    'externalPath': _external?.prefix,
+    'externalSource': _external?.source,
     'managedSkillGeneration': _generation > 0 ? _generation : null,
     'error': _error,
     'mode': _mode.name,
@@ -293,6 +362,28 @@ class MacRuntimeBridge implements RuntimeBridge {
   // manifest / 已安装状态
 
   Future<Map<String, Object?>?> _loadManifest() async {
+    if (_external case final core?) {
+      // 复用模式没有我们的 manifest：按用户那棵树的实际布局合成一份。
+      // node 优先用探测到的（npm 全局目录旁边那个），否则用 PATH 里的。
+      return {
+        'runtimeVersion': 'external-${core.version}',
+        'dshVersion': core.version,
+        'launch': {
+          'argv': <String>[
+            core.nodePath ?? (Platform.isWindows ? 'node.exe' : 'node'),
+            core.binScript,
+            '{DSH_PROFILE_ARGS}',
+            '--host',
+            '127.0.0.1',
+            '--port',
+            '{PORT}',
+            '--no-open',
+          ],
+        },
+        // 不复用我们 manifest 的 launchEnv：里面的 {RUNTIME}/tmp 会写进用户的树。
+        'launchEnv': <String, Object?>{},
+      };
+    }
     if (_manifest != null) return _manifest;
     try {
       final raw = await rootBundle.loadString(_manifestAsset);
@@ -301,13 +392,26 @@ class MacRuntimeBridge implements RuntimeBridge {
       _bundledVersion = (_manifest?['runtimeVersion'] as String?) ?? 'macos';
       _dshVersion = _manifest?['dshVersion'] as String?;
       _nodeVersion = _manifest?['nodeVersion'] as String?;
-    } catch (_) {
+      InstallTrace.add(
+        'manifest',
+        '$_manifestAsset → runtimeVersion=$_bundledVersion dsh=$_dshVersion node=$_nodeVersion '
+            'archive=${_manifest?['archive'] ?? '-'} uncompressed=${_manifest?['uncompressedBytes'] ?? '-'}',
+      );
+    } catch (error, stack) {
+      // 以前这里是 `catch (_)`：manifest 读不到和「读到了但解析失败」看起来一样。
+      InstallTrace.error('manifest', 'load $_manifestAsset failed: $error', stack);
       _manifest = null;
     }
     return _manifest;
   }
 
   Future<void> _loadInstalledState() async {
+    if (_external != null) {
+      // 复用模式：版本来自探测结果，不看我们自己的 state 文件。
+      _installedVersion = _external!.version;
+      _phase = _process != null ? RuntimePhase.running : RuntimePhase.installed;
+      return;
+    }
     await _loadManifest();
     final file = await _stateFile();
     final dir = await _runtimeDir();
@@ -344,7 +448,13 @@ class MacRuntimeBridge implements RuntimeBridge {
       _installedVersion = null;
     }
     if (_process != null) {
-      _phase = RuntimePhase.running;
+      // 进程在，但可能还没就绪（starting 中）或正在收尾（stopping）。
+      // 以前这里无条件写 running：只要引擎还在启动、任意一次 status() 就会把
+      // 状态报成「运行中」，而这时 baseUrl / token 还是 null——界面拿不到地址，
+      // 表现就是引擎「在跑」但页面空白。
+      if (_phase != RuntimePhase.starting && _phase != RuntimePhase.stopping) {
+        _phase = RuntimePhase.running;
+      }
     } else if (_installedVersion != null) {
       _phase = RuntimePhase.installed;
     } else {
@@ -367,6 +477,29 @@ class MacRuntimeBridge implements RuntimeBridge {
   ///   Windows        System32 / PowerShell / 系统 Node 所在目录（分隔符是分号）
   String _enginePath(Directory runtimeDir) {
     final separator = Platform.isWindows ? ';' : ':';
+    if (_external case final core?) {
+      // 复用模式：用户那棵树里没有我们的 node。用探测到的 node 所在目录
+      // （npm 全局目录旁边那个），没有就交给系统 PATH。
+      final nodeDir = core.nodePath == null ? null : File(core.nodePath!).parent.path;
+      if (Platform.isWindows) {
+        final systemRoot = Platform.environment['SystemRoot'] ?? r'C:\Windows';
+        return <String>[
+          ?nodeDir,
+          '$systemRoot\\System32',
+          systemRoot,
+          '$systemRoot\\System32\\WindowsPowerShell\\v1.0',
+          Platform.environment['PATH'] ?? '',
+        ].where((p) => p.isNotEmpty).join(separator);
+      }
+      return <String>[
+        ?nodeDir,
+        '/usr/local/bin',
+        '/usr/bin',
+        '/bin',
+        '/usr/sbin',
+        '/sbin',
+      ].join(separator);
+    }
     if (Platform.isWindows) {
       final runtimeNode = '${runtimeDir.path}\\node';
       final systemRoot = Platform.environment['SystemRoot'] ?? r'C:\Windows';
@@ -384,6 +517,10 @@ class MacRuntimeBridge implements RuntimeBridge {
   }
 
   Future<void> _saveState() async {
+    // 复用别人的核心时绝不写我们自己的 state：它的版本号会污染 App 自有运行时的
+    // 记录（实测过：外部 0.2.1-rc.4 启动后，`runtime-state.json` 被写成 0.2.1-rc.4，
+    // 于是切回自带引擎时界面显示的还是外部版本）。
+    if (_external != null) return;
     try {
       final file = await _stateFile();
       await file.writeAsString(
@@ -409,10 +546,24 @@ class MacRuntimeBridge implements RuntimeBridge {
 
   @override
   Future<void> install({bool dropKept = false}) async {
+    InstallTrace.add(
+      'install',
+      'bridge.install ENTER phase=${_phase.name} official=$_official dropKept=$dropKept '
+          'assetDir=$_assetDir platform=${Platform.operatingSystem}',
+    );
     if (_official) {
+      InstallTrace.add('install', 'refused: official DSH owns its own runtime');
       throw PlatformException(code: 'official', message: '官方 DSH 由它自己管理，不需要安装运行环境。');
     }
+    if (_external != null) {
+      InstallTrace.add('install', 'refused: 正在复用已安装核心 ${_external!.version}，不安装');
+      throw PlatformException(
+        code: 'external',
+        message: '正在复用这台设备上已安装的 DSH（${_external!.version}），不需要安装运行环境。',
+      );
+    }
     if (_phase == RuntimePhase.installing) {
+      InstallTrace.add('install', 'refused: install_busy');
       throw PlatformException(code: 'install_busy');
     }
     final manifest = await _loadManifest();
@@ -420,6 +571,7 @@ class MacRuntimeBridge implements RuntimeBridge {
       _phase = RuntimePhase.error;
       _error = 'install failed: runtime manifest missing ($_manifestAsset)';
       _emit();
+      InstallTrace.add('install', 'aborted: manifest missing ($_manifestAsset)');
       throw PlatformException(code: 'install_failed', message: _error);
     }
     _phase = RuntimePhase.installing;
@@ -428,6 +580,10 @@ class MacRuntimeBridge implements RuntimeBridge {
     final runtimeDir = await _runtimeDir();
     final staging = Directory('${runtimeDir.path}.staging');
     final backup = Directory('${runtimeDir.path}.old');
+    InstallTrace.add(
+      'install',
+      'dirs runtime=${runtimeDir.path} staging=${staging.path} backup=${backup.path}',
+    );
     try {
       if (await staging.exists()) await staging.delete(recursive: true);
       await staging.create(recursive: true);
@@ -438,15 +594,19 @@ class MacRuntimeBridge implements RuntimeBridge {
       if (expected.isNotEmpty) {
         _log('[dsh-go] verifying runtime archive');
         final digest = await sha256.bind(archive.openRead()).first;
+        InstallTrace.add('install', 'checksum expected=$expected actual=$digest');
         if (digest.toString() != expected) {
           throw StateError('archive checksum mismatch');
         }
+      } else {
+        InstallTrace.add('install', 'checksum skipped: manifest has no archiveSha256');
       }
 
       final unpack = Directory('${staging.path}/unpack');
       await unpack.create(recursive: true);
       final total = (manifest['uncompressedBytes'] as num?)?.toInt() ?? 0;
       _progress('extract', 0, total);
+      InstallTrace.add('install', 'extract → ${unpack.path} (expected $total bytes)');
       // 平台差异（tar / du）收口在 PlatformServices 里：macOS 用 /usr/bin/tar，
       // Windows 用系统自带 tar.exe，Linux 用 PATH 里的 tar。原实现硬编码
       // /usr/bin/tar，在 Windows 上会抛 ProcessException，安装直接失败。
@@ -459,10 +619,17 @@ class MacRuntimeBridge implements RuntimeBridge {
 
       // tar 里有一个顶层目录 runtime/；把它挪成正式的 runtime/。
       final source = await extracted.exists() ? extracted : unpack;
+      final unpackedBytes = await _services.directorySize(source);
+      InstallTrace.add(
+        'install',
+        'extracted ${extracted.path} exists=${await extracted.exists()} '
+            'bytes=${unpackedBytes ?? '-'}',
+      );
 
       // A crash between moving the old runtime aside and installing the new
       // one leaves only the backup. Put it back before doing anything else.
       if (await backup.exists()) {
+        InstallTrace.add('install', 'leftover backup found: ${await runtimeDir.exists() ? 'deleting it' : 'restoring it'}');
         if (await runtimeDir.exists()) {
           await backup.delete(recursive: true);
         } else {
@@ -470,6 +637,7 @@ class MacRuntimeBridge implements RuntimeBridge {
         }
       }
       final hadRuntime = await runtimeDir.exists();
+      InstallTrace.add('install', 'hadRuntime=$hadRuntime');
       Directory? homeKeep;
       if (hadRuntime) {
         // Move the old runtime aside and delete it only after the new one is in place.
@@ -480,8 +648,10 @@ class MacRuntimeBridge implements RuntimeBridge {
           // APFS clone keeps this nearly free.
           homeKeep = Directory('${staging.path}/old-home');
           await _cloneDirectory(oldHome, homeKeep);
+          InstallTrace.add('install', 'kept previous home → ${homeKeep.path}');
         }
       }
+      InstallTrace.add('install', 'moving ${source.path} → ${runtimeDir.path}');
       await _moveDirectory(source, runtimeDir);
 
       if (homeKeep != null) {
@@ -510,6 +680,7 @@ class MacRuntimeBridge implements RuntimeBridge {
 
       _progress('extract', total, total);
       await _ensureRuntimeLayout(runtimeDir, manifest);
+      InstallTrace.add('install', 'runtime layout ensured (etc/home/.dsh)');
       _installedVersion = _bundledVersion ?? (manifest['runtimeVersion'] as String?) ?? 'macos';
       _dshVersion = manifest['dshVersion'] as String?;
       _nodeVersion = manifest['nodeVersion'] as String?;
@@ -519,15 +690,29 @@ class MacRuntimeBridge implements RuntimeBridge {
       await _saveState();
       _emit();
       _log('[dsh-go] runtime $_installedVersion installed');
+      InstallTrace.add(
+        'install',
+        'OK installed=$_installedVersion dsh=$_dshVersion node=$_nodeVersion',
+      );
+      // 安装成功后 staging 里还躺着 184 MB 的归档副本（原实现在 macOS 上也一样，
+      // 只是没人去看）。留着没意义，删掉——装两次多占 184 MB。
       try {
         if (await backup.exists()) await backup.delete(recursive: true);
-      } catch (_) {}
-    } catch (error) {
+        if (await staging.exists()) await staging.delete(recursive: true);
+        InstallTrace.add('install', 'staging/backup cleaned');
+      } catch (error) {
+        InstallTrace.error('install', 'cleanup after install failed: $error');
+      }
+    } catch (error, stack) {
       // The new runtime did not install: remove the partial tree and restore the old one.
+      InstallTrace.error('install', 'FAILED: $error', stack);
       try {
         if (await runtimeDir.exists()) await runtimeDir.delete(recursive: true);
         if (await backup.exists()) await _moveDirectory(backup, runtimeDir);
-      } catch (_) {}
+        InstallTrace.add('install', 'rolled back (old runtime ${await runtimeDir.exists() ? 'restored' : 'absent'})');
+      } catch (rollback) {
+        InstallTrace.error('install', 'rollback failed: $rollback');
+      }
       _phase = RuntimePhase.error;
       _error = 'install failed: $error';
       _emit();
@@ -558,8 +743,11 @@ class MacRuntimeBridge implements RuntimeBridge {
     ];
     for (final path in candidates) {
       final file = File(path);
-      if (await file.exists()) return file;
+      final exists = await file.exists();
+      InstallTrace.add('archive', 'candidate $path exists=$exists${exists ? ' bytes=${await file.length()}' : ''}');
+      if (exists) return file;
     }
+    InstallTrace.add('archive', 'no bundled archive on disk (expected asset key $_archiveAsset)');
     return null;
   }
 
@@ -567,6 +755,7 @@ class MacRuntimeBridge implements RuntimeBridge {
     // 优先用 App 里带的包；没有就看 manifest 有没有下载地址。
     final onDisk = await _bundledArchiveOnDisk();
     if (onDisk != null) {
+      InstallTrace.add('archive', 'copying bundled ${onDisk.path} → ${target.path}');
       await onDisk.copy(target.path);
       _log('[dsh-go] using bundled runtime archive (${((await target.length()) / 1048576).toStringAsFixed(1)} MiB)');
       return;
@@ -574,15 +763,19 @@ class MacRuntimeBridge implements RuntimeBridge {
     try {
       final data = await rootBundle.load(_archiveAsset);
       await target.writeAsBytes(data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes), flush: true);
+      InstallTrace.add('archive', 'wrote from asset bundle ${data.lengthInBytes} bytes');
       _log('[dsh-go] using bundled runtime archive (${(data.lengthInBytes / 1048576).toStringAsFixed(1)} MiB)');
       return;
-    } catch (_) {
+    } catch (error) {
       // 没有内置包。
+      InstallTrace.error('archive', 'rootBundle.load($_archiveAsset) failed: $error');
     }
     final url = manifest['url'] as String?;
     if (url == null || url.isEmpty) {
+      InstallTrace.add('archive', 'no bundled archive and no manifest url → cannot install');
       throw StateError('no runtime archive bundled and no download url in manifest');
     }
+    InstallTrace.add('archive', 'downloading $url');
     _log('[dsh-go] downloading runtime from $url');
     final client = HttpClient();
     try {
@@ -659,6 +852,17 @@ class MacRuntimeBridge implements RuntimeBridge {
 
   /// 补齐启动需要、但 tar 里可能没有的目录与安全模式 overlay。
   Future<void> _ensureRuntimeLayout(Directory runtimeDir, Map<String, Object?> manifest) async {
+    if (_external != null) {
+      // 只读地复用用户的安装：overlay 与安全模式 patch 写在我们自己的目录里。
+      final etc = Directory('${(await _supportDir()).path}/external-etc');
+      await etc.create(recursive: true);
+      _externalEtcOverride = etc.path;
+      await File('${etc.path}/dsh-web.patch.yml').writeAsString(
+        macLaunchOverlay(runtimeDir.path, bridgePath: await _externalBridgePath(runtimeDir)),
+      );
+      await File('${etc.path}/safe-mode.patch.yml').writeAsString(macSafeOverlay);
+      return;
+    }
     final home = Directory('${runtimeDir.path}/home');
     final dshHome = Directory('${home.path}/.dsh');
     await dshHome.create(recursive: true);
@@ -713,9 +917,11 @@ class MacRuntimeBridge implements RuntimeBridge {
       // 覆盖层里写的是绝对路径：App 被移动、运行时被手工替换后，启动前都要重写，
       // 否则 dsh-app-boot 会因读不到 overlay 直接崩溃。
       await _ensureRuntimeLayout(runtimeDir, manifest);
-      // 上次退出没能收掉的引擎（崩溃、强制退出）不能占着端口。
-      await _reapStale(runtimeDir);
-      await _ensureSupportSkill(await _dshHome());
+      if (_external == null) {
+        // 上次退出没能收掉的引擎（崩溃、强制退出）不能占着端口。
+        await _reapStale(runtimeDir);
+        await _ensureSupportSkill(await _dshHome());
+      }
       final port = await _pickPort();
       _port = port;
 
@@ -744,6 +950,11 @@ class MacRuntimeBridge implements RuntimeBridge {
       await Directory(launchEnv['TMPDIR']!).create(recursive: true);
       await _services.clearQuarantine(runtimeDir);
 
+      InstallTrace.add(
+        'engine',
+        'start: external=${_external?.version ?? 'null'} home=${home.path} '
+            'runtime=${runtimeDir.path}',
+      );
       _log('[dsh-go] starting ${argv.join(' ')}');
       final process = await Process.start(
         argv.first,
@@ -752,9 +963,11 @@ class MacRuntimeBridge implements RuntimeBridge {
         workingDirectory: home.path,
       );
       _process = process;
-      try {
-        await File('${runtimeDir.path}/tmp/dsh-web.pid').writeAsString('${process.pid}');
-      } catch (_) {}
+      if (_external == null) {
+        try {
+          await File('${runtimeDir.path}/tmp/dsh-web.pid').writeAsString('${process.pid}');
+        } catch (_) {}
+      }
       _starting = false;
       _stopping = false;
 
@@ -785,7 +998,15 @@ class MacRuntimeBridge implements RuntimeBridge {
     required String home,
     required int port,
     required bool safe,
-  }) => expandMacLaunchArgs(manifest, runtimeDir: runtimeDir, home: home, port: port, safe: safe);
+  }) => expandMacLaunchArgs(
+    manifest,
+    runtimeDir: runtimeDir,
+    home: home,
+    port: port,
+    safe: safe,
+    // 复用模式：overlay 在我们自己的目录里（绝不写用户的安装）。
+    overlayDir: _external != null ? _externalOverlayDir : null,
+  );
 
   void _onLine(String line, String stream) {
     _log(line, stream);
@@ -1301,7 +1522,9 @@ List<String> expandMacLaunchArgs(
   required String home,
   required int port,
   required bool safe,
+  String? overlayDir,
 }) {
+  final overlay = overlayDir ?? '$runtimeDir/etc/dsh-app';
   final launch = manifest['launch'];
   final raw = (launch is Map ? launch['argv'] as List? : null)?.cast<Object?>() ?? const <Object?>[];
   final args = <String>[];
@@ -1316,14 +1539,14 @@ List<String> expandMacLaunchArgs(
                 '--from-default-profile',
                 'web',
                 '--patch',
-                '$runtimeDir/etc/dsh-app/safe-mode.patch.yml',
+                '$overlay/safe-mode.patch.yml',
               ]
-            : <String>['web', '--patch', '$runtimeDir/etc/dsh-app/dsh-web.patch.yml'],
+            : <String>['web', '--patch', '$overlay/dsh-web.patch.yml'],
       );
       continue;
     }
     if (value == '{SAFE_PATCH}') {
-      value = '$runtimeDir/etc/dsh-app/safe-mode.patch.yml';
+      value = '$overlay/safe-mode.patch.yml';
     }
     args.add(value);
   }
@@ -1351,7 +1574,7 @@ Future<String?> peekabooHelperPath(Directory runtimeDir) async {
 }
 
 /// 正常启动的 overlay：插件安装走镜像 + 官方源，并加载 dsh-go-bridge。
-String macLaunchOverlay(String runtimeDir, {String? peekaboo}) {
+String macLaunchOverlay(String runtimeDir, {String? peekaboo, String? bridgePath}) {
   final helper = peekaboo;
   final home = File(runtimeDir).parent.path;
   final extra = helper == null
@@ -1382,7 +1605,7 @@ String macLaunchOverlay(String runtimeDir, {String? peekaboo}) {
       - https://registry.npmjs.org
 - insert:
     - id: dsh-go-bridge
-      name: $runtimeDir/bridge/lib/index.js
+      name: ${bridgePath ?? '$runtimeDir/bridge/lib/index.js'}
 $extra''';
 }
 

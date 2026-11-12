@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/l10n.dart';
 import '../../macos/macos_support.dart';
 import '../../macos/official_dsh.dart';
+import '../../runtime/dsh_discovery.dart';
+import '../../runtime/engine_source.dart';
 import '../../performance/performance_state.dart';
 import '../../runtime/local_footprint.dart';
 import '../common/pressable.dart';
@@ -46,6 +48,7 @@ class RuntimeChoiceView extends ConsumerStatefulWidget {
     required this.onLocal,
     required this.onRemote,
     this.onOfficial,
+    this.onInstalled,
     this.leading,
   });
 
@@ -54,6 +57,9 @@ class RuntimeChoiceView extends ConsumerStatefulWidget {
 
   /// 已检测到本机官方 DSH 时，直接连它（不迁移、不装运行时）。
   final VoidCallback? onOfficial;
+
+  /// 这台设备上已经装了 DSH 核心时，直接复用它（不下载、不解压、共用它的 ~/.dsh）。
+  final ValueChanged<DiscoveredDsh>? onInstalled;
 
   /// Top-left key, as [OnboardingScaffold.leading].
   final Widget? leading;
@@ -84,6 +90,8 @@ class _RuntimeChoiceViewState extends ConsumerState<RuntimeChoiceView> {
     final suggested = light || footprint?.suggestRemote == true ? RuntimeOption.remote : RuntimeOption.local;
     final selected = _picked ?? suggested;
     final colors = DshColors.of(context);
+    // 这台设备上已装的 DSH 核心（异步扫描，命中才显示卡片）。
+    final installed = ref.watch(engineSourceProvider).activeInstalled;
 
     final String localDetail;
     var localWarn = false;
@@ -106,6 +114,18 @@ class _RuntimeChoiceViewState extends ConsumerState<RuntimeChoiceView> {
           message: l10n.localEnvChooseMessage,
         ),
         const SizedBox(height: 28),
+        if (installed case final core?) ...[
+          RuntimeOptionCard(
+            key: const ValueKey('runtime-option-installed'),
+            icon: AppIcons.terminal,
+            title: l10n.engineSourceInstalled,
+            detail: l10n.engineSourceInstalledDetail(core.version),
+            recommended: true,
+            selected: false,
+            onTap: () => widget.onInstalled?.call(core),
+          ),
+          const SizedBox(height: 12),
+        ],
         if (_official case final official?) ...[
           RuntimeOptionCard(
             key: const ValueKey('runtime-option-official'),

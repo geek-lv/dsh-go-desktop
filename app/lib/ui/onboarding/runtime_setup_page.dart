@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desktop/install_trace.dart';
 import '../../l10n/l10n.dart';
+import '../../runtime/dsh_discovery.dart';
 import '../../macos/macos_support.dart';
 import '../../macos/official_dsh.dart';
 import '../../runtime/runtime_bridge.dart';
@@ -45,6 +47,7 @@ class RuntimeSetupPage extends ConsumerStatefulWidget {
     this.choose = false,
     this.onRemote,
     this.onLocal,
+    this.onInstalled,
     this.waiting = false,
     this.leading,
   });
@@ -62,6 +65,10 @@ class RuntimeSetupPage extends ConsumerStatefulWidget {
   /// Picked 「本机」 in the choice: the caller starts the unpack and moves on
   /// while it runs. Null: this page installs and shows the progress.
   final VoidCallback? onLocal;
+
+  /// Picked 「用这台设备上已装的 DSH」: no install, the caller switches the
+  /// engine source and goes on.
+  final ValueChanged<DiscoveredDsh>? onInstalled;
 
   /// Set up while unpacking and done with it: the progress says it will go
   /// on by itself (and, when it can, that a notification will say so).
@@ -94,6 +101,10 @@ class _RuntimeSetupPageState extends ConsumerState<RuntimeSetupPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final phase = ref.read(localRuntimeProvider).status.phase;
+      InstallTrace.add(
+        'setup-page',
+        'post-frame: phase=${phase.name} asks=$_asks installRequested=$_installRequested upgrade=$_upgrade',
+      );
       if (phase == RuntimePhase.notInstalled && !_asks) _install();
     });
   }
@@ -109,6 +120,7 @@ class _RuntimeSetupPageState extends ConsumerState<RuntimeSetupPage> {
   /// Through the one entry ([runtimeInstallProvider]): a request while an
   /// unpack is on its way is that same unpack.
   void _install({bool dropKept = false}) {
+    InstallTrace.add('setup-page', 'install button/auto → runtimeInstallProvider (dropKept=$dropKept)');
     setState(() => _installRequested = true);
     // Sample the time left from the start.
     ref.read(installEtaProvider);
@@ -175,6 +187,7 @@ class _RuntimeSetupPageState extends ConsumerState<RuntimeSetupPage> {
               onLocal: widget.onLocal ?? () => _install(),
               onRemote: widget.onRemote!,
               onOfficial: () => _useOfficial(),
+              onInstalled: widget.onInstalled,
             )
           : KeyedSubtree(key: const ValueKey('progress'), child: _progress(context, state, view)),
     );

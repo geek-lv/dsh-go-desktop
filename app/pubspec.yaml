@@ -165,6 +165,12 @@ flutter:
     # 只是「本机引擎」显示未安装，引导页会提示去下载。
     - assets/runtime-windows/
     - assets/runtime-linux/
+    # DSH 核心补丁链（tooling/sync-dsh-core-assets.sh 同步自 tools/dsh-patch 与
+    # runtime/patches）。安装/更新核心发生在用户机上，那里没有仓库也没有 Python，
+    # 所以这份随 App 发；运行时解压到 <support>/后由本机引擎的 node 执行。
+    - assets/dsh-core/
+    - assets/dsh-core/patches/
+    - assets/dsh-core/locks/dsh-0.2.2-rc.1/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

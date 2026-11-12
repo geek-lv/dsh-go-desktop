@@ -4,6 +4,7 @@ import 'access_step.dart';
 import 'appearance_step.dart';
 import 'connect_page.dart';
 import 'onboarding_scaffold.dart';
+import '../../runtime/dsh_discovery.dart';
 import 'runtime_setup_page.dart';
 import 'welcome_page.dart';
 
@@ -34,6 +35,7 @@ class OnboardingFlow extends StatefulWidget {
     this.chooseRuntime = false,
     this.onRemote,
     this.onLocal,
+    this.onInstalled,
     this.onAppearanceDone,
     this.onAccessDone,
     this.onFinished,
@@ -55,6 +57,9 @@ class OnboardingFlow extends StatefulWidget {
   /// Picked 「本机」: the caller starts the unpack and moves on to
   /// [OnboardingStep.appearance]. Null: the runtime page installs itself.
   final VoidCallback? onLocal;
+
+  /// Picked 「用这台设备上已装的 DSH」：不安装，直接把引擎来源切过去。
+  final ValueChanged<DiscoveredDsh>? onInstalled;
 
   final VoidCallback? onAppearanceDone;
 
@@ -90,6 +95,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         choose: widget.chooseRuntime,
         onRemote: widget.onRemote,
         onLocal: widget.onLocal,
+        onInstalled: widget.onInstalled,
       ),
       OnboardingStep.appearance => AppearanceStepPage(onDone: widget.onAppearanceDone ?? () {}),
       OnboardingStep.access => AccessStepPage(onDone: widget.onAccessDone ?? () {}),

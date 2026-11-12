@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:dsh_client/dsh_client.dart';
 import 'package:flutter/services.dart';
 
+import '../desktop/install_trace.dart';
+
 /// Lifecycle of the on-device Linux runtime and the local DSH server.
 enum RuntimePhase {
   notInstalled,
@@ -153,6 +155,9 @@ class RuntimeStatus {
     this.token,
     this.cookie,
     this.official = false,
+    this.external = false,
+    this.externalPath,
+    this.externalSource,
     this.managedSkillGeneration,
     this.error,
     this.mode = EngineMode.normal,
@@ -192,6 +197,16 @@ class RuntimeStatus {
 
   /// 这个状态来自官方 DSH（而不是内置运行时）。
   final bool official;
+
+  /// 引擎跑的是「这台设备上已经装好的 DSH 核心」（用户自己 npm / pnpm 装的）。
+  /// App 既没有安装它，也不会写它。
+  final bool external;
+
+  /// 复用模式下那份核心的 npm 前缀。
+  final String? externalPath;
+
+  /// 复用的来源：`npm-global` / `pnpm` / `nvm` / `path` / `user` …
+  final String? externalSource;
 
   /// Native grant generation for bundled-skill writes only (runtime ready and
   /// Flutter attachment). Unknown means the
@@ -286,6 +301,9 @@ class RuntimeStatus {
       _ => null,
     },
     official: map['official'] == true,
+    external: map['external'] == true,
+    externalPath: map['externalPath'] as String?,
+    externalSource: map['externalSource'] as String?,
     managedSkillGeneration: switch (map['managedSkillGeneration']) {
       final int value when value > 0 => value,
       _ => null,
@@ -515,8 +533,21 @@ class RuntimeBridge {
       .cast<RuntimeEvent>()
       .asBroadcastStream();
 
+  /// 这个桥只给 Android（Kotlin 的 `dsh/runtime`）用。桌面端拿到它就说明
+  /// `runtimeBridgeProvider` 没被覆盖成 `MacRuntimeBridge`，接下来的每次调用
+  /// 都会抛 `MissingPluginException`——以前那个错误被 `catch (_)` 吞掉了。
+  Future<T> _call<T>(String method, Future<T> Function() body) async {
+    try {
+      return await body();
+    } catch (error, stack) {
+      InstallTrace.add('channel', 'failed on MethodChannel(dsh/runtime): $method');
+      InstallTrace.error('channel', error, stack);
+      rethrow;
+    }
+  }
+
   Future<RuntimeStatus> status() async {
-    final map = await _methods.invokeMapMethod<Object?, Object?>('getStatus');
+    final map = await _call('getStatus', () => _methods.invokeMapMethod<Object?, Object?>('getStatus'));
     return map == null ? const RuntimeStatus.unknown() : RuntimeStatus.fromMap(map);
   }
 
@@ -552,8 +583,10 @@ class RuntimeBridge {
       _methods.invokeMethod<void>('cancelManagedSkill', {'requestId': requestId});
 
   /// [dropKept]: give up what a reset kept but cannot be put back.
-  Future<void> install({bool dropKept = false}) =>
-      _methods.invokeMethod<void>('install', dropKept ? const {'dropKept': true} : null);
+  Future<void> install({bool dropKept = false}) => _call(
+    'install',
+    () => _methods.invokeMethod<void>('install', dropKept ? const {'dropKept': true} : null),
+  );
 
   /// [phoneStorage] mounts the phone's shared storage at /sdcard (needs [requestStorage] first).
   /// [mode] null keeps the current mode; [EngineMode.normal] while in safe mode starts the
@@ -685,13 +718,19 @@ class RuntimeBridge {
     }
   }
 
-  Future<void> stop() => _methods.invokeMethod<void>('stop');
+  Future<void> stop() => _call('stop', () => _methods.invokeMethod<void>('stop'));
 
   /// Deletes the runtime with everything in /root except [keep].
-  Future<void> reset({ResetKeep keep = const ResetKeep()}) => _methods.invokeMethod<void>('reset', {'keep': keep.wire});
+  Future<void> reset({ResetKeep keep = const ResetKeep()}) =>
+      _call('reset', () => _methods.invokeMethod<void>('reset', {'keep': keep.wire}));
 
-  Future<List<String>> logs({int lines = 500}) async =>
-      (await _methods.invokeListMethod<String>('getLogs', {'lines': lines})) ?? const [];
+  Future<List<String>> logs({int lines = 500}) async {
+    final logs = await _call(
+      'getLogs',
+      () => _methods.invokeListMethod<String>('getLogs', {'lines': lines}),
+    );
+    return logs ?? const [];
+  }
 
   static RuntimeEvent? _parse(Map<Object?, Object?> raw) {
     switch (raw['type']) {

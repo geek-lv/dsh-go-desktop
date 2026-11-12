@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desktop/install_trace.dart';
 import '../../launch/launch_state.dart';
 import '../../macos/mac_localizations.dart';
 import '../../runtime/local_footprint.dart';
+import '../../runtime/dsh_discovery.dart';
+import '../../runtime/engine_source.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
 import '../../share_code/guest_fs.dart';
@@ -46,6 +49,13 @@ OnboardingStep? initialOnboardingStep({
   bool hasCustomProvider = false,
 }) {
   // 已经在用「本机官方 DSH」：不需要装内置运行时，也不需要再填 Key。
+  InstallTrace.add(
+    'onboarding',
+    'decide step: official=${status.official} phase=${status.phase.name} '
+        'installed=${status.installedVersion ?? '-'} bundled=${status.bundledVersion ?? '-'} '
+        'hasApiKey=$hasApiKey welcomeSeen=${prefs.welcomeSeen} setupStep=${prefs.setupStep?.name ?? '-'} '
+        'localDeclined=${prefs.localDeclined} keySkipped=${prefs.keySkipped}',
+  );
   if (status.official) return prefs.welcomeSeen ? null : OnboardingStep.welcome;
   final installedCurrent = status.installedVersion != null && status.installedVersion == status.bundledVersion;
   final needsRuntime = switch (status.phase) {
@@ -147,6 +157,7 @@ class _RootGateState extends ConsumerState<RootGate> {
   /// The unpack, through the one entry (a second request is the first one).
   void _startUnpack() {
     // Time left is estimated from the first progress report on.
+    InstallTrace.add('onboarding', '_startUnpack: runtimeInstallProvider.install()');
     ref.read(installEtaProvider);
     unawaited(ref.read(runtimeInstallProvider.notifier).install());
     // Android 13 asks about notifications once the channels exist: now, as the
@@ -163,8 +174,18 @@ class _RootGateState extends ConsumerState<RootGate> {
     unawaited(EngineControl.ensureStarted(_container));
   }
 
+  /// 「用这台设备上已装的 DSH」：不下载、不解压，直接把引擎来源切过去，然后当作
+  /// 运行时已经就绪继续引导（会话与插件都来自用户自己的 `~/.dsh`）。
+  Future<void> _useInstalled(DiscoveredDsh core) async {
+    InstallTrace.add('onboarding', 'runtime choice: 复用已安装核心 ${core.version} @ ${core.prefix}');
+    await ref.read(engineSourceProvider.notifier).select(EngineSource.installed, prefix: core.prefix);
+    if (!mounted) return;
+    _afterRuntime();
+  }
+
   /// 「本机」: unpack in the background, set up meanwhile.
   void _chooseLocal() {
+    InstallTrace.add('onboarding', 'runtime choice: 本机 → start unpack beside setup');
     _beside = true;
     unawaited(_prefs.setSetupStep(SetupStep.appearance));
     _startUnpack();
@@ -176,6 +197,7 @@ class _RootGateState extends ConsumerState<RootGate> {
     // 桌面端（Windows / Linux）没有运行时权限概念：文件、通知、屏幕都不需要
     // 用户在系统设置里单独开启，因此整步跳过，直接走「连接模型」。
     // macOS 保留这一步——它的辅助功能 / 屏幕录制仍需要用户授权。
+    InstallTrace.add('onboarding', '_afterAppearance: skipPermissions=$isDesktopWithoutRuntimePermissions');
     if (isDesktopWithoutRuntimePermissions) {
       _afterAccess();
       return;
@@ -193,6 +215,8 @@ class _RootGateState extends ConsumerState<RootGate> {
 
   /// Everything set: home if the runtime is there, else wait for it.
   void _finishBeside() {
+    final setupRuntime = ref.read(setupRuntimeProvider);
+    InstallTrace.add('onboarding', '_finishBeside: setupRuntime=${setupRuntime.name}');
     if (ref.read(setupRuntimeProvider) != SetupRuntime.ready) {
       unawaited(_prefs.setSetupStep(SetupStep.finishing));
       _goTo(OnboardingStep.finishing);
@@ -314,7 +338,9 @@ class _RootGateState extends ConsumerState<RootGate> {
     });
 
     final Widget child;
-    if (!settings.loaded || !runtime.loaded || !prefs.loaded) {
+    // 引擎来源（自有 / 复用已装核心 / 官方）没应用完就别往下走：自动启动会用错引擎。
+    final engineSourceReady = ref.watch(engineSourceProvider).loaded;
+    if (!settings.loaded || !runtime.loaded || !prefs.loaded || !engineSourceReady) {
       child = const _Splash();
     } else {
       if (!_decided) {
@@ -340,6 +366,7 @@ class _RootGateState extends ConsumerState<RootGate> {
           onAccessDone: _afterAccess,
           onFinished: _afterFinishing,
           onRemote: _useRemote,
+          onInstalled: _useInstalled,
           onWelcomeDone: () {
             unawaited(ref.read(onboardingPrefsProvider.notifier).markWelcomeSeen());
             _chooseRuntime = runtimeStepAsks(ref.read(localRuntimeProvider).status);

@@ -22,6 +22,7 @@ import '../../state/engine_control.dart';
 import '../../state/hosts_state.dart';
 import '../../state/drawer_view_state.dart';
 import '../../state/session_attention_state.dart';
+import '../../runtime/dsh_capabilities.dart';
 import '../../state/session_deletion_state.dart';
 import '../../state/sessions_state.dart';
 import '../../state/read_list_identity.dart';
@@ -610,6 +611,13 @@ class _SessionList extends ConsumerWidget {
           messenger?.showSnackBar(SnackBar(content: Text(appL10n.shellRenameFailed)));
         }
       case 'delete':
+        // 复用别人的核心 / 官方原样时没有「会话删除」那个补丁：说清楚，别让操作静默失效。
+        if (!ref.read(engineCapabilitiesProvider).available('session-deletion')) {
+          messenger?.showSnackBar(
+            SnackBar(content: Text(appL10n.engineCapabilitySessionDeletionUnavailable)),
+          );
+          return;
+        }
         if (deletionOwner != null && deletionOwner.isCurrent(ref)) {
           await deleteSessionsFlow(context, ref, [s.sessionId], owner: deletionOwner);
         }

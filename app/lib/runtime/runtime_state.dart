@@ -3,6 +3,7 @@ import 'dart:collection';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../desktop/install_trace.dart';
 import '../state/settings_state.dart';
 import '../state/read_list_epoch.dart';
 import 'runtime_bridge.dart';
@@ -64,7 +65,11 @@ class LocalRuntimeController extends Notifier<LocalRuntimeState> {
 
   @override
   LocalRuntimeState build() {
-    _sub = _bridge.events.listen(_onEvent, onError: (_) {});
+    InstallTrace.add('runtime', 'controller built: bridge=${_bridge.runtimeType}');
+    _sub = _bridge.events.listen(_onEvent, onError: (Object error, StackTrace stack) {
+      // 事件流断了（典型：通道没有接收方）以前是完全静默的。
+      InstallTrace.error('runtime/events', error, stack);
+    });
     ref.onDispose(() => _sub?.cancel());
     unawaited(_refresh());
     return const LocalRuntimeState();
@@ -75,6 +80,11 @@ class LocalRuntimeController extends Notifier<LocalRuntimeState> {
     try {
       final status = await _bridge.status();
       if (!r.mounted) return;
+      InstallTrace.add(
+        'runtime',
+        'status: phase=${status.phase.name} installed=${status.installedVersion ?? '-'} '
+            'bundled=${status.bundledVersion ?? '-'} error=${status.error ?? '-'}',
+      );
       // Apply it before the slower log read: a status event meanwhile is newer than this.
       state = state.copyWith(status: status, loaded: true, clearProgress: status.phase != RuntimePhase.installing);
       final logs = await _bridge.logs(lines: 300);
@@ -83,7 +93,10 @@ class LocalRuntimeController extends Notifier<LocalRuntimeState> {
         ..clear()
         ..addAll(logs);
       state = state.copyWith(logs: List.unmodifiable(_logs));
-    } catch (_) {
+    } catch (error, stack) {
+      // 这里以前也是 `catch (_)`：状态取不到时界面停在「等待安装」，
+      // 日志面板一片空白，看不出到底是桥没接上还是真的没装。
+      InstallTrace.error('runtime', error, stack);
       if (r.mounted) state = state.copyWith(loaded: true);
     }
   }

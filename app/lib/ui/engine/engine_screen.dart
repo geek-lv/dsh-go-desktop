@@ -6,6 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../l10n/l10n.dart';
 import '../../macos/macos_support.dart';
 import '../../macos/phone_link_page.dart';
+import '../../desktop/install_trace.dart';
+import '../../runtime/dsh_discovery.dart';
+import '../../runtime/dsh_capabilities.dart';
+import '../../runtime/dsh_engines.dart';
+import '../../runtime/dsh_npm.dart';
+import '../../runtime/engine_source.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
 import '../../runtime/local_footprint.dart';
@@ -118,12 +124,14 @@ class EngineScreen extends ConsumerWidget {
       slivers: [
         SliverList.list(
           children: [
-            // 官方 DSH 的启停由它自己的 App 管理。
+            // 官方 DSH 的启停由它自己的 App 管理；复用别人的核心也一样（那是它的进程）。
             if (!failureCard && !status.official)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 child: EngineActions(phase: status.phase),
               ),
+            if (!missing) const _EngineSourceSection(),
+            if (!missing) const _EngineCapabilitiesSection(),
             const EngineFailureCard(padding: EdgeInsets.fromLTRB(16, 0, 16, 16)),
             const SafeModeCard(padding: EdgeInsets.fromLTRB(16, 0, 16, 16)),
             SettingsSection(
@@ -184,7 +192,7 @@ class EngineScreen extends ConsumerWidget {
               ],
             ),
             if (status.runtimeOutdated) SettingsSection(children: [_RuntimeUpdateRow(status: status)]),
-            if (!missing && !status.official)
+            if (!missing && !status.official && !status.external)
               SettingsSection(
                 children: [
                   _ResetRow(enabled: !status.phase.isBusy),
@@ -585,6 +593,230 @@ class _KeepOption extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// 引擎来源：App 自带 / 这台设备上已装的 DSH / 正在运行的官方 DSH。
+///
+/// 复用别人的核心时**没有**我们的补丁，所以在 footer 里明确说明会降级；
+/// 起不来时给一个「改用 App 自带的引擎」的出口（[EngineSourceController.revertToOwned]）。
+class _EngineSourceSection extends ConsumerStatefulWidget {
+  const _EngineSourceSection();
+
+  @override
+  ConsumerState<_EngineSourceSection> createState() => _EngineSourceSectionState();
+}
+
+class _EngineSourceSectionState extends ConsumerState<_EngineSourceSection> {
+  /// 正在安装的版本（null = 空闲）。
+  String? _installing;
+
+  Future<void> _install(DshVersionInfo info, String version) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final l10n = context.l10n;
+    setState(() => _installing = version);
+    try {
+      final result = await ref.read(dshNpmProvider).install(
+        version,
+        onLog: (line) => InstallTrace.add('npm', line),
+      );
+      ref.invalidate(engineStoreListProvider);
+      messenger?.showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.engineSourceInstalledDetail(version) +
+                (result.lostPatches.isEmpty ? '' : ' · ${l10n.engineSourceDegraded}'),
+          ),
+        ),
+      );
+    } catch (error) {
+      InstallTrace.error('npm/ui', error);
+      messenger?.showSnackBar(SnackBar(content: Text('${l10n.engineSourceNotFound} ($error)')));
+    } finally {
+      if (mounted) setState(() => _installing = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = this.ref;
+    final l10n = context.l10n;
+    final state = ref.watch(engineSourceProvider);
+    final notifier = ref.read(engineSourceProvider.notifier);
+    final installed = state.activeInstalled;
+    final official = state.official;
+    // 引擎库里已经装好的多个版本：选哪个就是升级/降级（不用重新下载）。
+    final store = ref.watch(engineStoreListProvider).value ?? const <DshEngine>[];
+    final selectedPrefix = state.source == EngineSource.installed ? installed?.prefix : null;
+    final selectedMark = Icon(AppIcons.selected, size: 18, color: Theme.of(context).colorScheme.primary);
+
+    return SettingsSection(
+      title: l10n.engineSourceTitle,
+      footer: Text(
+        state.source == EngineSource.installed ? l10n.engineSourceDegraded : l10n.engineSourceSwitchNote,
+      ),
+      children: [
+        SettingsTile(
+          icon: AppIcons.engine,
+          title: l10n.engineSourceOwned,
+          subtitle: l10n.engineSourceOwnedDetail,
+          trailing: state.source == EngineSource.owned ? selectedMark : null,
+          onTap: () => unawaited(notifier.select(EngineSource.owned)),
+        ),
+        if (state.scanning)
+          SettingsTile(
+            icon: AppIcons.thisPhone,
+            title: l10n.engineSourceInstalled,
+            subtitle: l10n.engineSourceScanning,
+          )
+        else if (installed != null)
+          SettingsTile(
+            icon: AppIcons.thisPhone,
+            title: l10n.engineSourceInstalled,
+            subtitle: l10n.engineSourceInstalledDetail(installed.version),
+            trailing: state.source == EngineSource.installed ? selectedMark : null,
+            onTap: () => unawaited(notifier.select(EngineSource.installed, prefix: installed.prefix)),
+          )
+        else
+          SettingsTile(
+            icon: AppIcons.thisPhone,
+            title: l10n.engineSourceInstalled,
+            subtitle: l10n.engineSourceNotFound,
+            onTap: () => unawaited(notifier.refresh()),
+          ),
+        if (official case final running?)
+          SettingsTile(
+            icon: AppIcons.computer,
+            title: l10n.engineSourceOfficial,
+            subtitle: l10n.engineSourceOfficialDetail(running.port),
+            trailing: state.source == EngineSource.official ? selectedMark : null,
+            onTap: () => unawaited(notifier.select(EngineSource.official)),
+          ),
+        for (final engine in store)
+          SettingsTile(
+            icon: AppIcons.engine,
+            title: 'DSH ${engine.version}',
+            subtitle: engine.patched
+                ? '${engine.source} · 补丁 ${engine.patchesOk}/${engine.patchesTotal}'
+                : '${engine.source} · 官方原样',
+            trailing: engine.path == selectedPrefix ? selectedMark : null,
+            onTap: () => unawaited(notifier.selectEngine(engine)),
+          ),
+        if (state.source != EngineSource.owned)
+          SettingsTile(
+            icon: AppIcons.back,
+            title: l10n.engineSourceRevert,
+            onTap: () => unawaited(notifier.revertToOwned()),
+          ),
+        _updateTile(context, ref),
+        _pruneTile(context, ref),
+      ],
+    );
+  }
+
+  /// 「清理旧版本」：保留当前使用 + 发版绑定 + 最新一个，其余删除并显示释放的空间。
+  Widget _pruneTile(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final store = ref.watch(engineStoreListProvider).value ?? const <DshEngine>[];
+    if (store.length < 2) return const SizedBox.shrink();
+    return SettingsTile(
+      icon: AppIcons.delete,
+      title: l10n.engineStorePruneTitle,
+      subtitle: l10n.engineStorePruneDetail(2),
+      onTap: () async {
+        final messenger = ScaffoldMessenger.maybeOf(context);
+        final state = ref.read(engineSourceProvider);
+        final bundled = ref.read(localRuntimeProvider).status.dshVersion;
+        final freed = await ref.read(engineStoreProvider).prune(
+          keep: {
+            ?state.activeInstalled?.version,
+            ?bundled,
+          },
+        );
+        ref.invalidate(engineStoreListProvider);
+        messenger?.showSnackBar(
+          SnackBar(content: Text(l10n.engineStoreFreed((freed / 1048576).round()))),
+        );
+      },
+    );
+  }
+
+  /// 「检查更新 / 安装新版本」：查 registry 的 dist-tags，比库里的版本新就给一行。
+  Widget _updateTile(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final info = ref.watch(availableDshVersionsProvider);
+    final store = ref.watch(engineStoreListProvider).value ?? const <DshEngine>[];
+    final installedNewest = store.isEmpty ? null : store.first.version;
+    return info.when(
+      loading: () => SettingsTile(
+        icon: AppIcons.download,
+        title: l10n.engineSourceTitle,
+        subtitle: l10n.engineSourceScanning,
+      ),
+      error: (error, _) => SettingsTile(
+        icon: AppIcons.download,
+        title: l10n.engineSourceTitle,
+        subtitle: '$error',
+        onTap: () => ref.invalidate(availableDshVersionsProvider),
+      ),
+      data: (versions) {
+        final latest = versions.latest;
+        if (latest == null) return const SizedBox.shrink();
+        final newer = installedNewest == null || compareVersions(latest, installedNewest) > 0;
+        if (_installing != null) {
+          return SettingsTile(
+            icon: AppIcons.download,
+            title: 'DSH $_installing',
+            subtitle: l10n.engineSourceScanning,
+          );
+        }
+        if (!newer) {
+          return SettingsTile(
+            icon: AppIcons.download,
+            title: l10n.engineSourceTitle,
+            subtitle: 'v$installedNewest',
+            onTap: () => ref.invalidate(availableDshVersionsProvider),
+          );
+        }
+        return SettingsTile(
+          icon: AppIcons.download,
+          title: l10n.engineSourceUseInstalled,
+          subtitle: 'v$latest',
+          onTap: () => unawaited(_install(versions, latest)),
+        );
+      },
+    );
+  }
+}
+
+/// 「补丁带来的功能」：缺哪些就列哪些，让用户知道哪些操作在当前引擎上不可用。
+class _EngineCapabilitiesSection extends ConsumerWidget {
+  const _EngineCapabilitiesSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final capabilities = ref.watch(engineCapabilitiesProvider);
+    final missing = capabilities.missing;
+    if (capabilities.complete) {
+      return SettingsSection(
+        title: l10n.engineCapabilitySection,
+        children: [
+          SettingsTile(icon: AppIcons.completed, title: l10n.engineCapabilityAllOk),
+        ],
+      );
+    }
+    return SettingsSection(
+      title: l10n.engineCapabilitySection,
+      footer: Text(l10n.engineSourceDegraded),
+      children: [
+        SettingsTile(
+          icon: AppIcons.warning,
+          title: l10n.engineCapabilityLost(missing.length),
+          subtitle: missing.map((c) => c.label(l10n)).join(' · '),
+        ),
+      ],
     );
   }
 }

@@ -10,6 +10,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../desktop/install_trace.dart';
 import '../../l10n/l10n.dart';
 import '../../runtime/runtime_bridge.dart';
 import '../../runtime/runtime_state.dart';
@@ -39,8 +40,15 @@ class RuntimeInstallController extends Notifier<bool> {
 
   /// [dropKept]: give up what a reset kept but cannot put back.
   Future<void> install({bool dropKept = false}) {
-    if (_pending case final pending?) return pending;
-    if (ref.read(localRuntimeProvider).status.phase == RuntimePhase.installing) return Future.value();
+    if (_pending case final pending?) {
+      InstallTrace.add('install', 'request while one is on its way: joining the running one');
+      return pending;
+    }
+    if (ref.read(localRuntimeProvider).status.phase == RuntimePhase.installing) {
+      InstallTrace.add('install', 'request ignored: phase already installing');
+      return Future.value();
+    }
+    InstallTrace.add('install', 'request accepted (dropKept=$dropKept)');
     final run = _pending = _run(dropKept);
     return run.whenComplete(() {
       if (identical(_pending, run)) _pending = null;
@@ -51,10 +59,25 @@ class RuntimeInstallController extends Notifier<bool> {
     state = false;
     // Installing means wanting it here: launches without it no longer skip setup.
     unawaited(ref.read(onboardingPrefsProvider.notifier).setLocalDeclined(false));
+    final bridge = ref.read(runtimeBridgeProvider);
+    InstallTrace.add('install', 'start: bridge=${bridge.runtimeType} dropKept=$dropKept');
     try {
       final runtime = ref.read(localRuntimeProvider.notifier);
       await (dropKept ? runtime.installDroppingKept() : runtime.install());
-    } catch (_) {
+      final status = ref.read(localRuntimeProvider).status;
+      InstallTrace.add(
+        'install',
+        'returned: phase=${status.phase.name} installed=${status.installedVersion ?? '-'} '
+            'bundled=${status.bundledVersion ?? '-'} error=${status.error ?? '-'}',
+      );
+    } catch (error, stack) {
+      // 原实现是 `catch (_)`：安装失败时什么线索都不留，界面只显示一个笼统的
+      // 「安装未完成」，排查只能靠猜。这里把真实错误落却到追踪文件。
+      InstallTrace.error('install', error, stack);
+      if (ref.mounted) {
+        final status = ref.read(localRuntimeProvider).status;
+        InstallTrace.add('install', 'after failure: phase=${status.phase.name} error=${status.error ?? '-'}');
+      }
       if (ref.mounted && ref.read(localRuntimeProvider).status.phase == RuntimePhase.notInstalled) state = true;
     }
   }
