@@ -1,3 +1,71 @@
+**最终选型（2026-11-12 实测定案）：`webview_all` 1.5.0**
+
+**一套 API 覆盖 6 平台，各平台一律使用系统自带内核，不打包任何浏览器内核。**
+
+| 平台 | 系统内核 | 说明 |
+| --- | --- | --- |
+| Windows | WebView2 | 系统 Runtime（Win11 预装） |
+| Linux | **WebKitGTK** | native 侧 `pkg_check_modules(WEBKIT REQUIRED IMPORTED_TARGET webkit2gtk-4.1)`，直接链接系统库 |
+| macOS / iOS | WKWebView | 系统内核 |
+| Android | Android WebView | 系统内核 |
+| Web | js-interop | 浏览器原生 |
+
+为什么是它（逐项实测依据）：
+
+1. **零内核**：容器内 `ldd libwebview_all_linux_plugin.so` 实际输出
+   `libwebkit2gtk-4.1.so.0 => /lib/x86_64-linux-gnu/libwebkit2gtk-4.1.so.0`——链接的是**系统库**，
+   产物仍为 **83 MB**（未增加内核体积）。这直接满足约束 C1。
+2. **可内嵌**：其 Linux 实现用 `gtk_overlay_add_overlay(overlay, container)` 把 WebKitWebView
+   叠到 Flutter 的 GTK overlay 上，**不是独立窗口**，插件岛 / 伙伴小屋 / Mermaid 都能用。
+   （对比 `atomic_webview`：桌面端明确是「run in their own native window」，满足不了内嵌。）
+3. **API 与 `webview_flutter` 同形**：`WebViewController` / `WebViewWidget` / `NavigationDelegate`
+   签名逐个比对过，迁移成本低。
+4. **质量**：pub 评分 **160/160 满分**，MIT，40 小时前发布，20K+ star 项目在用
+   （PiliPlus、Miru、SubDock、OpenHarness 等）。
+
+**已被否掉的方案**：
+
+| 方案 | 否决理由 |
+| --- | --- |
+| `webview_windows` 0.4.0 | 2 年未更新，有窗口焦点丢失缺陷（issue #230），且仅 Windows |
+| `webview_flutter_windows` 1.3.1 | 上游 fork，质量尚可，但只覆盖 Windows，仍需为 Linux 另找方案 |
+| `flutter_inappwebview_linux` | 走 **WPE WebKit**，构建时把 `libWPEWebKit-2.0.so`（约 160 MB）拷进 App 的 `lib/`，**等于随包带内核** |
+| `atomic_webview` | 系统内核符合约束，但桌面端**开独立窗口**，无法内嵌 |
+| QtWebEngine 绑定 | 内核即 Chromium；KDE 通常只有运行库无 `-dev` 头文件；GTK+Qt 双事件循环风险高 |
+| 自写 GTK 通道 | 退路。`webview_all` 已满足需求，不需要自己写 300–500 行 C++ |
+| 外部浏览器降级 | 保底路径，非主方案 |
+
+**迁移结果（已落地，提交 `841d648`）**
+
+- 删除 3 个临时适配层，共 **568 行死代码**：
+  `system_webview.dart`(188) / `system_webview_flutter.dart`(119) / `system_webview_win.dart`(261)
+- 新增 `ui/web/webview_common.dart`，只收口 3 个平台差异：
+  `androidWebViewIdOf()` / `denyAllPermissions()` / `decisionFrom()`
+- 6 个业务文件直接使用 `webview_all` 的同名类型。
+
+**API 差异（已逐个对照 pub-cache 源码修正，非猜测）**
+
+| 差异点 | webview_flutter | webview_all |
+| --- | --- | --- |
+| 导航决策 | 回调返回 `bool` | 返回 `NavigationDecision`（`navigate` / `prevent`） |
+| 主框架判定 | `WebResourceError.isMainFrame`（非空） | `isForMainFrame`（**可空**，`?? true`） |
+| JS 通道 | 位置参数 `(name, callback(String))` | 命名参数 `onMessageReceived: (JavaScriptMessage m)` |
+| Android 原生 id | `AndroidWebViewController.webViewIdentifier` | 同（来自 `webview_all_android`），需 `controller.platform is AndroidWebViewController` |
+
+**构建环境要求（NAS 容器）**：必须安装 **`libwebkit2gtk-4.1-dev`**（镜像 `dsh-go-linux-builder:2` 已含）。
+没有它时 CMake 会在 `pkg_check_modules` 处直接报
+`The following required packages were not found: webkit2gtk-4.1`。
+
+**已验证 / 未验证**
+
+| 项 | 结果 |
+| --- | --- |
+| `flutter analyze lib` | ✅ 无 error（22 条 info 级，均为既有 deprecation） |
+| `flutter build linux --release` | ✅ 通过，产物 83 MB |
+| 链接系统 WebKitGTK | ✅ `ldd` 确认指向 `/lib/x86_64-linux-gnu/libwebkit2gtk-4.1.so.0` |
+| Windows 侧编译 | ❌ **未验证**（本机无 Flutter SDK） |
+| `?token=` → 303 → `dsh-auth` cookie 链路 | ❌ **未在真机 WebView 验证**（最高优先级 PoC） |
+| Linux 桌面实际运行（KDE / GNOME） | ❌ **未验证**（容器无桌面） |
 # DSH Go 桌面三端移植方案（Windows / Linux）
 
 > 基线：本仓库 `1.0.21`（提交 `360c45f`），即 **DSH Go 的 macOS 移植版**。
@@ -505,18 +573,74 @@ docker compose run --rm builder bash tooling/build-linux.sh
 
 ## 6. 里程碑与总工期估算
 
-| 里程碑 | 内容 | 估算 |
-| --- | --- | --- |
-| M1 | 阶段 0 + 阶段 1：Windows 上能跑起来、能对话 | 4–7 天 |
-| M2 | 阶段 2 P0：通知 + 窗口 + 文件（原生） | +5–8 天 |
-| M3 | 阶段 2 P1 + 原生托盘（Windows） | +2–3 天 |
-| M4 | 系统 WebView 适配（WebView2） | +2–4 天 |
-| M5 | Linux 对齐 + 托盘双桌面（KDE/GNOME） | +10–15 天 |
-| M6 | NAS 容器构建环境（`deploy/linux-build/`） | +1–2 天（可并入 M5 起步） |
-| M7 | 打包 + CI | +3–5 天 |
+| 里程碑 | 内容 | 估算 | 状态 |
+| --- | --- | --- | --- |
+| M0 | NAS 容器构建环境（`deploy/linux-build/`） | 1–2 天 | ✅ **已完成并实测** |
+| M1 | 阶段 0 + 阶段 1：Windows 上能跑起来、能对话 | 4–7 天 | 待做 |
+| M2 | 阶段 2 P0：通知 + 窗口 + 文件（原生） | +5–8 天 | 待做 |
+| M3 | 阶段 2 P1 + 原生托盘（Windows） | +2–3 天 | 待做 |
+| M4 | 系统 WebView 适配（WebView2） | +2–4 天 | 待做 |
+| **M5** | **Linux WebKitGTK 内嵌通道（自写 GTK 插件）** | **5–8 天** | **立即要做，见 6.1** |
+| M6 | Linux 对齐 + 托盘双桌面（KDE/GNOME） | +10–15 天 | 待做 |
+| M7 | 打包 + CI（含双版本 AppImage） | +3–5 天 | 待做 |
 
 **单平台可达最小可用约 2 周；三端完整对齐约 5–7 周**（单人全职估算）。
 若 P1（桌宠、语音）延后，周期可缩短约 30%。
+
+### 6.1 M5：Linux WebKitGTK 内嵌通道（立即执行）
+
+**为什么立即做**：这是 Linux 端唯一能同时满足「零内核」与「可内嵌到 Flutter 布局」的方案。
+不做它，插件岛、伙伴小屋、Mermaid 预览在 Linux 上永久不可用。`atomic_webview` 虽然是系统内核，
+但桌面端开独立窗口，满足不了内嵌需求，**不能替代**。
+
+#### 6.1.1 技术路线（API 已核实）
+
+采用 **离屏渲染 + `FlTextureGL`** 方案。所有用到的 C API 均已对照官方头文件核实：
+
+| 用途 | API | 核实来源 |
+| --- | --- | --- |
+| 取插件注册器 | `FlPluginRegistrar` + `fl_plugin_registrar_get_texture_registrar()` / `_get_messenger()` / `_get_view()` | `shell/platform/linux/public/flutter_linux/fl_plugin_registrar.h` |
+| 注册纹理 | `fl_texture_registrar_register_texture()` / `_unregister_texture()` / `_mark_texture_frame_available()` | `fl_texture_registrar.h` |
+| 自定义 GL 纹理 | `FlTextureGL`（`G_DECLARE_DERIVABLE_TYPE`），覆写 klass 的 `populate(FlTextureGL*, uint32_t* target, uint32_t* name, uint32_t* width, uint32_t* height, GError**)` | `fl_texture_gl.h`（含官方示例） |
+| 截图取像素 | `webkit_web_view_get_snapshot()` / `webkit_web_view_get_snapshot_finish()` | WebKitGTK 2.42 `class.WebView.html` |
+| 加载 | `webkit_web_view_load_uri()` / `_load_html()` / `_load_request()` | 同上 |
+| 导航拦截 | `WebKitWebView::decide-policy` 信号 + `webkit_policy_decision_ignore()` / `_use()` | 同上（signals 列表） |
+| 加载状态 | `WebKitWebView::load-changed`（`WEBKIT_LOAD_STARTED` / `_FINISHED`）、`:estimated-load-progress` 属性 | 同上 |
+| 加载失败 | `WebKitWebView::load-failed` 信号 | 同上 |
+| JS 执行 | `webkit_web_view_evaluate_javascript()`（2.40+，`run_javascript` 已 deprecated 2.40） + `_finish()` | 同上 deprecated 标注 |
+| JS→Native 消息 | `WebKitUserContentManager` + `WebKitUserScript`（`at-document-start`）+ `script-message-received` 信号；或 `webkit_web_view_send_message_to_page()` | 同上 |
+
+**关键实现要点（务必遵守）**：
+
+1. `FlTextureGL::populate` 里的 GL 上下文已由 Flutter 设好，**直接 `glBindTexture` 即可**，
+   不要自己 `gdk_window_create_gl_context()`。纹理格式只能是 **`GL_RGBA8`**。
+2. WebKitGTK 是 GTK widget，**不需要**放进可见窗口即可截图；但必须
+   `gtk_widget_realize()` 并给它一个尺寸（`gtk_widget_set_size_request()`），否则快照为空。
+3. 用 `webkit_web_view_get_snapshot()` 取 `cairo_surface_t`，转 `GL_RGBA8` 上传纹理，
+   然后 `fl_texture_registrar_mark_texture_frame_available()` 通知 Flutter 重绘。
+4. **输入转发**是最大工作量：Flutter 的 pointer 事件需转成 GDK 事件喂给 WebView
+   （`gtk_widget_event()`）。至少要覆盖鼠标移动/按下/抬起/滚轮。中文输入法走
+   `WebKitInputMethodContext`（GTK IM 已集成），不需额外处理。
+5. 插件形态：做成 `linux/` 下的静态源文件（不必发布成 pub 包），在
+   `linux/flutter/generated_plugin_registrant.cc` 里注册。
+6. **CMake 开关** `DSH_WEBKITGTK=ON|OFF` 控制是否编译该通道——这就是 4.3.1 双版本 AppImage 的
+   构建开关，与 Dart 侧 `--dart-define=DSH_NO_WEBVIEW=true` 配套。
+
+#### 6.1.2 分步交付（每步都可独立验证）
+
+| 步骤 | 产出 | 验收标准 |
+| --- | --- | --- |
+| S1 | `linux/dsh_webview/dsh_webview_plugin.cc` 骨架：注册 `dsh/webview` 通道，`status` 返回 `{available:true, version:<webkit 版本>}` | 容器内 `flutter build linux` 通过；运行输出 `available:true`，版本号非空 |
+| S2 | `FlTextureGL` 子类 + 空白纹理注册，Dart 侧 `Texture(textureId:)` 能显示纯色 | 屏幕上出现纯色块（需真桌面或 Xvfb 截图验证） |
+| S3 | `WebKitWebView` 创建 + `load_uri` + `get_snapshot` 周期刷新（如 30 fps） | 能显示真实网页内容 |
+| S4 | 输入事件转发（鼠标 + 滚轮） | 能在页面里点击链接、滚动 |
+| S5 | `decide-policy` 导航拦截 + `load-changed` 状态 + `evaluate_javascript` | 与 `SystemWebViewController` 契约完全对齐 |
+| S6 | 接入 `ui/web/system_webview_linux.dart`，替换当前 `unavailable` 分支 | 网页模式 / 插件岛 / Mermaid 预览在 Linux 上恢复可用 |
+
+**风险提示**：S2/S3 的「快照转纹理」性能是最大不确定项。WebKit 快照是 CPU 路径
+（cairo → 像素 → 上传 GPU），高帧率下可能吃 CPU。**S3 验收时必须实测 CPU 占用**；
+若不可接受，退路是改用 `WebKitWebViewBase` 的 X11 子窗口 + `FlutterTexture` 共享纹理，
+或直接在 GTK 布局里叠加原生 `GtkNative` 窗口（非 Flutter 纹理方案）。
 
 ---
 
