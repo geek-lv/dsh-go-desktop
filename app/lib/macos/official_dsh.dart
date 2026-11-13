@@ -20,6 +20,24 @@ import 'package:yaml/yaml.dart';
 
 import '../desktop/platform_services.dart';
 
+/// 用户目录。
+///
+/// Windows 上不能直接用 `HOME`：它常常没设置，或者被 Git Bash 设成 `/c/Users/xxx`
+/// 这种 POSIX 路径——直接拿来拼 `.dsh` 会读不到凭据，于是"官方 DSH 明明在跑，
+/// 却提示没有运行"。这里优先 `USERPROFILE`，并拒绝 POSIX 形式的 HOME。
+String? desktopUserHome([Map<String, String>? environment]) {
+  final env = environment ?? Platform.environment;
+  if (Platform.isWindows) {
+    final profile = env['USERPROFILE'];
+    if (profile != null && profile.isNotEmpty) return profile;
+    final home = env['HOME'];
+    if (home != null && home.isNotEmpty && !home.startsWith('/')) return home;
+    return null;
+  }
+  final home = env['HOME'];
+  return home == null || home.isEmpty ? null : home;
+}
+
 /// 一个正在运行的官方 DSH。
 class OfficialDsh {
   const OfficialDsh({required this.port, required this.version, required this.cookie});
@@ -69,7 +87,7 @@ DshCookie mintOfficialCookie({
 
 /// 读 `~/.dsh/.credentials.yaml` 里 `client-connection/browser-session` 的密钥；没有就返回 null。
 List<int>? readBrowserSessionSecret([String? home]) {
-  final root = home ?? Platform.environment['HOME'];
+  final root = home ?? desktopUserHome();
   if (root == null) return null;
   final file = File('$root/.dsh/.credentials.yaml');
   if (!file.existsSync()) return null;
@@ -88,7 +106,7 @@ List<int>? readBrowserSessionSecret([String? home]) {
 
 /// 官方桌面版的版本（`~/.dsh/dsh-runtimes/dsh-primary-runtime/runtime.json`）。
 String? readOfficialVersion([String? home]) {
-  final root = home ?? Platform.environment['HOME'];
+  final root = home ?? desktopUserHome();
   if (root == null) return null;
   try {
     final file = File('$root/.dsh/dsh-runtimes/dsh-primary-runtime/runtime.json');

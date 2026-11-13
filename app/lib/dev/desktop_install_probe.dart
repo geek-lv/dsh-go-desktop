@@ -23,6 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderContainer;
 
 import '../desktop/install_trace.dart';
 import '../main.dart' show buildAppContainer, createDesktopRuntime;
+import '../macos/official_dsh.dart';
 import '../runtime/dsh_discovery.dart';
 import '../runtime/dsh_capabilities.dart';
 import '../runtime/dsh_engines.dart';
@@ -74,6 +75,8 @@ Future<void> _main(List<String> args) async {
   // `--engine-source`：验证「持久化的引擎来源 → 能力矩阵 → 真正启动」这条链路
   // （不点界面，用 prefs 里记的来源）。
   final checkSource = args.contains('--engine-source');
+  // `--official`：只验证「发现正在运行的官方 DSH + 读凭据 + 签 cookie」。
+  final checkOfficial = args.contains('--official');
   // `--import-official`：把官方 ~/.dsh 的对话/工作区/模型 provider 同步到 App 自带引擎。
   final importOfficial = args.contains('--import-official');
   // `--npm-install <version>`：走完整链路——npm 下载安装到引擎库 → 打补丁 → 从库里启动。
@@ -122,6 +125,13 @@ Future<void> _main(List<String> args) async {
         'plugins=${summary.plugins.length} elapsed=${summary.elapsedMs}ms');
     await InstallTrace.flush();
     exit(0);
+  }
+  if (checkOfficial) {
+    final found = await findOfficialDsh();
+    print('PROBE official: found=${found != null} port=${found?.port ?? '-'} version=${found?.version ?? '-'}');
+    print('PROBE userHome=${desktopUserHome()} secret=${readBrowserSessionSecret() != null}');
+    await InstallTrace.flush();
+    exit(found == null ? 1 : 0);
   }
   if (checkSource) {
     var source = container.read(engineSourceProvider);
