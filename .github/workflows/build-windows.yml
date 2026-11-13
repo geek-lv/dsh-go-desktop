@@ -1,0 +1,85 @@
+name: build-windows
+
+# 手动触发；改这个 workflow 本身时也跑一次（方便验证改动真的能构建）。
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-windows.yml'
+      - 'tooling/build-windows.sh'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.7
+          channel: stable
+          cache: true
+
+      # flutter_secure_storage 的 Windows 实现用到 CString/CW2A，缺 ATL 时编译报
+      # atlstr.h not found。托管 runner 不一定带这个组件，缺了就用 VS Installer 补。
+      - name: ensure ATL (Visual C++ ATL)
+        shell: pwsh
+        run: |
+          $atls = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\2022\*\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
+          if ($atls) { "ATL 已存在: $($atls[0].FullName)"; exit 0 }
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          "补装 ATL 到 $vs"
+          $setup = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
+          $p = Start-Process -FilePath $setup -ArgumentList @(
+            'modify', '--installPath', "$vs",
+            '--add', 'Microsoft.VisualStudio.Component.VC.ATL',
+            '--quiet', '--norestart', '--nocache'
+          ) -Wait -PassThru
+          "vs installer exit: $($p.ExitCode)"
+          $atls = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\2022\*\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
+          if (-not $atls) { throw 'ATL 安装失败（atlstr.h 仍不存在）' }
+
+      # 运行时归档 184 MB：按脚本/锁/补丁/桥的哈希缓存，命中就不用重建。
+      - name: Cache runtime archive
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/assets/runtime-windows/runtime-x64.tar.gz
+            runtime/.cache
+          key: runtime-win-r1-${{ hashFiles('runtime/build-runtime-desktop.sh', 'runtime/locks/**', 'runtime/patches/**', 'runtime/bridge/**', 'runtime/lib/rtbuild.py') }}
+          restore-keys: |
+            runtime-win-r1-
+
+      - name: build runtime archive
+        shell: bash
+        run: |
+          # 归档是 184 MB 的构建产物，不进 git；没有就现场建（约 3-5 分钟，有缓存更快）。
+          if [[ ! -f app/assets/runtime-windows/runtime-x64.tar.gz ]]; then
+            PYTHON=python bash runtime/build-runtime-desktop.sh --platform windows
+          fi
+          ls -lh app/assets/runtime-windows/runtime-x64.tar.gz
+          grep -q '"runtimeVersion": "desktop-win-r1"' app/assets/runtime-windows/manifest.json
+
+      - name: build zip
+        shell: bash
+        run: bash tooling/build-windows.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dsh-go-windows-zip
+          path: |
+            app/build/windows/*.zip
+            app/build/windows/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 7

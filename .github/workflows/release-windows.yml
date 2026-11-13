@@ -1,0 +1,118 @@
+name: release-windows
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布到的 tag（例如 v1.0.21）'
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-windows-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.7
+          channel: stable
+          cache: true
+
+      - name: ensure ATL (Visual C++ ATL)
+        shell: pwsh
+        run: |
+          $atls = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\2022\*\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
+          if ($atls) { "ATL 已存在: $($atls[0].FullName)"; exit 0 }
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          $setup = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
+          $p = Start-Process -FilePath $setup -ArgumentList @(
+            'modify', '--installPath', "$vs",
+            '--add', 'Microsoft.VisualStudio.Component.VC.ATL',
+            '--quiet', '--norestart', '--nocache'
+          ) -Wait -PassThru
+          "vs installer exit: $($p.ExitCode)"
+          $atls = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\2022\*\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
+          if (-not $atls) { throw 'ATL 安装失败（atlstr.h 仍不存在）' }
+
+      - name: version must match tag
+        shell: bash
+        run: |
+          tag="${{ inputs.tag || github.ref_name }}"
+          version="$(grep -m1 '^version:' app/pubspec.yaml | awk '{print $2}' | cut -d+ -f1)"
+          echo "tag=$tag version=$version"
+          if [[ "${tag#v}" != "$version" ]]; then
+            echo "::error::tag ${tag} 与 app/pubspec.yaml 的版本 ${version} 不一致"
+            exit 1
+          fi
+
+      - name: Cache runtime archive
+        uses: actions/cache@v4
+        with:
+          path: |
+            app/assets/runtime-windows/runtime-x64.tar.gz
+            runtime/.cache
+          key: runtime-win-r1-${{ hashFiles('runtime/build-runtime-desktop.sh', 'runtime/locks/**', 'runtime/patches/**', 'runtime/bridge/**', 'runtime/lib/rtbuild.py') }}
+          restore-keys: |
+            runtime-win-r1-
+
+      - name: build runtime archive
+        shell: bash
+        run: |
+          if [[ ! -f app/assets/runtime-windows/runtime-x64.tar.gz ]]; then
+            PYTHON=python bash runtime/build-runtime-desktop.sh --platform windows
+          fi
+          ls -lh app/assets/runtime-windows/runtime-x64.tar.gz
+          grep -q '"runtimeVersion": "desktop-win-r1"' app/assets/runtime-windows/manifest.json
+
+      - name: build zip
+        shell: bash
+        run: bash tooling/build-windows.sh
+
+      - name: release notes
+        shell: bash
+        run: |
+          {
+            echo '未签名构建，Windows SmartScreen 可能提示"未知发布者"，选「更多信息 → 仍要运行」。'
+            echo ''
+            echo '解压后运行 `dsh_app.exe`；本机引擎的运行时会随包携带，首次启动自动解压。'
+            echo ''
+            echo '需要 Windows 10 1809+ / x64。'
+          } > "$RUNNER_TEMP/notes.md"
+
+      - name: publish draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          shopt -s nullglob
+          assets=(app/build/windows/*.zip app/build/windows/SHA256SUMS)
+          if ((${#assets[@]} == 0)); then
+            echo "::error::没有构建产物"
+            exit 1
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release $TAG 已存在，更新资产"
+            gh release upload "$TAG" "${assets[@]}" --clobber
+          else
+            echo "创建 draft release $TAG"
+            gh release create "$TAG" "${assets[@]}" \
+              --title "DSH Go Windows ${TAG#v}" \
+              --draft \
+              --notes-file "$RUNNER_TEMP/notes.md"
+          fi
