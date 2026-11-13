@@ -32,13 +32,18 @@ jobs:
           channel: stable
           cache: true
 
+      # 同 build-windows.yml：ATL 是 flutter_secure_storage 的硬依赖，位置用 vswhere 问。
       - name: ensure ATL (Visual C++ ATL)
         shell: pwsh
         run: |
-          $atls = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\2022\*\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
-          if ($atls) { "ATL 已存在: $($atls[0].FullName)"; exit 0 }
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vswhere)) { throw "找不到 vswhere: $vswhere" }
           $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vs) { throw '没有带 C++ 工作负载的 Visual Studio' }
+          "VS: $vs"
+          $atl = Get-ChildItem "$vs\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
+          if ($atl) { "ATL 已存在: $($atl[0].FullName)"; exit 0 }
+          "没有 ATL，用 VS Installer 补装"
           $setup = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
           $p = Start-Process -FilePath $setup -ArgumentList @(
             'modify', '--installPath', "$vs",
@@ -46,8 +51,9 @@ jobs:
             '--quiet', '--norestart', '--nocache'
           ) -Wait -PassThru
           "vs installer exit: $($p.ExitCode)"
-          $atls = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\2022\*\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
-          if (-not $atls) { throw 'ATL 安装失败（atlstr.h 仍不存在）' }
+          $atl = Get-ChildItem "$vs\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
+          if (-not $atl) { throw 'ATL 安装后仍找不到 atlstr.h' }
+          "ATL 就绪: $($atl[0].FullName)"
 
       - name: version must match tag
         shell: bash
@@ -87,7 +93,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo '未签名构建，Windows SmartScreen 可能提示"未知发布者"，选「更多信息 → 仍要运行」。'
+            echo '未签名构建，Windows SmartScreen 可能提示“未知发布者”，选「更多信息 → 仍要运行」。'
             echo ''
             echo '解压后运行 `dsh_app.exe`；本机引擎的运行时会随包携带，首次启动自动解压。'
             echo ''

@@ -1,6 +1,6 @@
 name: build-windows
 
-# 手动触发；改这个 workflow 本身时也跑一次（方便验证改动真的能构建）。
+# 手动触发；改这个 workflow 或构建脚本时也跑一次（方便验证改动真的能构建）。
 on:
   workflow_dispatch:
   push:
@@ -30,16 +30,20 @@ jobs:
           channel: stable
           cache: true
 
-      # flutter_secure_storage 的 Windows 实现用到 CString/CW2A，缺 ATL 时编译报
-      # atlstr.h not found。托管 runner 不一定带这个组件，缺了就用 VS Installer 补。
+      # ATL 是 flutter_secure_storage 的 Windows 实现（CString/CW2A）的硬依赖。
+      # 托管 runner 的 VS 可能装在 "Program Files"（Enterprise）而不是
+      # "Program Files (x86)"（BuildTools），所以位置一律用 vswhere 问，别写死。
       - name: ensure ATL (Visual C++ ATL)
         shell: pwsh
         run: |
-          $atls = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\2022\*\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
-          if ($atls) { "ATL 已存在: $($atls[0].FullName)"; exit 0 }
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path $vswhere)) { throw "找不到 vswhere: $vswhere" }
           $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-          "补装 ATL 到 $vs"
+          if (-not $vs) { throw '没有带 C++ 工作负载的 Visual Studio' }
+          "VS: $vs"
+          $atl = Get-ChildItem "$vs\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
+          if ($atl) { "ATL 已存在: $($atl[0].FullName)"; exit 0 }
+          "没有 ATL，用 VS Installer 补装"
           $setup = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
           $p = Start-Process -FilePath $setup -ArgumentList @(
             'modify', '--installPath', "$vs",
@@ -47,8 +51,9 @@ jobs:
             '--quiet', '--norestart', '--nocache'
           ) -Wait -PassThru
           "vs installer exit: $($p.ExitCode)"
-          $atls = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\2022\*\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
-          if (-not $atls) { throw 'ATL 安装失败（atlstr.h 仍不存在）' }
+          $atl = Get-ChildItem "$vs\VC\Tools\MSVC\*\atlmfc\include\atlstr.h" -ErrorAction SilentlyContinue
+          if (-not $atl) { throw 'ATL 安装后仍找不到 atlstr.h' }
+          "ATL 就绪: $($atl[0].FullName)"
 
       # 运行时归档 184 MB：按脚本/锁/补丁/桥的哈希缓存，命中就不用重建。
       - name: Cache runtime archive

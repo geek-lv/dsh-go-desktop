@@ -101,6 +101,9 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
 
+  # 测试里用它的 WebViewPlatform 注入假平台（运行时由 webview_all 带上）。
+  webview_platform_interface: ^1.5.0
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

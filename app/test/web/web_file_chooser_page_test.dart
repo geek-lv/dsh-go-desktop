@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
-import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
+import 'package:webview_all_android/webview_all_android.dart';
+import 'package:webview_platform_interface/webview_platform_interface.dart';
 
 import '../chat/support/harness.dart';
 import 'support/fake_webview.dart';
@@ -36,6 +36,10 @@ class _AndroidController extends FakeWebViewController implements AndroidWebView
   _AndroidController(super.params);
 
   Future<List<String>> Function(FileSelectorParams)? selector;
+
+  // webview_all 的 Android 控制器把返回类型收窄成非空，假控制器要跟上。
+  @override
+  Future<WebViewNavigationHistory> getNavigationHistory() async => WebViewNavigationHistory();
 
   @override
   Future<void> setOnShowFileSelector(Future<List<String>> Function(FileSelectorParams)? callback) async {

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dsh_app/ui/web/web_file_chooser.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_all_android/webview_all_android.dart';
 
 const _channel = MethodChannel('test/web-files');
 const _url = 'http://127.0.0.1:3080/?token=test-only';
