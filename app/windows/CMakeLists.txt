@@ -40,6 +40,15 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
 
+# DSH: 新版 MSVC（VS 2026 / MSVC 14.5x）把 <experimental/coroutine> 的弃用检查
+# 升级成了硬错误（STL1011 / C2338）。webview_all_windows 这类基于 C++/WinRT 的
+# 插件还在用它，于是整个 Windows 构建直接失败。按 STL 自己的建议关掉这条检查。
+#
+# 这是目录级定义（add_compile_definitions 会被后续 add_subdirectory 继承），
+# 所以第三方的插件 target 也能拿到——插件的 CMakeLists 不会调用我们的
+# APPLY_STANDARD_SETTINGS，改那里够不着。
+add_compile_definitions("_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS")
+
 # Compilation settings that should be applied to most targets.
 #
 # Be cautious about adding new options here, as plugins use this function by
