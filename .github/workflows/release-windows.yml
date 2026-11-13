@@ -85,9 +85,17 @@ jobs:
           ls -lh app/assets/runtime-windows/runtime-x64.tar.gz
           grep -q '"runtimeVersion": "desktop-win-r1"' app/assets/runtime-windows/manifest.json
 
-      - name: build zip
+      - name: flutter build windows (release)
         shell: bash
-        run: bash tooling/build-windows.sh
+        run: |
+          cd app
+          flutter build windows --release
+
+      - name: package zip
+        shell: bash
+        run: |
+          ls -lh app/build/windows/x64/runner/Release | head -10
+          bash tooling/build-windows.sh --skip-build
 
       - name: release notes
         shell: bash

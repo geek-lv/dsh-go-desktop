@@ -16,9 +16,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP="$ROOT/app"
 skip_zip=0
+skip_build=0
 for arg in "$@"; do
   case "$arg" in
     --skip-zip) skip_zip=1 ;;
+    --skip-build) skip_build=1 ;;
     -h | --help) sed -n '2,16p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "build-windows: 未知参数 $arg" >&2; exit 2 ;;
   esac
@@ -54,8 +56,12 @@ if [[ -n "${warn_atl:-}" ]]; then
   echo "               Microsoft.VisualStudio.Component.VC.ATL 组件。" >&2
 fi
 
-echo "== flutter build windows --release"
-(cd "$APP" && "$flutter" build windows --release)
+if ((skip_build)); then
+  echo "== 跳过编译（--skip-build），复用已有产物"
+else
+  echo "== flutter build windows --release"
+  (cd "$APP" && "$flutter" build windows --release)
+fi
 
 out="$APP/build/windows/x64/runner/Release"
 [[ -f "$out/dsh_app.exe" ]] || die "没有产物 $out/dsh_app.exe"
