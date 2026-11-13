@@ -137,14 +137,17 @@ class DshNpm {
         '--update-notifier=false',
         '--registry',
         registry,
+        // 目标平台必须按真实平台给：macOS 是 darwin（不是 linux），且 darwin 没有
+        // libc 变体。之前写成 Windows ? win32 : linux，在 Mac 上会装成 linux 的
+        // 可选依赖，引擎直接跑不起来。
         '--os',
-        Platform.isWindows ? 'win32' : 'linux',
+        _targetOs(),
         '--cpu',
         _cpu(),
         // 注意：`glibc` 必须和 `--libc` 一起出现/一起不出现。
         // 之前只把开关放进条件里，值却总是传入——Windows 上 npm 就把它当成要装的包，
         // 去 registry 拉 `glibc@*`，E404，整次安装失败。
-        if (!Platform.isWindows) ...['--libc', 'glibc'],
+        if (Platform.isLinux) ...['--libc', 'glibc'],
       ];
       InstallTrace.add('npm', 'run ${npm.executable} ${args.join(' ')}');
       onLog?.call('安装 DSH $version（npm，registry=$registry）');
@@ -259,11 +262,22 @@ class DshNpm {
     );
   }
 
+  String _targetOs() {
+    if (Platform.isWindows) return 'win32';
+    if (Platform.isMacOS) return 'darwin';
+    return 'linux';
+  }
+
   String _cpu() {
     final arch = Platform.environment['PROCESSOR_ARCHITECTURE'] ?? '';
     if (arch.toUpperCase().contains('ARM64')) return 'arm64';
     if (Platform.isWindows) return 'x64';
-    final uname = Process.runSync('uname', ['-m']);
-    return '${uname.stdout}'.contains('aarch64') ? 'arm64' : 'x64';
+    try {
+      final uname = Process.runSync('uname', ['-m']);
+      final machine = '${uname.stdout}'.trim().toLowerCase();
+      // macOS 报 arm64，Linux 报 aarch64 —— 两种都要认。
+      if (machine.contains('arm64') || machine.contains('aarch64')) return 'arm64';
+    } catch (_) {}
+    return 'x64';
   }
 }

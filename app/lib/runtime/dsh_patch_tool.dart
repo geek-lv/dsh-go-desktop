@@ -145,6 +145,9 @@ class DshPatchTool {
       prefix.path,
       '--patches',
       patchDir.path,
+      // 用户机器上没有仓库：伴生实现（会话删除）必须显式指到解压出来的目录。
+      '--companion',
+      '${root.path}${Platform.pathSeparator}session-deletion',
       '--dsh-version',
       dshVersion,
       '--json',

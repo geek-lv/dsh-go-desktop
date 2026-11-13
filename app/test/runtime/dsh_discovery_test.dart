@@ -32,27 +32,34 @@ Future<String> fakePrefix(
 }
 
 void main() {
-  test('探测到 npm 全局目录里的核心，并读出版本与入口', () async {
+  test('探测到用户指定前缀里的核心，并读出版本与入口', () async {
     final root = await Directory.systemTemp.createTemp('dsh-disc-');
-    final appData = Directory('${root.path}${_sep}appdata');
-    await fakePrefix(appData, 'npm'); // %APPDATA%\npm\node_modules
+    final prefix = await fakePrefix(root, 'npm');
 
-    final candidates = await DshDiscovery.scan(environment: {'APPDATA': appData.path}, userHome: root.path);
+    // 用 extraPrefixes 而不是 %APPDATA%：这条用例要三个平台都成立。
+    final candidates = await DshDiscovery.scan(
+      environment: const {},
+      userHome: root.path,
+      extraPrefixes: [prefix],
+    );
     final usable = candidates.where((c) => c.usable).toList();
     expect(usable, isNotEmpty);
     final dsh = usable.first.dsh!;
     expect(dsh.version, '0.2.2-rc.1');
-    expect(dsh.source, 'npm-global');
+    expect(dsh.source, 'user');
     expect(File(dsh.binScript).existsSync(), isTrue);
   });
 
   test('不可用的前缀要给出原因，而不是静默丢弃', () async {
     final root = await Directory.systemTemp.createTemp('dsh-disc-');
-    final appData = Directory('${root.path}${_sep}appdata');
-    await fakePrefix(appData, 'npm', entry: false); // 缺 lib/bin.js
+    final prefix = await fakePrefix(root, 'npm', entry: false); // 缺 lib/bin.js
 
-    final candidates = await DshDiscovery.scan(environment: {'APPDATA': appData.path}, userHome: root.path);
-    final mine = candidates.where((c) => c.prefix.contains('npm')).toList();
+    final candidates = await DshDiscovery.scan(
+      environment: const {},
+      userHome: root.path,
+      extraPrefixes: [prefix],
+    );
+    final mine = candidates.where((c) => c.prefix == prefix).toList();
     expect(mine, isNotEmpty);
     expect(mine.every((c) => !c.usable), isTrue);
     expect(mine.first.reason, 'no-entry');
@@ -68,10 +75,9 @@ void main() {
 
   test('用户手填的前缀优先，且扫描结果去重', () async {
     final root = await Directory.systemTemp.createTemp('dsh-disc-');
-    final appData = Directory('${root.path}${_sep}appdata');
-    final prefix = await fakePrefix(appData, 'npm');
+    final prefix = await fakePrefix(root, 'npm');
     final candidates = await DshDiscovery.scan(
-      environment: {'APPDATA': appData.path},
+      environment: Platform.isWindows ? {'APPDATA': root.path} : const {},
       userHome: root.path,
       extraPrefixes: [prefix],
     );

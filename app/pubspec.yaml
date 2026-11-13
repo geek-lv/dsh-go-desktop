@@ -171,6 +171,7 @@ flutter:
     - assets/dsh-core/
     - assets/dsh-core/patches/
     - assets/dsh-core/locks/dsh-0.2.2-rc.1/
+    - assets/dsh-core/session-deletion/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
