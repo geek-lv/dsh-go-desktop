@@ -241,23 +241,50 @@ class WindowsPlatformServices extends PlatformServices {
       // netstat -ano 的 LISTENING 行形如：
       //   TCP    127.0.0.1:62680        0.0.0.0:0              LISTENING       12345
       final result = await Process.run('netstat', <String>['-ano', '-p', 'TCP']);
-      return _parseNetstat(result.stdout as String);
-    } catch (_) {
+      final listeners = _parseNetstatWithPid(result.stdout as String);
+      if (listeners.isEmpty) return const <int>[];
+      // 必须按进程名过滤：以前这里把所有回环端口都返回了，于是随便一个监听
+      // 127.0.0.1 的进程（实测是 adb 的 5037）都会被当成「正在运行的官方 DSH」，
+      // 接着签 cookie 去连它，最后报「官方 DSH 初始化失败」。
+      final names = await _processNames();
+      final want = exeNameContains.toLowerCase();
+      return <int>[
+        for (final entry in listeners)
+          if ((names[entry.pid] ?? '').toLowerCase().contains(want)) entry.port,
+      ];
+    } catch (error) {
+      InstallTrace.error('ports', 'findListenPorts failed: $error');
       return const <int>[];
     }
   }
 
-  /// 解析 netstat 输出里的回环监听端口。单独提出来便于单测。
-  static List<int> _parseNetstat(String output) {
-    final ports = <int>[];
+  /// PID → 进程名（一次 tasklist，比逐个查快）。
+  static Future<Map<int, String>> _processNames() async {
+    final out = <int, String>{};
+    try {
+      final result = await Process.run('tasklist', <String>['/FO', 'CSV', '/NH']);
+      for (final line in (result.stdout as String).split('\n')) {
+        final cols = RegExp(r'"([^"]*)"').allMatches(line).map((m) => m.group(1)!).toList();
+        if (cols.length < 2) continue;
+        final pid = int.tryParse(cols[1]);
+        if (pid != null) out[pid] = cols[0];
+      }
+    } catch (_) {}
+    return out;
+  }
+
+  /// 端口 + 所属 PID。
+  static List<({int port, int pid})> _parseNetstatWithPid(String output) {
+    final out = <({int port, int pid})>[];
     for (final line in output.split('\n')) {
       final trimmed = line.trim();
       if (!trimmed.startsWith('TCP')) continue;
       if (!trimmed.contains('LISTENING')) continue;
       final m = RegExp(r'127\.0\.0\.1:(\d+)').firstMatch(trimmed);
-      if (m != null) ports.add(int.parse(m.group(1)!));
+      final pid = int.tryParse(trimmed.split(RegExp(r'\s+')).last);
+      if (m != null && pid != null) out.add((port: int.parse(m.group(1)!), pid: pid));
     }
-    return ports;
+    return out;
   }
 
   @override
